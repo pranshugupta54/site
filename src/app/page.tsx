@@ -64,6 +64,7 @@ export default function Page() {
                 logoUrl={work.logoUrl}
                 altText={work.company}
                 title={work.company}
+                location={work.location}
                 subtitle={work.title}
                 href={work.href}
                 badges={work.badges}

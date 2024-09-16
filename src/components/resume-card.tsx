@@ -13,6 +13,7 @@ interface ResumeCardProps {
   logoUrl: string;
   altText: string;
   title: string;
+  location?: string;
   subtitle?: string;
   href?: string;
   badges?: readonly string[];
@@ -23,6 +24,7 @@ export const ResumeCard = ({
   logoUrl,
   altText,
   title,
+  location,
   subtitle,
   href,
   badges,
@@ -61,7 +63,7 @@ export const ResumeCard = ({
               <h3 className="inline-flex items-center justify-center font-semibold leading-none text-xs sm:text-sm">
                 {title}
                 {badges && (
-                  <span className="inline-flex gap-x-1">
+                  <span className="inline-flex gap-x-1 ms-1">
                     {badges.map((badge, index) => (
                       <Badge
                         variant="secondary"
@@ -84,7 +86,11 @@ export const ResumeCard = ({
                 {period}
               </div>
             </div>
-            {subtitle && <div className="font-sans text-xs">{subtitle}</div>}
+            {subtitle && (
+              <div className="font-sans text-xs">
+                {subtitle} {location && `(${location})`}
+              </div>
+            )}
           </CardHeader>
           {description && (
             <motion.div
