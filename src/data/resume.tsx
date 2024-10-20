@@ -3,14 +3,14 @@ import { HomeIcon, NotebookIcon } from "lucide-react";
 
 export const DATA = {
   name: "Pranshu Gupta",
-  initials: "DV",
+  initials: "PG",
   url: "https://pranshugupta.me",
   location: "New Delhi, India",
   locationLink: "https://www.google.com/maps/place/newdelhi",
   description:
-    "Software Engineer with a passion for building impactful solutions and contributing to open-source projects.",
+    "Software Engineer passionate about AI, backend development, competitive programming, and contributing to open-source projects.",
   summary:
-    "I'm a developer with a passion for creating efficient and impactful solutions. I focus on full-stack development, open-source projects, and code analysis, always aiming to improve how things work with modern technologies. I keep my communication clear and straightforward, and I'm constantly learning and exploring new ideas to push my skills further.",
+    "I'm a developer with a strong focus on full-stack development, AI-driven solutions, open-source contributions, and code analysis. My passion lies in creating impactful and efficient systems using modern technologies. I maintain clear, concise communication and continuously explore new ideas to enhance my skills and deliver better results. Always eager to learn and grow, I aim to push the boundaries of what’s possible in every project I work on.",
   avatarUrl: "/me.jpeg",
   skills: [
     "React",
@@ -20,7 +20,7 @@ export const DATA = {
     "Node.js",
     "Python",
     "C++",
-    "C"
+    "C",
   ],
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
@@ -71,7 +71,7 @@ export const DATA = {
       start: "June 2024",
       end: "Present",
       description:
-        "Implemented the Bitcoin discreet log contract (DLC) protocol specifications as an open source Typescript SDK. Dockerized all microservices and setup production kubernetes cluster. Architected a data lake using AWS S3 and Athena for historical backtesting of bitcoin trading strategies. Built a mobile app using react native and typescript.",
+        "Contributing to a closed-source startup by developing AI-powered tools for real-time code analysis in VSCode, improving developer productivity.",
     },
     {
       company: "The Palisadoes Foundation",
@@ -80,10 +80,22 @@ export const DATA = {
       location: "Cupertino, CA",
       title: "Software Engineer",
       logoUrl: "/palisadoes.png",
-      start: "May 2024",
+      start: "Jan 2024",
       end: "Present",
       description:
-        "Implemented a custom Kubernetes controller in Go to automate the deployment of MySQL and ProxySQL custom resources in order to enable 2,000+ internal developers to instantly deploy their app databases to production. Wrote several scripts in Go to automate MySQL database failovers while maintaining master-slave replication topologies and keeping Zookeeper nodes consistent with changes.",
+        "Improving user experience by fixing core functionality bugs, enhancing translation accuracy, and implementing timezone conversion for local times in the application. I also actively support and mentor new contributors, helping them with various aspects of the project, from onboarding to understanding and contributing to the codebase.",
+    },
+    {
+      company: "Code for GovTech",
+      badges: ["Remote"],
+      href: "http://codeforgovtech.in",
+      location: "New Delhi, IN",
+      title: "DMP Mentee 2024",
+      logoUrl: "/c4gt.png",
+      start: "June 2024",
+      end: "Sept 2024",
+      description:
+        "Contributed as a DMP Mentee, building tech solutions to support governance initiatives.",
     },
     // {
     //   company: "Nvidia",
@@ -136,7 +148,8 @@ export const DATA = {
   ],
   education: [
     {
-      school: "University School of Information, Communication & Technology (USICT)",
+      school:
+        "University School of Information, Communication & Technology (USICT)",
       href: "http://ipu.ac.in/usict/",
       degree: "Bachelor of Technology - B.Tech, Information Technology",
       logoUrl: "/ggsipu.png",
@@ -145,7 +158,7 @@ export const DATA = {
     },
     {
       school: "The Vivekanand School",
-      href: "",
+      href: "https://www.thevivekanandschool.com",
       degree: "Senior Secondary School",
       logoUrl: "/vivekanand.png",
       start: "2020",
@@ -153,141 +166,102 @@ export const DATA = {
     },
   ],
   projects: [
-    // {
-    //   title: "Chat Collect",
-    //   href: "https://chatcollect.com",
-    //   dates: "Jan 2024 - Feb 2024",
-    //   active: true,
-    //   description:
-    //     "With the release of the [OpenAI GPT Store](https://openai.com/blog/introducing-the-gpt-store), I decided to build a SaaS which allows users to collect email addresses from their GPT users. This is a great way to build an audience and monetize your GPT API usage.",
-    //   technologies: [
-    //     "Next.js",
-    //     "Typescript",
-    //     "PostgreSQL",
-    //     "Prisma",
-    //     "TailwindCSS",
-    //     "Stripe",
-    //     "Shadcn UI",
-    //     "Magic UI",
-    //   ],
-    //   links: [
-    //     {
-    //       type: "Website",
-    //       href: "https://chatcollect.com",
-    //       icon: <Icons.globe className="size-3" />,
-    //     },
-    //   ],
-    //   image: "",
-    //   video:
-    //     "https://pub-83c5db439b40468498f97946200806f7.r2.dev/chat-collect.mp4",
-    // },
-    // {
-    //   title: "Magic UI",
-    //   href: "https://magicui.design",
-    //   dates: "June 2023 - Present",
-    //   active: true,
-    //   description:
-    //     "Designed, developed and sold animated UI components for developers.",
-    //   technologies: [
-    //     "Next.js",
-    //     "Typescript",
-    //     "PostgreSQL",
-    //     "Prisma",
-    //     "TailwindCSS",
-    //     "Stripe",
-    //     "Shadcn UI",
-    //     "Magic UI",
-    //   ],
-    //   links: [
-    //     {
-    //       type: "Website",
-    //       href: "https://magicui.design",
-    //       icon: <Icons.globe className="size-3" />,
-    //     },
-    //     {
-    //       type: "Source",
-    //       href: "https://github.com/magicuidesign/magicui",
-    //       icon: <Icons.github className="size-3" />,
-    //     },
-    //   ],
-    //   image: "",
-    //   video: "https://cdn.magicui.design/bento-grid.mp4",
-    // },
-    // {
-    //   title: "llm.report",
-    //   href: "https://llm.report",
-    //   dates: "April 2023 - September 2023",
-    //   active: true,
-    //   description:
-    //     "Developed an open-source logging and analytics platform for OpenAI: Log your ChatGPT API requests, analyze costs, and improve your prompts.",
-    //   technologies: [
-    //     "Next.js",
-    //     "Typescript",
-    //     "PostgreSQL",
-    //     "Prisma",
-    //     "TailwindCSS",
-    //     "Shadcn UI",
-    //     "Magic UI",
-    //     "Stripe",
-    //     "Cloudflare Workers",
-    //   ],
-    //   links: [
-    //     {
-    //       type: "Website",
-    //       href: "https://llm.report",
-    //       icon: <Icons.globe className="size-3" />,
-    //     },
-    //     {
-    //       type: "Source",
-    //       href: "https://github.com/dillionverma/llm.report",
-    //       icon: <Icons.github className="size-3" />,
-    //     },
-    //   ],
-    //   image: "",
-    //   video: "https://cdn.llm.report/openai-demo.mp4",
-    // },
-    // {
-    //   title: "Automatic Chat",
-    //   href: "https://automatic.chat",
-    //   dates: "April 2023 - March 2024",
-    //   active: true,
-    //   description:
-    //     "Developed an AI Customer Support Chatbot which automatically responds to customer support tickets using the latest GPT models.",
-    //   technologies: [
-    //     "Next.js",
-    //     "Typescript",
-    //     "PostgreSQL",
-    //     "Prisma",
-    //     "TailwindCSS",
-    //     "Shadcn UI",
-    //     "Magic UI",
-    //     "Stripe",
-    //     "Cloudflare Workers",
-    //   ],
-    //   links: [
-    //     {
-    //       type: "Website",
-    //       href: "https://automatic.chat",
-    //       icon: <Icons.globe className="size-3" />,
-    //     },
-    //   ],
-    //   image: "",
-    //   video:
-    //     "https://pub-83c5db439b40468498f97946200806f7.r2.dev/automatic-chat.mp4",
-    // },
+    {
+      title: "Digitomize",
+      href: "https://digitomize.com",
+      dates: "2023-2024",
+      active: true,
+      description:
+        "An open-source platform that brings together coding contests and dynamic developer profiles. It helps users explore upcoming contests and create portfolios that showcase their achievements. The project quickly gained 500+ stars on GitHub in six months and is supported by Microsoft and Google for Startups.",
+      technologies: [
+        "React",
+        "Javascript",
+        "MongoDB",
+        "TailwindCSS",
+        "Daisy UI",
+        "Magic UI",
+      ],
+      links: [
+        {
+          type: "Website",
+          href: "https://chatcollect.com",
+          icon: <Icons.globe className="size-3" />,
+        },
+        {
+          type: "Source",
+          href: "https://github.com/digitomize/digitomize",
+          icon: <Icons.github className="size-3" />,
+        },
+      ],
+      image: "/digitomize_ss.png",
+      video: "",
+    },
   ],
-  hackathons: [
-    // {
-    //   title: "Hack Western 5",
-    //   dates: "November 23rd - 25th, 2018",
-    //   location: "London, Ontario",
-    //   description:
-    //     "Developed a mobile application which delivered bedtime stories to children using augmented reality.",
-    //   image:
-    //     "https://pub-83c5db439b40468498f97946200806f7.r2.dev/hackline/hack-western.png",
-    //   mlh: "https://s3.amazonaws.com/logged-assets/trust-badge/2019/mlh-trust-badge-2019-white.svg",
-    //   links: [],
-    // },
+  cp: [
+    {
+      ranking: "Meta Hacker Cup 2024",
+      platform: "",
+      description:
+        "Achieved a global ranking of 4,744th in Round 1. Advanced to Round 2, where I ranked 1,543rd globally and 273rd in India.",
+      image:
+        "https://cdn.pixabay.com/photo/2021/12/14/22/29/meta-6871457_1280.png",
+      mlh: "",
+      links: [
+        {
+          title: "View Certificate",
+          href: "https://www.facebook.com/codingcompetitions/hacker-cup/2024/certificate/324515443582808",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+    },
+    {
+      ranking: "Top 10%",
+      platform: "Leetcode",
+      description:
+        "Participated in 10+ contests and have a maximum rating of 1737.",
+      image:
+        "https://user-images.githubusercontent.com/36547915/97088991-45da5d00-1652-11eb-900f-80d106540f4f.png",
+      mlh: "",
+      links: [
+        {
+          title: "View Profile",
+          href: "https://leetcode.com/u/pranshgupta54/",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+    },
+    {
+      ranking: "3 Star",
+      platform: "Codechef",
+      description:
+        "Participated in 25+ contests and have a maximum rating of 1658.",
+      image:
+        "https://cdn.codechef.com/images/cc-logo.svg",
+      mlh: "",
+      links: [
+        {
+          title: "View Profile",
+          href: "https://www.codechef.com/users/pranshgupta54",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+    },
+    {
+      ranking: "Pupil",
+      platform: "Codeforces",
+      description:
+        "Participated in 15+ contests and have a maximum rating of 1316.",
+      image:
+        "https://cdn.iconscout.com/icon/free/png-256/free-code-forces-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-vol-2-pack-logos-icons-2944796.png",
+      mlh: "",
+      links: [
+        {
+          title: "View Profile",
+          href: "https://codeforces.com/profile/pranshgupta54",
+          icon: <Icons.globe className="size-3" />,
+        },
+      ],
+    },
     // {
     //   title: "Hack The North",
     //   dates: "September 14th - 16th, 2018",

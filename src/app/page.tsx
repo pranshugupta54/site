@@ -13,7 +13,7 @@ const BLUR_FADE_DELAY = 0.04;
 
 export default function Page() {
   return (
-    <main className="flex flex-col min-h-[100dvh] space-y-10">
+    <main className="flex flex-col min-h-[100dvh] space-y-10 mb-4">
       <section id="hero">
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="gap-2 flex justify-between">
@@ -118,7 +118,7 @@ export default function Page() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-foreground text-background px-3 py-1 text-sm">
-                  My Projects
+                  My Project(s)
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
                   Check out my latest work
@@ -131,7 +131,7 @@ export default function Page() {
               </div>
             </div>
           </BlurFade>
-          {/* <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-w-[800px] mx-auto">
             {DATA.projects.map((project, id) => (
               <BlurFade
                 key={project.title}
@@ -150,50 +150,49 @@ export default function Page() {
                 />
               </BlurFade>
             ))}
-          </div> */}
+          </div>
         </div>
       </section>
-      <section id="hackathons">
+      <section id="competitive_programming">
         <div className="space-y-12 w-full py-12">
           <BlurFade delay={BLUR_FADE_DELAY * 13}>
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-foreground text-background px-3 py-1 text-sm">
-                  Hackathons
+                  Competitive Programming
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  I like building things
+                  I like to solve problems
                 </h2>
                 <p className="text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  During my time in university, I attended{" "}
-                  {DATA.hackathons.length}+ hackathons. People from around the
-                  country would come together and build incredible things in 2-3
-                  days. It was eye-opening to see the endless possibilities
-                  brought to life by a group of motivated and passionate
-                  individuals.
+                  I&apos;ve participated in numerous competitive programming contests
+                  and coding challenges. These experiences have sharpened my
+                  problem-solving skills and algorithmic thinking. From solving
+                  complex puzzles to optimizing code for efficiency, I&apos;ve honed
+                  my ability to tackle diverse computational problems under
+                  time constraints.
                 </p>
               </div>
             </div>
           </BlurFade>
-          {/* <BlurFade delay={BLUR_FADE_DELAY * 14}>
+          <BlurFade delay={BLUR_FADE_DELAY * 14}>
             <ul className="mb-4 ml-4 divide-y divide-dashed border-l">
-              {DATA.hackathons.map((project, id) => (
+              {DATA.cp.map((project, id) => (
                 <BlurFade
-                  key={project.title + project.dates}
+                  key={project.platform}
                   delay={BLUR_FADE_DELAY * 15 + id * 0.05}
                 >
                   <HackathonCard
-                    title={project.title}
+                    title={project?.ranking}
                     description={project.description}
-                    location={project.location}
-                    dates={project.dates}
+                    platform={project.platform}
                     image={project.image}
                     links={project.links}
                   />
                 </BlurFade>
               ))}
             </ul>
-          </BlurFade> */}
+          </BlurFade>
         </div>
       </section>
       <section id="contact">
@@ -214,11 +213,30 @@ export default function Page() {
                 >
                   with a direct question on twitter
                 </Link>{" "}
-                and I&apos;ll respond whenever I can. I will ignore all
-                soliciting.
+                and I&apos;ll respond whenever I can.
+                <br/>
+                Also, check out this{" "}
+                <Link
+                  href="https://nohello.net/"
+                  className="text-blue-500 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  no hi/hello website
+                </Link>.
               </p>
             </div>
           </BlurFade>
+        </div>
+      </section>
+      <section id="footer" className="mb-4">
+        <div className="items-center justify-center gap-4 p-4 text-center md:px-6 w-full">
+        <p className="text-sm text-muted-foreground">
+          Thanks to <Link href="https://github.com/dillionverma" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">Dillion Verma</Link> for the public template. 
+          [<Link href="https://github.com/dillionverma/portfolio" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            Source
+          </Link>]
+        </p>
         </div>
       </section>
     </main>
