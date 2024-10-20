@@ -13,6 +13,7 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/me.jpeg" },
   metadataBase: new URL(DATA.url),
   title: {
     default: DATA.name,
