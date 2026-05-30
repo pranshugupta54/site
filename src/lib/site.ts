@@ -71,25 +71,6 @@ export const SITE = {
 
   skills: ["TypeScript", "JavaScript", "C++", "C", "Node", "Express", "React", "MongoDB", "Firebase", "Jest"],
 
-  // static fallbacks; live values override these when APIs are wired
-  stats: {
-    commitsThisYear: 214,
-    codeHours: 1205,
-    publicRepos: 49,
-    streakDays: 14,
-    topLangs: [
-      { name: "JavaScript", pct: 46 },
-      { name: "TypeScript", pct: 15 },
-    ],
-    // time-of-day rhythm (from WakaTime), percentages
-    rhythm: [
-      { label: "morning", pct: 7 },
-      { label: "daytime", pct: 36 },
-      { label: "evening", pct: 42 },
-      { label: "night", pct: 16 },
-    ],
-  },
-
   version: "1.0.0",
 } as const;
 

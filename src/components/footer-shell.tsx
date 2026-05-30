@@ -251,21 +251,10 @@ export function FooterShell() {
           addLine("res", "worklog + notes → /log");
           break;
         case "gh":
-          addLine(
-            "res",
-            `commits this year   ${SITE.stats.commitsThisYear}
-streak              ${SITE.stats.streakDays} days
-public repos        ${SITE.stats.publicRepos}
-top lang            ${SITE.stats.topLangs[0]?.name ?? "TypeScript"}`
-          );
+          addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);
           break;
         case "rhythm":
-          addLine(
-            "res",
-            SITE.stats.rhythm
-              .map((r) => `${r.label.padEnd(8)} ${"█".repeat(Math.round(r.pct / 4))} ${r.pct}%`)
-              .join("\n")
-          );
+          addLine("res", "live coding stats (wakatime) are up on the page.");
           break;
         case "funfact":
           addLine("res", SITE.funFact);
