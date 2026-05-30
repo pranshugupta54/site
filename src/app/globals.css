@@ -2,143 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ----------------------------------------------------------------------------
+   Skins × themes. Two independent axes on <html>:
+     data-skin  = editorial | mono | serif
+     data-theme = light | dark
+   Tokens: --bg --fg --muted --line --accent --mark --card
+   Fonts:  --font-display --font-body --font-mono  (families injected by next/font)
+---------------------------------------------------------------------------- */
 @layer base {
-    :root {
-      --background: 0 0% 100%;
-      --foreground: 210 11.1% 3.53%;
-
-      --card: 0 0% 100%;
-      --card-foreground: 210 11.1% 3.53%;
-
-      --popover: 0 0% 100%;
-      --popover-foreground: 210 11.1% 3.53%;
-
-      --primary: 0 0% 9%;
-      --primary-foreground: 0 0% 98%;
-
-      --secondary: 0 0% 96.1%;
-      --secondary-foreground: 0 0% 9%;
-
-      --muted: 0 0% 96.1%;
-      --muted-foreground: 0 0% 45.1%;
-
-      --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
-
-      --border: 0 0% 89.8%;
-      --input: 0 0% 89.8%;
-      --ring: 0 0% 3.9%;
-
-      --radius: 0.5rem;
-    }
-
-    .dark {
-      --background: 210 11.1% 3.53%;
-      --foreground: 0 0% 98%;
-
-      --card: 210 11.1% 3.53%;
-      --card-foreground: 0 0% 98%;
-
-      --popover: 210 11.1% 3.53%;
-      --popover-foreground: 0 0% 98%;
-
-      --primary: 0 0% 98%;
-      --primary-foreground: 0 0% 9%;
-
-      --secondary: 0 0% 14.9%;
-      --secondary-foreground: 0 0% 98%;
-
-      --muted: 0 0% 14.9%;
-      --muted-foreground: 0 0% 63.9%;
-
-      --accent: 0 0% 14.9%;
-      --accent-foreground: 0 0% 98%;
-
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
-
-      --border: 0 0% 14.9%;
-      --input: 0 0% 14.9%;
-      --ring: 0 0% 83.1%;
-    }
+  :root {
+    /* sensible default = editorial / light, so first paint is correct */
+    --bg: #faf6ee;
+    --fg: #211c16;
+    --muted: #6f675b;
+    --line: #e6ddcd;
+    --accent: #c2410c;
+    --mark: #fbe3c0;
+    --card: #f3ecdd;
+    --font-display: var(--font-fraunces), Georgia, serif;
+    --font-body: var(--font-newsreader), Georgia, serif;
+    --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+    --radius: 0.5rem;
   }
 
-  @layer base {
-    * {
-      @apply border-border;
-    }
-    body {
-      @apply bg-background text-foreground;
-    }
+  /* ---- EDITORIAL (A) — warm cream, Fraunces + Newsreader ---- */
+  [data-skin="editorial"] {
+    --bg: #faf6ee; --fg: #211c16; --muted: #6f675b; --line: #e6ddcd;
+    --accent: #c2410c; --mark: #fbe3c0; --card: #f3ecdd;
+    --font-display: var(--font-fraunces), Georgia, serif;
+    --font-body: var(--font-newsreader), Georgia, serif;
+    --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  }
+  [data-skin="editorial"][data-theme="dark"] {
+    --bg: #16130f; --fg: #ece4d6; --muted: #9b9183; --line: #2c2620;
+    --accent: #f08a4b; --mark: #3a2a16; --card: #1e1a14;
   }
 
-  h3 code {
-    @apply !text-lg md:!text-xl;
+  /* ---- MONO (B) — quiet, all JetBrains Mono ---- */
+  [data-skin="mono"] {
+    --bg: #f4f1ea; --fg: #1c1a16; --muted: #7a7468; --line: #e1dac9;
+    --accent: #1f6f54; --mark: #cfe7dc; --card: #e7e1d4;
+    --font-display: var(--font-jetbrains), ui-monospace, monospace;
+    --font-body: var(--font-jetbrains), ui-monospace, monospace;
+    --font-mono: var(--font-jetbrains), ui-monospace, monospace;
   }
-  
-  pre {
-    @apply !px-0 rounded-lg overflow-x-auto py-4
-  }
-   
-  pre [data-line] {
-    @apply px-4
+  [data-skin="mono"][data-theme="dark"] {
+    --bg: #141310; --fg: #e7e2d6; --muted: #928c7f; --line: #29251f;
+    --accent: #62c79e; --mark: #1c2f27; --card: #1d1a15;
   }
 
-  code {
-    @apply text-sm md:text-base !leading-loose;
+  /* ---- SERIF (C) — Instrument Serif display + Geist body ---- */
+  [data-skin="serif"] {
+    --bg: #f7f5f1; --fg: #1b1a17; --muted: #777267; --line: #e7e2d8;
+    --accent: #3b5bdb; --mark: #dfe5ff; --card: #ebe7dd;
+    --font-display: var(--font-instrument), Georgia, serif;
+    --font-body: var(--font-geist-sans), system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   }
-  
-  pre > code {
-    counter-reset: line;
+  [data-skin="serif"][data-theme="dark"] {
+    --bg: #13120f; --fg: #eae6dd; --muted: #928d82; --line: #272420;
+    --accent: #8aa0ff; --mark: #1d2238; --card: #1c1a15;
   }
-  
-  code[data-theme*=" "],
-  code[data-theme*=" "] span {
-    color: var(--shiki-light);
-    background-color: var(--shiki-light-bg);
+
+  * { border-color: var(--line); }
+  html { font-size: 87.5%; scroll-behavior: smooth; } /* 14px root — shrinks the whole rem scale */
+  html[data-skin="mono"] { font-size: 81.25%; } /* mono renders heavier, go smaller */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
   }
-   
-  @media (prefers-color-scheme: dark) {
-    code[data-theme*=" "],
-    code[data-theme*=" "] span {
-      color: var(--shiki-dark);
-      background-color: var(--shiki-dark-bg);
-    }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    padding-bottom: 3.5rem; /* clearance for the fixed footer shell bar */
+    transition: background 0.4s ease, color 0.4s ease;
+    font-variant-numeric: tabular-nums;
   }
-  
-  code[data-line-numbers] {
-    counter-reset: line;
-  }
-  
-  code[data-line-numbers] > [data-line]::before {
-    counter-increment: line;
-    content: counter(line);
-    @apply inline-block w-4 mr-4 text-right text-gray-500;
-  }
- 
-  code {
-    counter-reset: line;
-  }
- 
-  code > [data-line]::before {
-  counter-increment: line;
-  content: counter(line);
- 
-  /* Other styling */
-  display: inline-block;
-  width: 1rem;
-  margin-right: 2rem;
-  text-align: right;
-  color: gray;
+  ::selection { background: var(--mark); }
 }
- 
-code[data-line-numbers-max-digits="2"] > [data-line]::before {
-  width: 2rem;
-}
- 
-code[data-line-numbers-max-digits="3"] > [data-line]::before {
-  width: 3rem;
+
+/* animated marker highlight on key words */
+@layer components {
+  .mark {
+    position: relative;
+    white-space: nowrap;
+    padding: 0 0.05em;
+  }
+  .mark::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: 0.06em;
+    height: 0.6em;
+    background: var(--mark);
+    z-index: -1;
+    transform: scaleX(0);
+    transform-origin: left;
+    border-radius: 2px;
+    animation: mark-in 0.7s 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark::before { animation: none; transform: scaleX(1); }
+  }
+  @keyframes mark-in { to { transform: scaleX(1); } }
+
+  /* drawn signature */
+  .sig-path {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: draw 2.4s 0.3s ease forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .sig-path { animation: none; stroke-dashoffset: 0; }
+  }
 }

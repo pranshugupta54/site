@@ -1,73 +1,39 @@
-import Navbar from "@/components/navbar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { DATA } from "@/data/resume";
-import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
+import { Fraunces, Newsreader, JetBrains_Mono, Instrument_Serif } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { AppearanceProvider, NO_FLASH_SCRIPT } from "@/components/providers";
+import { Tofu } from "@/components/tofu";
+import { FooterShell } from "@/components/footer-shell";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", adjustFontFallback: false });
+const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", display: "swap", adjustFontFallback: false });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
+const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-instrument", display: "swap", adjustFontFallback: false });
 
 export const metadata: Metadata = {
+  title: { default: SITE.name, template: `%s · ${SITE.name}` },
+  description: SITE.bio,
   icons: { icon: "/me.jpeg" },
-  metadataBase: new URL(DATA.url),
-  title: {
-    default: DATA.name,
-    template: `%s | ${DATA.name}`,
-  },
-  description: DATA.description,
-  openGraph: {
-    title: `${DATA.name}`,
-    description: DATA.description,
-    url: DATA.url,
-    siteName: `${DATA.name}`,
-    locale: "en_US",
-    type: "website",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  twitter: {
-    title: `${DATA.name}`,
-    card: "summary_large_image",
-  },
-  verification: {
-    google: "",
-    yandex: "",
-  },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const fontVars = [fraunces, newsreader, jetbrains, instrument, GeistSans, GeistMono]
+    .map((f) => f.variable)
+    .join(" ");
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased max-w-2xl mx-auto py-12 sm:py-24 px-6",
-          fontSans.variable
-        )}
-      >
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <TooltipProvider delayDuration={0}>
-            {children}
-            <Navbar />
-          </TooltipProvider>
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning className={fontVars}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
+      </head>
+      <body className="font-body antialiased">
+        <AppearanceProvider>
+          {children}
+          <Tofu />
+          <FooterShell />
+        </AppearanceProvider>
       </body>
     </html>
   );
