@@ -59,17 +59,9 @@ export function Hero() {
         </div>
       </div>
 
-      <svg className="mt-5 h-9 w-36" viewBox="0 0 180 56" aria-hidden="true">
-        <path
-          d="M6 40 C 14 8, 22 8, 24 34 C 26 14, 34 14, 36 36 C 44 6, 52 44, 64 22 C 70 12, 70 40, 78 34 C 90 26, 86 12, 96 16 C 104 19, 92 38, 104 40 C 116 42, 120 16, 132 18 C 144 20, 130 42, 144 38 C 158 34, 156 22, 168 26"
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="sig-path"
-        />
-      </svg>
+      <div className="sig mt-5" aria-hidden="true">
+        {SITE.name}
+      </div>
 
       <Lead />
       <p className="mt-3 max-w-[46ch] text-sm text-muted">{SITE.bio}</p>
