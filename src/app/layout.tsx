@@ -15,9 +15,19 @@ const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", variabl
 const signature = Sassy_Frass({ subsets: ["latin"], weight: "400", variable: "--font-signature", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
+  ),
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.bio,
   icons: { icon: "/me.jpeg" },
+  openGraph: { title: SITE.name, description: SITE.bio, type: "website" },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.name,
+    description: SITE.bio,
+    creator: "@pranshgupta54",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

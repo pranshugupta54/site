@@ -254,7 +254,7 @@ export function FooterShell() {
           addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);
           break;
         case "funfact":
-          addLine("res", SITE.funFact);
+          addLine("res", SITE.funFacts[Math.floor(Math.random() * SITE.funFacts.length)]);
           break;
         case "clock":
           addLine("res", new Date().toLocaleTimeString("en-GB", { timeZone: SITE.timezone, hour12: false }) + " IST");
