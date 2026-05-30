@@ -16,12 +16,6 @@ export const SITE = {
   // lead line; the word in <mark> gets the animated marker highlight
   lead: "I build {products} people want — backend that holds up, ui that feels good.",
   bio: "mainly backend, drawn to ui/ux and a bit of frontend. i care about things people actually use, and the small details most skip.",
-  funFacts: [
-    "there are two ways to write error-free programs; only the third one works.",
-    "codeforces says i'm a pupil. the pupil disagrees.",
-    "i debug by adding console.logs and slowly removing my dignity.",
-    "this site's mascot got redesigned six times before settling on a loaf of tofu.",
-  ],
 
   socials: {
     github: { label: "github", url: "https://github.com/pranshugupta54" },

@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
 import { SITE } from "@/lib/site";
+import funfacts from "@/data/funfacts.json";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -253,9 +254,15 @@ export function FooterShell() {
         case "gh":
           addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);
           break;
-        case "funfact":
-          addLine("res", SITE.funFacts[Math.floor(Math.random() * SITE.funFacts.length)]);
+        case "funfact": {
+          const local = () => funfacts[Math.floor(Math.random() * funfacts.length)];
+          const id = addLine("res", "fetching a tech fact…");
+          fetch("https://v2.jokeapi.dev/joke/Programming?type=single&safe-mode")
+            .then((r) => r.json())
+            .then((j) => updateLine(id, j && !j.error && j.joke ? j.joke : local()))
+            .catch(() => updateLine(id, local()));
           break;
+        }
         case "clock":
           addLine("res", new Date().toLocaleTimeString("en-GB", { timeZone: SITE.timezone, hour12: false }) + " IST");
           break;

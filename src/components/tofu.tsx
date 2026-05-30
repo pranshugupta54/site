@@ -4,20 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useMotionValue, animate, useReducedMotion } from "framer-motion";
 import framesData from "@/data/tofu-frames.json";
+import quips from "@/data/quips.json";
 import { Scramble } from "@/components/scramble";
 
 const FRAMES = framesData.frames as Record<string, string[]>;
 const HOP = (framesData.hop as string[][]).map((f) => f.join("\n"));
 const F = (k: string) => (FRAMES[k] ?? FRAMES.idle).join("\n");
-
-const QUIPS = [
-  "you found me. that's basically friendship now.",
-  "click me — i'll show you my worklog.",
-  "open the footer shell, type 'snake'. ruin your productivity.",
-  "i'd offer you tea but i'm made of text.",
-  "47 things on my todo. talking to you is not one of them. hi though.",
-  "i deployed this at an ungodly hour. you're welcome.",
-];
 
 const PXW = 84;
 const PXH = 58;
@@ -224,10 +216,10 @@ export function Tofu() {
     }
   };
   const pickQuip = () => {
-    let i = Math.floor(Math.random() * QUIPS.length);
-    if (QUIPS.length > 1) while (i === lastQuip.current) i = Math.floor(Math.random() * QUIPS.length);
+    let i = Math.floor(Math.random() * quips.length);
+    if (quips.length > 1) while (i === lastQuip.current) i = Math.floor(Math.random() * quips.length);
     lastQuip.current = i;
-    setQuip(QUIPS[i]);
+    setQuip(quips[i]);
   };
   const onEnter = () => {
     hovering.current = true;
