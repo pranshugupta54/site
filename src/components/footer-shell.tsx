@@ -16,7 +16,7 @@ type OutputLine = {
 
 const SNAKE_W = 34;
 const SNAKE_H = 12;
-const CHIPS = ["help", "projects", "gh", "rhythm", "snake", "theme"];
+const CHIPS = ["help", "projects", "gh", "snake", "theme"];
 
 const MIN_H = 200;
 const DEFAULT_H = 440;
@@ -231,7 +231,7 @@ export function FooterShell() {
           addLine(
             "res",
             `commands:
-  about · projects · writing · gh · rhythm
+  about · projects · writing · gh
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif
@@ -252,9 +252,6 @@ export function FooterShell() {
           break;
         case "gh":
           addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);
-          break;
-        case "rhythm":
-          addLine("res", "live coding stats (wakatime) are up on the page.");
           break;
         case "funfact":
           addLine("res", SITE.funFact);

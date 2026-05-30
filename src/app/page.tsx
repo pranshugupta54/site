@@ -1,7 +1,8 @@
 import { Hero } from "@/components/hero";
 import { Sections, Connect } from "@/components/sections";
 import { GitHubPanel } from "@/components/github-panel";
-import { CodingRhythm } from "@/components/coding-rhythm";
+
+export const revalidate = 3600; // refresh live GitHub data hourly
 
 export default function Page() {
   return (
@@ -9,7 +10,6 @@ export default function Page() {
       <Hero />
       <Sections />
       <GitHubPanel />
-      <CodingRhythm />
       <Connect />
     </main>
   );

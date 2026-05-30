@@ -8,6 +8,7 @@ const COLS = 30; // weeks shown in the heatmap
 type Day = { contributionCount: number };
 type Week = { contributionDays: Day[] };
 type GraphQLResponse = {
+  errors?: { message: string }[];
   data?: {
     user?: {
       followers?: { totalCount?: number };
@@ -46,16 +47,27 @@ export async function getGithub(login = SITE.handle): Promise<Github | null> {
   try {
     const res = await fetch(GQL, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        // GitHub rejects requests without a User-Agent (403) — required.
+        "User-Agent": "pranshugupta54-portfolio",
+      },
       body: JSON.stringify({
         query,
         variables: { login, from: from.toISOString(), to: now.toISOString() },
       }),
-      next: { revalidate: 3600 },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error("[github] HTTP", res.status, await res.text().catch(() => ""));
+      return null;
+    }
 
     const json = (await res.json()) as GraphQLResponse;
+    if (json.errors?.length) {
+      console.error("[github] graphql error:", json.errors[0]?.message);
+      return null;
+    }
     const user = json.data?.user;
     const cal = user?.contributionsCollection?.contributionCalendar;
     if (!user || !cal) return null;
