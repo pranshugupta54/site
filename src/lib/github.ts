@@ -27,6 +27,26 @@ export type Github = {
   streak: number;
 };
 
+// Live star count for a repo ("owner/name"). Returns null on failure.
+export async function getRepoStars(repo: string): Promise<number | null> {
+  const token = process.env.GITHUB_TOKEN;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: {
+        "User-Agent": "pranshugupta54-portfolio",
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { stargazers_count?: number };
+    return typeof json.stargazers_count === "number" ? json.stargazers_count : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getGithub(login = SITE.handle): Promise<Github | null> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return null;

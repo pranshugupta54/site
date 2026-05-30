@@ -12,7 +12,7 @@ export function AppearanceSwitcher() {
         title="switch skin"
         className="rounded-full border border-line px-2.5 py-1 text-muted transition-colors hover:text-fg"
       >
-        ◍ {skin}
+        ◍<span className="hidden sm:inline"> {skin}</span>
       </button>
       <button
         type="button"

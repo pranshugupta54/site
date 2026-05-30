@@ -1,5 +1,6 @@
 import { SITE } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
+import { getRepoStars } from "@/lib/github";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +13,8 @@ function H({ children }: { children: React.ReactNode }) {
 const META = "shrink-0 whitespace-nowrap font-mono text-xs text-muted";
 const LINK = "transition-colors hover:text-accent";
 
-export function Sections() {
+export async function Sections() {
+  const dgStars = await getRepoStars("digitomize/digitomize");
   return (
     <section className="text-sm">
       <H>Experience</H>
@@ -44,9 +46,15 @@ export function Sections() {
               {"users" in p && p.users ? (
                 <span className="ml-2 font-mono text-[11px] text-accent">{p.users}</span>
               ) : null}
-              {"stars" in p && p.stars ? (
-                <span className="ml-1.5 font-mono text-[11px] text-accent">★ {p.stars}</span>
-              ) : null}
+              {(() => {
+                const live = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
+                const stars = live ?? ("stars" in p ? p.stars : null);
+                return stars ? (
+                  <span className="ml-1.5 font-mono text-[11px] text-accent">
+                    ★ {(Math.floor(stars / 100) * 100).toLocaleString()}+
+                  </span>
+                ) : null;
+              })()}
               <span className="text-muted"> — {p.blurb}</span>
             </span>
             <a href={p.href} target="_blank" rel="noreferrer" className={`font-mono text-muted ${LINK}`}>
