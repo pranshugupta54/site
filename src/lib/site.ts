@@ -7,7 +7,7 @@ export const SITE = {
   role: "founding engineer @ traycer",
   location: "India", // TODO: set your city if you want it shown
   timezone: "Asia/Kolkata",
-  email: "pranshu@traycer.ai",
+  email: "pranshgupta54@gmail.com",
   dob: "2004-03-05", // 5 March 2004
 
   // README cycles these — used by the hero greeting rotator
