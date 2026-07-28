@@ -1,6 +1,6 @@
 # Pranshu's portfolio — agent context
 
-Custom minimal portfolio for **Pranshu Gupta** (founding engineer @ Traycer · GitHub `pranshugupta54` · X `@pranshgupta54` · pranshgupta54@gmail.com). Built from scratch to replace the old dillionverma template. Deploys to **Vercel from `main`**. **npm only** (no pnpm).
+Custom minimal portfolio for **Pranshu Gupta** (building @ Traycer AI · GitHub `pranshugupta54` · X `@pranshgupta54` · pranshgupta54@gmail.com). Built from scratch to replace the old dillionverma template. Deploys to **Vercel from `main`**. **npm only** (no pnpm).
 
 Context is split into `docs/` (imported below). Edit the relevant file; keep each focused.
 

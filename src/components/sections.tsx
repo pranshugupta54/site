@@ -19,22 +19,30 @@ export async function Sections() {
     <section className="text-sm">
       <H>Experience</H>
       <ul>
-        {SITE.experience.map((e) => (
-          <li key={e.org} className="flex items-baseline justify-between gap-3 py-1.5">
-            <span>
-              {e.role}{" "}
-              <span className="text-muted">
-                @{" "}
-                <a href={e.href} target="_blank" rel="noreferrer" className={LINK}>
-                  {e.org}
-                </a>
+        {SITE.experience.map((e) => {
+          const stat = "stat" in e ? e.stat : null;
+          const place = "place" in e ? e.place : null;
+          return (
+            <li key={e.org} className="flex items-baseline justify-between gap-3 py-1.5">
+              <span>
+                {e.role}{" "}
+                <span className="text-muted">
+                  @{" "}
+                  <a href={e.href} target="_blank" rel="noreferrer" className={LINK}>
+                    {e.org}
+                  </a>
+                </span>
+                {stat ? <span className="ml-2 font-mono text-[11px] text-accent">{stat}</span> : null}
+                {place ? (
+                  <span className="ml-1.5 font-mono text-[11px] text-muted">· {place}</span>
+                ) : null}
               </span>
-            </span>
-            <span className={META}>
-              {e.start} – {e.end}
-            </span>
-          </li>
-        ))}
+              <span className={META}>
+                {e.start} – {e.end}
+              </span>
+            </li>
+          );
+        })}
       </ul>
 
       <H>Projects</H>

@@ -243,7 +243,7 @@ export function FooterShell() {
           break;
         case "about":
           addLine("res", SITE.bio);
-          addLine("res", `${SITE.role} — building systems that feel inevitable.`);
+          addLine("res", `${SITE.role} — systems that feel inevitable.`);
           break;
         case "projects":
           addLine("res", SITE.projects.map((p) => `  ${p.name.padEnd(14)} — ${p.blurb}`).join("\n"));

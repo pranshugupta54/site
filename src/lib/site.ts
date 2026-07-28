@@ -4,7 +4,7 @@ export const SITE = {
   name: "Pranshu Gupta",
   first: "pranshu",
   handle: "pranshugupta54",
-  role: "founding engineer @ traycer",
+  role: "building @ Traycer AI",
   location: "India", // TODO: set your city if you want it shown
   timezone: "Asia/Kolkata",
   email: "pranshgupta54@gmail.com",
@@ -25,9 +25,9 @@ export const SITE = {
 
   // Experience — work history with month/year dates
   experience: [
-    { role: "founding engineer", org: "Traycer AI", start: "Jun 2024", end: "Present", href: "https://traycer.ai" },
-    { role: "maintainer", org: "Palisadoes Foundation", start: "Feb 2024", end: "Nov 2024", href: "https://github.com/PalisadoesFoundation" },
-    { role: "DMP mentee", org: "Code for GovTech", start: "Jun 2024", end: "Sep 2024", href: "https://www.codeforgovtech.in/" },
+    { role: "building", org: "Traycer AI", stat: "100k+ devs", place: "california, us", start: "Jun 2024", end: "Present", href: "https://traycer.ai" },
+    { role: "maintainer", org: "Palisadoes Foundation", place: "california, us", start: "Feb 2024", end: "Nov 2024", href: "https://github.com/PalisadoesFoundation" },
+    { role: "DMP mentee", org: "Code for GovTech", place: "india", start: "Jun 2024", end: "Sep 2024", href: "https://www.codeforgovtech.in/" },
   ],
 
   // Competitive programming (from p54.dev)

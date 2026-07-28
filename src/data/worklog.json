@@ -1,5 +1,10 @@
 [
   {
+    "t": "2026-07-28T11:09:42.968Z",
+    "mood": "📍",
+    "text": "experience section got a rework — new title up top, a stat badge next to the day job, and every role now says where it actually is. the column lines up now, which i care about more than i should."
+  },
+  {
     "t": "2026-05-30T16:26:45.164Z",
     "mood": "🎲",
     "text": "gave the random pools a serious upgrade — 80 fun facts, 50 of my own quips, and the shell's funfact now pulls live programming jokes off an api (falls back to the local stash if it's offline). good luck repeating yourself now."
