@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CopyCommand } from "@/components/copy-command";
+import { SkillLinks } from "@/components/skill-links";
 import { getSkill, getSkills, INSTALL_CMD } from "@/lib/skills";
 import { renderMarkdown } from "@/lib/markdown";
 
@@ -39,19 +40,12 @@ export default async function SkillPage({ params }: { params: { slug: string } }
 
       <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
         <span className="text-muted">/</span> {skill.name}
+        <SkillLinks ghHref={skill.href} />
       </h1>
       <p className="mt-3 text-sm text-muted">{skill.description}</p>
 
       <div className="mt-6">
         <CopyCommand cmd={`${INSTALL_CMD} --skill ${skill.slug}`} />
-        <a
-          href={skill.href}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-block font-mono text-[12px] text-muted transition-colors hover:text-accent"
-        >
-          view source on GitHub ↗
-        </a>
       </div>
 
       <article

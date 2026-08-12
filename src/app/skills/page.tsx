@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { CopyCommand } from "@/components/copy-command";
+import { SkillLinks } from "@/components/skill-links";
 import { getSkills, INSTALL_CMD, SKILLS_REPO } from "@/lib/skills";
 
 export const revalidate = 3600; // refresh skill list from GitHub hourly
@@ -70,10 +71,11 @@ export default async function SkillsPage() {
               >
                 →
               </Link>
+              <SkillLinks ghHref={s.href} />
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">{s.description}</p>
             <div className="mt-4">
-              <CopyCommand cmd={`${INSTALL_CMD} --skill ${s.name}`} />
+              <CopyCommand cmd={`${INSTALL_CMD} --skill ${s.slug}`} />
             </div>
           </li>
         ))}
