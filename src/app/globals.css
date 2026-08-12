@@ -82,6 +82,16 @@
   ::selection { background: var(--mark); }
 }
 
+/* rehype-pretty-code dual-theme code blocks: pick the shiki palette per theme */
+@layer components {
+  code[data-theme] span {
+    color: var(--shiki-light);
+  }
+  [data-theme="dark"] code[data-theme] span {
+    color: var(--shiki-dark);
+  }
+}
+
 /* animated marker highlight on key words */
 @layer components {
   .mark {

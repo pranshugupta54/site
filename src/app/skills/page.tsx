@@ -61,14 +61,15 @@ export default async function SkillsPage() {
           <li key={s.name}>
             <h2 className="font-display text-lg font-semibold tracking-tight">
               <span className="text-muted">/</span>{" "}
-              <a
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors hover:text-accent"
-              >
+              <Link href={`/skills/${s.slug}`} className="transition-colors hover:text-accent">
                 {s.name}
-              </a>
+              </Link>{" "}
+              <Link
+                href={`/skills/${s.slug}`}
+                className="font-mono text-xs text-muted transition-colors hover:text-accent"
+              >
+                →
+              </Link>
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">{s.description}</p>
             <div className="mt-4">
