@@ -117,6 +117,17 @@ export async function Sections() {
             →
           </a>
         </li>
+        <li className="flex items-baseline justify-between gap-3 py-1.5">
+          <span>
+            <a href="/skills" className={LINK}>
+              skills
+            </a>{" "}
+            <span className="text-muted">— agent skills for coding agents, installable via skills.sh</span>
+          </span>
+          <a href="/skills" className={`font-mono text-muted ${LINK}`}>
+            →
+          </a>
+        </li>
         <li className="py-1.5 text-muted">notes on systems &amp; the craft, soon.</li>
       </ul>
     </section>
