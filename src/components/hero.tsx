@@ -6,6 +6,7 @@ import { Scramble } from "@/components/scramble";
 import { LiveClock } from "@/components/live-clock";
 import { AppearanceSwitcher } from "@/components/appearance-switcher";
 import { Age } from "@/components/age";
+import { InlineLink } from "@/components/inline-link";
 
 function Lead() {
   // split on {word} — the braced word gets the animated marker highlight
@@ -64,7 +65,26 @@ export function Hero() {
       </div>
 
       <Lead />
-      <p className="mt-3 max-w-[46ch] text-sm text-muted">{SITE.bio}</p>
+      <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-muted">
+        mainly backend, drawn to ui/ux and the small details most skip. these
+        days building the agent platform at{" "}
+        <InlineLink href="https://traycer.ai" domain="traycer.ai">
+          traycer
+        </InlineLink>{" "}
+        and publishing{" "}
+        <InlineLink href="/skills" domain="skills.sh">
+          skills
+        </InlineLink>{" "}
+        for coding agents. find me on{" "}
+        <InlineLink href={SITE.socials.x.url} domain="x.com">
+          @pranshgupta54
+        </InlineLink>{" "}
+        or see my code on{" "}
+        <InlineLink href={SITE.socials.github.url} domain="github.com">
+          github
+        </InlineLink>
+        .
+      </p>
     </header>
   );
 }
