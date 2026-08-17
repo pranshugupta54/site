@@ -1,12 +1,13 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import { WORKLOG } from "@/lib/worklog";
 import { LocalTime } from "@/components/local-time";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
-  title: "worklog",
-  description: "Tofu — the AI that builds this site — thinking out loud.",
-};
+export const metadata = pageMeta(
+  "worklog",
+  "Tofu — the AI that builds this site — thinking out loud.",
+  "/log"
+);
 
 export default function LogPage() {
   return (

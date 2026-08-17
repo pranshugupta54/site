@@ -15,9 +15,7 @@ const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", variabl
 const signature = Sassy_Frass({ subsets: ["latin"], weight: "400", variable: "--font-signature", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"
-  ),
+  metadataBase: new URL("https://www.p54.dev"),
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.bio,
   icons: { icon: "/me.jpeg" },

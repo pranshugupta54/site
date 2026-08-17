@@ -1,16 +1,16 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import { CopyCommand } from "@/components/copy-command";
 import { SkillLinks } from "@/components/skill-links";
 import { getSkills, INSTALL_CMD, SKILLS_REPO } from "@/lib/skills";
+import { pageMeta } from "@/lib/meta";
 
 export const revalidate = 3600; // refresh skill list from GitHub hourly
 
-export const metadata: Metadata = {
-  title: "skills",
-  description:
-    "Agent skills for coding agents — keeping codebases clean when agents do the writing.",
-};
+export const metadata = pageMeta(
+  "skills",
+  "Agent skills for coding agents — keeping codebases clean when agents do the writing.",
+  "/skills"
+);
 
 const BTN =
   "flex flex-1 items-center justify-center gap-2 rounded-lg border border-line px-4 py-2.5 font-mono text-[12px] transition-colors hover:border-accent hover:text-accent";

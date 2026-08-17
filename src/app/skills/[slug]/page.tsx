@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { CopyCommand } from "@/components/copy-command";
 import { SkillLinks } from "@/components/skill-links";
 import { getSkill, getSkills, INSTALL_CMD } from "@/lib/skills";
+import { pageMeta } from "@/lib/meta";
 import { renderMarkdown } from "@/lib/markdown";
 
 export const revalidate = 3600; // refresh skill content from GitHub hourly
@@ -21,7 +22,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const skill = await getSkill(params.slug);
   if (!skill) return { title: "skill not found" };
-  return { title: skill.name, description: skill.description };
+  return pageMeta(skill.name, skill.description, `/skills/${skill.slug}`);
 }
 
 export default async function SkillPage({ params }: { params: { slug: string } }) {
