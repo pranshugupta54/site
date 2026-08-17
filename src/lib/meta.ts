@@ -9,7 +9,15 @@ export function pageMeta(title: string, description: string, path: string): Meta
     title,
     description,
     alternates: { canonical: path },
-    openGraph: { title, description, type: "website", url: path },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: path,
+      // file-convention og images don't cascade to nested routes — reuse the
+      // root-generated share card everywhere
+      images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    },
     twitter: { card: "summary_large_image", title, description, creator: "@pranshgupta54" },
   };
 }
