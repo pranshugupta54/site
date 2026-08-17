@@ -109,9 +109,21 @@ export function FooterShell() {
     setLines((prev) => prev.map((l) => (l.id === id ? { ...l, text } : l)));
   }, []);
 
+  // ref mirror of `open` — the global key handler must see the current value
+  // immediately, not a stale closure between state update and effect re-subscribe
+  const openRef = useRef(false);
+
   const doOpen = useCallback((v: boolean) => {
+    openRef.current = v;
     setOpen(v);
-    if (v) setTimeout(() => inputRef.current?.focus(), 130);
+    if (!v) inputRef.current?.blur(); // hidden input must not keep eating keystrokes
+    if (v)
+      setTimeout(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length); // caret after any carried-over chars
+      }, 0);
   }, []);
 
   // ── boot message (once) ──
@@ -119,16 +131,38 @@ export function FooterShell() {
     addLine("ok", `pranshu.sh v${SITE.version} — type 'help' to start.`);
   }, [addLine]);
 
-  // ── global keys: "/" opens, Esc closes ──
+  // ── global keys: "/" opens, any typed character opens + carries over, Esc closes ──
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (snakeOn) return;
+      const isOpen = openRef.current;
       const tag = document.activeElement?.tagName;
-      if (e.key === "/" && !open && tag !== "INPUT" && tag !== "TEXTAREA") {
-        e.preventDefault();
-        doOpen(true);
-      } else if (e.key === "Escape" && open) {
+      const typingElsewhere = tag === "INPUT" || tag === "TEXTAREA";
+      if (!isOpen && !typingElsewhere && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (e.key === "/") {
+          e.preventDefault();
+          doOpen(true);
+        } else if (e.key.length === 1 && e.key !== " ") {
+          // the blinking cursor in the collapsed bar promises a real prompt —
+          // honor it: start typing anywhere and the shell opens mid-word
+          e.preventDefault();
+          setInput((prev) => prev + e.key);
+          doOpen(true);
+        }
+      } else if (e.key === "Escape" && isOpen) {
         doOpen(false);
+      } else if (
+        isOpen &&
+        !typingElsewhere &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        e.key.length === 1
+      ) {
+        // panel open but input not focused yet (or user clicked away) — don't drop keystrokes
+        e.preventDefault();
+        setInput((prev) => prev + e.key);
+        inputRef.current?.focus();
       }
     };
     window.addEventListener("keydown", handler);
@@ -404,7 +438,7 @@ export function FooterShell() {
         <span style={{ color: GREEN }}>~/pranshu ❯</span>
         <span style={{ color: MUTED }}>type &apos;help&apos;</span>
         <span style={{ color: FG }} aria-hidden className="animate-[blink_1s_steps(1)_infinite]">▋</span>
-        <span style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>press / to open</span>
+        <span style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>just start typing</span>
       </div>
 
       {/* expanded panel */}
