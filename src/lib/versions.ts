@@ -32,8 +32,11 @@ export const VERSION_LIST: Version[] = [...VERSIONS.versions].sort((a, b) =>
   b.date.localeCompare(a.date)
 );
 
-export const CURRENT: Version =
-  VERSIONS.versions.find((v) => v.version === VERSIONS.current) ?? VERSION_LIST[0];
+// no fallback: next.config.mjs redirects /v/<current> too, so a typo here
+// should fail the build rather than leave the two disagreeing
+const current = VERSIONS.versions.find((v) => v.version === VERSIONS.current);
+if (!current) throw new Error(`versions.json: current "${VERSIONS.current}" has no entry`);
+export const CURRENT: Version = current;
 
 export const RENOVATION: Renovation | null = VERSIONS.renovation;
 

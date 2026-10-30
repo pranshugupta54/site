@@ -13,14 +13,14 @@ Single source of truth. It's JSON because `next.config.mjs` reads it too (with `
 | field | meaning |
 | --- | --- |
 | `current` | version number of the live site. Shows in the home-page marker, the shell boot line, and `version` in the shell. `/v/<current>` redirects to `/`. |
-| `renovation` | `null`, or `{ "version": "2", "href": "https://next.p54.dev" }` while a revamp is in progress. Flips the home marker to "tofu is renovating · peek at v2 →" and adds a note on `/versions`. |
-| `versions[]` | newest first. Each: `version`, `date` (launch day, `YYYY-MM-DD`, shown as-is with no timezone math), `name`, `tofu` (one line in tofu's voice), `highlights` (4–6 short lowercase lines), `archive`. |
+| `renovation` | `null` (what ships), or `{ "version": "2", "href": "<preview url>" }` while a revamp is in progress. Flips the home marker to "tofu is renovating · peek at v2 →" (opens `href` in a new tab) and adds a note on `/versions`. Nothing in the code knows any particular domain; `href` is the only place it lives. |
+| `versions[]` | newest first. Each: `version`, `date` (launch day, `YYYY-MM-DD`, shown as-is with no timezone math), `name`, `tofu` (one line in tofu's voice), `highlights` (3–6 short lowercase lines), `archive`. |
 | `archive` | `null` (current, or not kept) or `"static"` (snapshot committed under `public/v/<n>/`; `/versions` links to it and `next.config.mjs` routes it). |
 
 ## Revamp workflow
 1. **Cut `vnext`** from `main`. The revamp lives there as long as it needs.
-2. **Add a branch domain in Vercel** (one-time, Pranshu): Project → Domains → add `next.p54.dev`, assign it to the `vnext` branch, add the DNS record. A custom domain skips deployment protection; `*.vercel.app` previews don't (see below).
-3. **Set `renovation`** on `main`: `{ "version": "<n+1>", "href": "https://next.p54.dev" }`. Ship it. The home marker now invites a peek.
+2. **Add a branch domain in Vercel.** One-time, done by Pranshu by hand when the first revamp is real; no script or agent touches Vercel or DNS. In the Vercel dashboard: Project → Settings → Domains → add a subdomain (e.g. `next.p54.dev`) → set its Git branch to `vnext`. Then add the CNAME record Vercel shows at the DNS provider. A custom domain skips deployment protection; `*.vercel.app` previews don't (see below). Later revamps reuse the same domain.
+3. **Set `renovation`** on `main`: `{ "version": "<n+1>", "href": "<that domain>" }`. Ship it. The home marker now invites a peek.
 4. **Build** on `vnext`. Merge `main` into it now and then.
 5. **At launch**, on `vnext` (or a launch branch off it):
    1. Snapshot the outgoing version from its last commit on `main`:
