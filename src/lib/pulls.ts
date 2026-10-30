@@ -27,6 +27,31 @@ export const GROUP_CAP = 5;
 
 const time = (v: unknown) => (typeof v === "string" ? Date.parse(v) : NaN);
 
+// GitHub's `Link` header → its rel="next" URL, followed only while it stays on
+// api.github.com (the request carries the token).
+export function nextLink(header: string | null): string | null {
+  const next = header?.split(",").map((part) => /<([^>]+)>\s*;\s*rel="next"/.exec(part)?.[1]).find(Boolean);
+  return next?.startsWith("https://api.github.com/") ? next : null;
+}
+
+// The open and closed lists are separate requests, so a PR that changed state
+// in between can arrive twice. Keep one record per number: the merged one if
+// either is (a merge is final), else the most recently updated.
+function dedupe(raw: RawPull[]): RawPull[] {
+  const merged = (p: RawPull) => typeof p.merged_at === "string";
+  const byNumber = new Map<unknown, RawPull>();
+  for (const p of raw) {
+    const prev = byNumber.get(p.number);
+    const wins =
+      !prev ||
+      (merged(p) !== merged(prev)
+        ? merged(p)
+        : (time(p.updated_at) || 0) > (time(prev.updated_at) || 0));
+    if (wins) byNumber.set(p.number, p);
+  }
+  return [...byNumber.values()];
+}
+
 // Draft → drafting, open → in review, merged in the last 7 days → merged
 // (newest first); closed-unmerged PRs are dropped. Only the owner's own PRs
 // count, so a stranger's PR title never renders on the site, and any title
@@ -39,7 +64,8 @@ export function groupPulls(
   const review: (SitePull & { at: number })[] = [];
   const merged: (SitePull & { at: number })[] = [];
 
-  for (const p of raw) {
+  const valid = raw.filter((p) => typeof p.number === "number" && typeof p.title === "string");
+  for (const p of dedupe(valid)) {
     if (typeof p.number !== "number" || typeof p.title !== "string") continue;
     if (p.user?.login !== owner) continue;
     const title = p.title.trim();

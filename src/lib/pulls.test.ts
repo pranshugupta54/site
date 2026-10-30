@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { GROUP_CAP, groupPulls, isEmpty, MERGED_WINDOW_MS, type RawPull } from "./pulls.ts";
+import { GROUP_CAP, groupPulls, isEmpty, MERGED_WINDOW_MS, nextLink, type RawPull } from "./pulls.ts";
 
 const repo = "pranshugupta54/site";
 const owner = "pranshugupta54";
@@ -179,5 +179,100 @@ describe("isEmpty", () => {
 
   it("only looks at the three groups", () => {
     assert.equal(isEmpty({ drafting: [], review: [], merged: [], open: 0 }), true);
+  });
+});
+
+describe("groupPulls dedupe", () => {
+  const stale = () => pr({ number: 7, title: "stale open", updated_at: iso(now - 2 * DAY) });
+  const done = () => merged({ number: 7, title: "merged copy", merged_at: iso(now - DAY) });
+
+  it("puts a PR seen as open and as merged only in merged", () => {
+    const out = run([stale(), done()]);
+    assert.deepEqual(out.merged.map((p) => p.title), ["merged copy"]);
+    assert.equal(out.review.length, 0);
+    assert.equal(out.drafting.length, 0);
+    assert.equal(out.open, 0);
+  });
+
+  it("is independent of order", () => {
+    assert.deepEqual(run([done(), stale()]), run([stale(), done()]));
+    assert.equal(run([done(), stale()]).open, 0);
+  });
+
+  it("ignores a malformed duplicate instead of letting it replace a valid copy", () => {
+    const out = run([stale(), merged({ number: 7, title: 42 as unknown as string })]);
+    assert.deepEqual(out.review.map((p) => p.title), ["stale open"]);
+    assert.equal(out.merged.length, 0);
+  });
+
+  it("merged wins even when the open copy is newer", () => {
+    const out = run([done(), pr({ number: 7, updated_at: iso(now) })]);
+    assert.equal(out.merged.length, 1);
+    assert.equal(out.open, 0);
+  });
+
+  it("keeps a newer open copy over a closed-unmerged one", () => {
+    const closed = pr({ number: 7, state: "closed", merged_at: null, updated_at: iso(now - 3 * DAY) });
+    const reopened = pr({ number: 7, title: "reopened", updated_at: iso(now - DAY) });
+    for (const raw of [[closed, reopened], [reopened, closed]]) {
+      const out = run(raw);
+      assert.deepEqual(out.review.map((p) => p.title), ["reopened"]);
+      assert.equal(out.open, 1);
+    }
+  });
+
+  it("keeps the newer of two open copies", () => {
+    const older = pr({ number: 7, title: "older", updated_at: iso(now - 3 * DAY) });
+    const newer = pr({ number: 7, title: "newer", updated_at: iso(now - DAY) });
+    for (const raw of [[older, newer], [newer, older]]) {
+      const out = run(raw);
+      assert.deepEqual(out.review.map((p) => p.title), ["newer"]);
+      assert.equal(out.open, 1);
+    }
+  });
+
+  it("lets the first occurrence win a tie", () => {
+    const at = iso(now - DAY);
+    const out = run([pr({ number: 7, title: "first", updated_at: at }), pr({ number: 7, title: "second", updated_at: at })]);
+    assert.deepEqual(out.review.map((p) => p.title), ["first"]);
+  });
+
+  it("treats a missing updated_at as oldest", () => {
+    const out = run([pr({ number: 7, title: "dated" }), pr({ number: 7, title: "undated", updated_at: undefined })]);
+    assert.deepEqual(out.review.map((p) => p.title), ["dated"]);
+  });
+});
+
+describe("nextLink", () => {
+  const api = "https://api.github.com/repositories/1/pulls?state=open&per_page=100";
+
+  it("returns the next url from a github-shaped header", () => {
+    const header = `<${api}&page=2>; rel="next", <${api}&page=3>; rel="last"`;
+    assert.equal(nextLink(header), `${api}&page=2`);
+  });
+
+  it("finds next when it is not first", () => {
+    const header = `<${api}&page=1>; rel="prev", <${api}&page=3>; rel="next"`;
+    assert.equal(nextLink(header), `${api}&page=3`);
+  });
+
+  it("returns null without a next rel", () => {
+    assert.equal(nextLink(`<${api}&page=1>; rel="prev", <${api}&page=9>; rel="last"`), null);
+  });
+
+  it("returns null for null and empty headers", () => {
+    assert.equal(nextLink(null), null);
+    assert.equal(nextLink(""), null);
+  });
+
+  it("refuses off-host and non-https next urls", () => {
+    assert.equal(nextLink('<https://evil.example/pulls?page=2>; rel="next"'), null);
+    assert.equal(nextLink('<http://api.github.com/repositories/1/pulls?page=2>; rel="next"'), null);
+    assert.equal(nextLink('<https://api.github.com.evil.example/pulls?page=2>; rel="next"'), null);
+  });
+
+  it("tolerates whitespace around the semicolon", () => {
+    assert.equal(nextLink(`<${api}&page=2>   ;   rel="next"`), `${api}&page=2`);
+    assert.equal(nextLink(`  <${api}&page=2>;rel="next"  `), `${api}&page=2`);
   });
 });
