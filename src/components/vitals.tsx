@@ -4,7 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { SITE } from "@/lib/site";
 import { moodNow } from "@/lib/tofu-mood";
 import { relative } from "@/components/local-time";
-import { MOOD_WORD, builtAt, parseOpen, prsLabel, shortSha } from "@/lib/vitals";
+import { MOOD_WORD, PULLS_REFRESH_MS, builtAt, countAfter, prsLabel, refreshDue, shortSha } from "@/lib/vitals";
 
 // The site's own vitals for the footer shell bar, menu-bar style:
 //   site: deployed 2h ago · 316023e    tofu: 4 PRs open · awake
@@ -28,14 +28,33 @@ export function Vitals() {
   const now = useSyncExternalStore(everyMinute, thisMinute, onServer);
   const [open, setOpen] = useState<number | null>(null);
 
+  // The bar lives in the root layout, so the count refreshes while the tab is
+  // open: every PULLS_REFRESH_MS while visible, and on coming back to the tab.
+  // A 204 or an error clears it (that segment hides); a newer request aborts
+  // the one in flight, so a slow old answer can't overwrite a fresh one.
   useEffect(() => {
-    let live = true;
-    fetch("/api/pulls")
-      .then((r) => (r.status === 200 ? r.json() : null))
-      .then((body) => live && setOpen(parseOpen(body)))
-      .catch(() => {});
+    let last: number | null = null;
+    let inflight: AbortController | null = null;
+    const refresh = () => {
+      const now = performance.now();
+      if (!refreshDue(document.visibilityState === "visible", last, now)) return;
+      last = now;
+      inflight?.abort();
+      const req = (inflight = new AbortController());
+      fetch("/api/pulls", { signal: req.signal })
+        .then(async (r) => countAfter(r.status, r.status === 200 ? await r.json() : null))
+        .catch(() => null)
+        .then((n) => {
+          if (!req.signal.aborted) setOpen(n);
+        });
+    };
+    refresh();
+    const id = setInterval(refresh, PULLS_REFRESH_MS);
+    document.addEventListener("visibilitychange", refresh);
     return () => {
-      live = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", refresh);
+      inflight?.abort();
     };
   }, []);
 
@@ -62,8 +81,12 @@ export function Vitals() {
               href={`https://github.com/${SITE.handle}/site/commit/${SHA}`}
               target="_blank"
               rel="noreferrer"
+              // keep the bar from opening the shell; every other key (Esc,
+              // typing) still reaches the shell's global handler
               onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") e.stopPropagation();
+              }}
               className="underline-offset-2 hover:underline"
             >
               {SHORT}
