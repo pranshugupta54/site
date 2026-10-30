@@ -313,6 +313,7 @@ export function Tofu() {
 
   return (
     <motion.div
+      data-tofu-roamer
       className="pointer-events-none fixed left-0 top-0 z-30 hidden select-none sm:block"
       style={{ x, y, opacity: ready ? 1 : 0 }}
     >
