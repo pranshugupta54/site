@@ -5,7 +5,7 @@
 
 ## Live data — "live or hidden, never fake"
 - `src/lib/github.ts` (server-only): `getGithub()` → heatmap levels, total contributions, **followers**, streak (GraphQL); `getRepoStars(repo)` → live stars. **A `User-Agent` header is required** or GitHub returns 403.
-- Widgets **return `null` (hide) on any failure / missing key** — no fake fallbacks. Digitomize stars render live, floored to the hundred (e.g. 599 → `★ 500+`), hidden if the fetch fails.
+- Widgets **return `null` (hide) on any failure / missing key** — no fake fallbacks. Digitomize stars render as the exact live count (e.g. `★ 599`), hidden if the fetch fails.
 - Page revalidates hourly: `export const revalidate = 3600` in `app/page.tsx`.
 - WakaTime was removed (user stopped using it). Spotify was never built. Don't re-add either without asking.
 
