@@ -44,6 +44,25 @@ export const SEASONS: Season[] = [
     },
     ambient: "^v^",
   },
+  {
+    // moves every year — set next year's dates when they're announced
+    id: "diwali",
+    name: "diwali",
+    start: "2026-11-06",
+    end: "2026-11-10",
+    greeting: "Shubh Deepavali",
+    quips: [
+      "lit a diya. it's ascii, so the fire risk is low.",
+      "the marigold is a css variable. still counts.",
+      "cleaned the whole site for diwali. found three unused imports.",
+      "type 'diya' in the shell. bring your own sweets.",
+    ],
+    commands: {
+      diya: "     )\n    (.)\n  \\_____/   a diya, lit.\n   '---'    mind the flame.",
+      mithai: "tofu ate the kaju katli. all of it. it was for guests.",
+    },
+    ambient: "*",
+  },
 ];
 
 export const SEASON_KEY = "season"; // sessionStorage: <id> | "off"
