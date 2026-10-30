@@ -16,7 +16,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,6 +41,48 @@ const BLOCKERS = [
 
 // local env (e.g. GITHUB_TOKEN) so live widgets freeze with real data, not hide
 const ENV_FILES = [".env.local", ".env.production.local"];
+
+// GitHub token shapes: classic (ghp_, gho_, ghu_, ghs_, ghr_) and fine-grained
+const SECRET_PATTERNS = [
+  { name: "github token (gh*_)", re: /gh[pousr]_[A-Za-z0-9]{20,}/ },
+  { name: "github fine-grained token (github_pat_)", re: /github_pat_[A-Za-z0-9_]{20,}/ },
+];
+
+/**
+ * Every file under `dir` (binary read as latin1) checked for GitHub token
+ * shapes and for the literal `tokens` the build ran with. Returns
+ * `{ file, pattern }` per hit, file relative to `dir` — never the matched value.
+ */
+export function scanForSecrets(dir, tokens = []) {
+  // too short to be a real token, and would match all over the place
+  const literals = tokens.filter((t) => t && t.length >= 8);
+  const hits = [];
+  for (const file of walk(dir)) {
+    const text = readFileSync(file).toString("latin1");
+    const rel = relative(dir, file);
+    for (const { name, re } of SECRET_PATTERNS) if (re.test(text)) hits.push({ file: rel, pattern: name });
+    if (literals.some((t) => text.includes(t))) hits.push({ file: rel, pattern: "the GITHUB_TOKEN this build used" });
+  }
+  return hits;
+}
+
+/** Throws, listing files and pattern names only, if the export carries a secret. */
+export function assertNoSecrets(dir, tokens = []) {
+  const hits = scanForSecrets(dir, tokens);
+  if (hits.length === 0) return;
+  const list = hits.map((h) => `  ${h.file}  (${h.pattern})`).join("\n");
+  throw new Error(`secret found in the export, nothing was archived:\n${list}`);
+}
+
+/** GITHUB_TOKEN values from env files in `dir`, as next would load them. */
+function envFileTokens(dir) {
+  return [".env", ".env.production", ...ENV_FILES]
+    .filter((f) => existsSync(join(dir, f)))
+    .flatMap((f) => readFileSync(join(dir, f), "utf8").split("\n"))
+    .map((line) => line.match(/^\s*(?:export\s+)?GITHUB_TOKEN\s*=\s*(.*?)\s*$/)?.[1])
+    .filter(Boolean)
+    .map((v) => v.replace(/^(['"])(.*)\1$/, "$2"));
+}
 
 /**
  * Root-relative links that skipped basePath — raw <a href="/log">, metadata
@@ -146,7 +188,9 @@ async function main() {
       writeFileSync(join(wt, "next.config.mjs"), SNAPSHOT_CONFIG);
     }
 
-    const env = { ...process.env, ...githubEnv(wt), SNAPSHOT_BASE_PATH: base, NEXT_TELEMETRY_DISABLED: "1" };
+    const borrowed = githubEnv(wt);
+    const tokens = [process.env.GITHUB_TOKEN, ...envFileTokens(wt), borrowed.GITHUB_TOKEN];
+    const env = { ...process.env, ...borrowed, SNAPSHOT_BASE_PATH: base, NEXT_TELEMETRY_DISABLED: "1" };
     for (let attempt = 1; ; attempt++) {
       console.log(`\n→ building static export at ${base}`);
       const { code, output } = await runTee("npm", ["run", "build"], { cwd: wt, env });
@@ -164,6 +208,15 @@ async function main() {
     const pages = walk(out).filter((f) => f.endsWith(".html"));
     for (const file of pages) {
       writeFileSync(file, injectBanner(rebaseLinks(readFileSync(file, "utf8"), base), n, date));
+    }
+
+    // the build had a token in hand; make sure none of it ended up in public/
+    console.log("\n→ scanning the export for secrets");
+    try {
+      assertNoSecrets(out, tokens);
+    } catch (e) {
+      rmSync(out, { recursive: true, force: true });
+      throw e;
     }
 
     const dest = join(repo, "public", "v", n);

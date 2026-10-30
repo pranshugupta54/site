@@ -1,12 +1,19 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { SNAPSHOT_CONFIG, banner, injectBanner, rebaseLinks } from "./snapshot-version.mjs";
+import {
+  SNAPSHOT_CONFIG,
+  assertNoSecrets,
+  banner,
+  injectBanner,
+  rebaseLinks,
+  scanForSecrets,
+} from "./snapshot-version.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const script = join(root, "scripts/snapshot-version.mjs");
@@ -184,6 +191,92 @@ describe("SNAPSHOT_CONFIG", () => {
       else process.env.SNAPSHOT_BASE_PATH = prev;
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("secret guard", () => {
+  // Fake tokens, assembled at runtime so no token-shaped literal sits in the repo.
+  const classic = ["gh", "p_"].join("") + "Fake0Token0Value0For0Tests0Only00";
+  const fineGrained = ["github", "_pat_"].join("") + "11FAKE_fake_token_for_tests_only";
+  const literal = "0123abcd".repeat(5); // a legacy-style token no pattern knows
+
+  // A small export-shaped tree: html pages, a js chunk, a font.
+  function exportDir(files = {}) {
+    const dir = mkdtempSync(join(tmpdir(), "snapshot-out-"));
+    const all = {
+      "index.html": "<html><body>hi</body></html>",
+      "log/index.html": "<html><body>log</body></html>",
+      "_next/static/chunks/main.js": "console.log(1)",
+      "_next/static/media/font.woff2": Buffer.from([0, 1, 2, 255, 254]),
+      ...files,
+    };
+    for (const [path, body] of Object.entries(all)) {
+      mkdirSync(dirname(join(dir, path)), { recursive: true });
+      writeFileSync(join(dir, path), body);
+    }
+    return dir;
+  }
+
+  function withExport(files, fn) {
+    const dir = exportDir(files);
+    try {
+      return fn(dir);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  it("passes a clean export", () => {
+    withExport({}, (dir) => {
+      assert.deepEqual(scanForSecrets(dir, [literal]), []);
+      assert.doesNotThrow(() => assertNoSecrets(dir, [literal]));
+    });
+  });
+
+  it("catches a classic token in an html page", () => {
+    withExport({ "log/index.html": `<body>${classic}</body>` }, (dir) => {
+      assert.deepEqual(scanForSecrets(dir), [{ file: join("log", "index.html"), pattern: "github token (gh*_)" }]);
+    });
+  });
+
+  it("catches a fine-grained token in a js chunk", () => {
+    withExport({ "_next/static/chunks/main.js": `const t="${fineGrained}"` }, (dir) => {
+      assert.deepEqual(scanForSecrets(dir), [
+        { file: join("_next", "static", "chunks", "main.js"), pattern: "github fine-grained token (github_pat_)" },
+      ]);
+    });
+  });
+
+  it("catches the literal token the build used, even inside a binary file", () => {
+    const font = Buffer.concat([Buffer.from([0, 255, 7]), Buffer.from(literal, "latin1"), Buffer.from([254])]);
+    withExport({ "_next/static/media/font.woff2": font }, (dir) => {
+      assert.deepEqual(scanForSecrets(dir, [literal]), [
+        { file: join("_next", "static", "media", "font.woff2"), pattern: "the GITHUB_TOKEN this build used" },
+      ]);
+    });
+  });
+
+  it("ignores empty and too-short literal tokens", () => {
+    withExport({}, (dir) => {
+      assert.deepEqual(scanForSecrets(dir, [undefined, "", "hi"]), []);
+    });
+  });
+
+  it("names files and patterns in the failure, never the secret", () => {
+    const files = { "index.html": `<body>${classic}</body>`, "_next/static/chunks/main.js": `"${fineGrained}${literal}"` };
+    withExport(files, (dir) => {
+      let message = "";
+      try {
+        assertNoSecrets(dir, [literal]);
+      } catch (e) {
+        message = e.message;
+      }
+      assert.match(message, /secret found/);
+      assert.match(message, /index\.html/);
+      assert.match(message, /main\.js/);
+      assert.match(message, /github fine-grained token/);
+      for (const secret of [classic, fineGrained, literal]) assert.equal(message.includes(secret), false);
+    });
   });
 });
 

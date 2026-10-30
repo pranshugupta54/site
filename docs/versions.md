@@ -35,7 +35,7 @@ Single source of truth. It's JSON because `next.config.mjs` reads it too (with `
 ## How the snapshot works (`scripts/snapshot-version.mjs <n> [ref]`)
 1. `git worktree add` a throwaway checkout of `ref` (default `HEAD`) in the OS temp dir, then `npm ci` there.
 2. Delete what static export can't handle, in the temp copy only: `src/app/opengraph-image.tsx` (edge runtime), plus `public/v/` so older archives don't get nested inside the new one.
-3. GitHub data: local `.env.local` is copied in; if there's still no `GITHUB_TOKEN`, the script borrows `gh auth token` for the build (read-only, build-time fetches, never in the output). Unauthenticated calls get rate-limited and the archive would freeze with an empty heatmap and skills list.
+3. GitHub data: local `.env.local` is copied in; if there's still no `GITHUB_TOKEN`, the script borrows `gh auth token` for the build (read-only, build-time fetches, never in the output). Unauthenticated calls get rate-limited and the archive would freeze with an empty heatmap and skills list. A secret guard backs up "never in the output": before anything is copied, every exported file (binaries too) is scanned for GitHub token shapes (`gh[pousr]_…`, `github_pat_…`) and for the literal token the build used. Any hit prints the file paths and pattern names (never the value), deletes the export and the temp worktree, archives nothing, and exits non-zero.
 4. Build with `SNAPSHOT_BASE_PATH=/v/<n>`. `next.config.mjs` honors it: `output: "export"`, `basePath`, `trailingSlash: true`, unoptimized images. A ref whose config doesn't mention `SNAPSHOT_BASE_PATH` (anything older than this doc) gets a known-good snapshot config written over it. If a dynamic route comes back with zero params (next refuses to export those), the script drops that route and builds again.
 5. Post-process `out/*.html`: root-relative `href`/`src` attributes that skipped `basePath` (raw `<a href="/log">`, metadata icons) are pointed back inside `/v/<n>/`. RSC payloads are left alone on purpose: they also carry `next/link` props, which the router prefixes itself, so rewriting them doubles the prefix. Every page gets a small fixed strip: "you're looking at v<n>, archived <date> · back to now →", styled with that snapshot's own `var(--muted)` etc.
 6. Copy `out/` to `public/v/<n>/`, set `archive: "static"`, remove the temp worktree (also on failure).
@@ -45,8 +45,9 @@ Serving: for every `archive: "static"` version, `next.config.mjs` adds afterFile
 ## Why static snapshots
 Preview and deployment URLs on this Vercel project sit behind Vercel SSO: an anonymous request gets a 302 to `vercel.com/sso-api`. So "link to the old deployment" is out; only the production domain is public. A static export committed under `public/v/<n>/` is served by the production domain forever, with zero dependency on old deployments still existing.
 
-## Caveats
+## Caveats and known limitations
+- **Known limitation: client-side navigation inside an archive.** Link rebasing covers full page loads only. After a client-side navigation inside the snapshot, raw `<a href="/...">` links come from the RSC payload and point at the live site again. `next/link` links stay inside the archive either way, and "back to now" is always one click away.
+- **Secret guard.** A snapshot that would ship a GitHub token never reaches `public/` (step 3).
 - **Data is frozen at snapshot time.** GitHub heatmap, stars, skills list: whatever they were when the script ran. Fine for an archive, since every page says it's archived and when.
 - **Size.** Each snapshot is a few MB in git (JS chunks, fonts, images). Keep only versions worth walking around in; `archive: null` is a perfectly good ending.
-- Rebasing covers full page loads. After a client-side navigation inside the snapshot, raw `<a href="/...">` links come from the RSC payload and point at the live site again. `next/link` links stay inside the archive either way, and "back to now" is always one click away.
 - The OG share image isn't in snapshots (edge runtime). Archive pages are disallowed in robots anyway.
