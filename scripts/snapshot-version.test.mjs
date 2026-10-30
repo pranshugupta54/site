@@ -11,6 +11,7 @@ import {
   assertNoSecrets,
   banner,
   injectBanner,
+  pinStaticParams,
   rebaseLinks,
   scanForSecrets,
 } from "./snapshot-version.mjs";
@@ -299,5 +300,17 @@ describe("snapshot-version cli guards", () => {
     assert.equal(called, false);
     assert.equal(mutated, false);
     assert.equal(archiveCreated, false);
+  });
+});
+
+describe("pinStaticParams", () => {
+  it("pins dynamicParams = true to false, leaves everything else alone", () => {
+    const src = 'export const revalidate = 3600;\nexport const dynamicParams = true; // new skills\n';
+    assert.equal(
+      pinStaticParams(src),
+      'export const revalidate = 3600;\nexport const dynamicParams = false; // new skills\n'
+    );
+    assert.equal(pinStaticParams("export const dynamicParams = false;"), "export const dynamicParams = false;");
+    assert.equal(pinStaticParams("const x = trueish;"), "const x = trueish;");
   });
 });

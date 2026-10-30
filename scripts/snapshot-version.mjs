@@ -39,6 +39,21 @@ const BLOCKERS = [
   "public/v", // older archives — they're already served from the live site
 ];
 
+// `output: "export"` rejects `dynamicParams = true` (next 16+). A static archive
+// can only serve the pages it built anyway, so pin every route to its built params.
+export function pinStaticParams(src) {
+  return src.replace(/export\s+const\s+dynamicParams\s*=\s*true\b/g, "export const dynamicParams = false");
+}
+
+function pinAllStaticParams(dir) {
+  for (const f of walk(dir)) {
+    if (!/\.(tsx?|jsx?|mjs)$/.test(f)) continue;
+    const src = readFileSync(f, "utf8");
+    const pinned = pinStaticParams(src);
+    if (pinned !== src) writeFileSync(f, pinned);
+  }
+}
+
 // local env (e.g. GITHUB_TOKEN) so live widgets freeze with real data, not hide
 const ENV_FILES = [".env.local", ".env.production.local"];
 
@@ -178,6 +193,7 @@ async function main() {
     run("npm", existsSync(join(wt, "package-lock.json")) ? ["ci", "--no-audit", "--no-fund"] : ["install", "--no-audit", "--no-fund"], { cwd: wt });
 
     for (const b of BLOCKERS) rmSync(join(wt, b), { recursive: true, force: true });
+    if (existsSync(join(wt, "src/app"))) pinAllStaticParams(join(wt, "src/app"));
     for (const f of ENV_FILES) if (existsSync(join(repo, f))) cpSync(join(repo, f), join(wt, f));
 
     const configs = ["next.config.mjs", "next.config.js", "next.config.ts"].filter((f) => existsSync(join(wt, f)));
