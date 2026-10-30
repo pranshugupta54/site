@@ -128,8 +128,9 @@ async function fetchSitePulls(): Promise<SitePulls & { fetchedAt: number }> {
 // Caches the grouped result (a few hundred bytes), not the raw REST payloads.
 // A throw is never stored: a cold miss rethrows, and a failed refresh keeps
 // the last good value — so a GitHub hiccup can't pin an empty block for an hour.
-// Every caller shares one entry (same key); each judges staleness by its own
-// `revalidate` — /log hourly, /api/pulls every 5 min.
+// Each caller passes its own `revalidate` — /log hourly, /api/pulls every 5 min.
+// They don't share an entry: the key includes the cached fn's compiled source,
+// which differs between the minified page and route bundles.
 const cachedSitePulls = (revalidate: number) =>
   unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate });
 
