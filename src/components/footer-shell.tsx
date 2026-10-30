@@ -8,6 +8,16 @@ import funfacts from "@/data/funfacts.json";
 import { SEASONS } from "@/data/seasons";
 import { CURRENT, RENOVATION } from "@/lib/versions";
 import { Vitals } from "@/components/vitals";
+import {
+  GAUGES,
+  HERTZ_INSTALL,
+  HERTZ_REPO,
+  SKILLS_INSTALL,
+  hertzReadout,
+  matchEgg,
+  oneSkillLine,
+  type Egg,
+} from "@/lib/shell-eggs";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -259,6 +269,43 @@ export function FooterShell() {
     draw();
   }, [addLine, updateLine]);
 
+  // ── hidden eggs (not in help) ──
+  const runEgg = useCallback(
+    (egg: Egg) => {
+      if (egg === "hertz") {
+        addLine("res", "hertz is a cask. the real line:");
+        addLine("ok", HERTZ_INSTALL);
+        const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const id = addLine("res", still ? hertzReadout() : hertzReadout(GAUGES.map(() => 0)));
+        addLine("res", `real numbers live in the real app →\n${HERTZ_REPO}`);
+        if (still) return;
+        // gauges fill with a little jitter, then settle on words
+        const TICKS = 10;
+        let tick = 0;
+        const t = setInterval(() => {
+          if (++tick >= TICKS) {
+            clearInterval(t);
+            updateLine(id, hertzReadout());
+          } else updateLine(id, hertzReadout(GAUGES.map((g) => (g.level * tick) / TICKS + Math.random() * 3 - 1)));
+        }, 80);
+        return;
+      }
+      addLine("res", egg === "skills-bare" ? "needs a repo. the real line:" : "the real line:");
+      addLine("ok", SKILLS_INSTALL);
+      addLine("res", "  for any agent that reads a SKILL.md");
+      const id = addLine("res", oneSkillLine());
+      addLine("res", "  all of them, explained → /skills");
+      // a real skill name from the live list; the <name> placeholder if it's unavailable
+      fetch("/skills.json")
+        .then((r) => (r.ok ? r.json() : []))
+        .then((names: string[]) => {
+          if (names.length) updateLine(id, oneSkillLine(names[Math.floor(Math.random() * names.length)]));
+        })
+        .catch(() => {});
+    },
+    [addLine, updateLine]
+  );
+
   // ── commands ──
   const exec = useCallback(
     (line: string) => {
@@ -381,6 +428,11 @@ export function FooterShell() {
           startSnake();
           break;
         default: {
+          const hidden = matchEgg(trimmed);
+          if (hidden) {
+            runEgg(hidden);
+            break;
+          }
           const egg = season?.commands && Object.hasOwn(season.commands, cmd.toLowerCase())
             ? season.commands[cmd.toLowerCase()]
             : undefined;
@@ -389,7 +441,7 @@ export function FooterShell() {
         }
       }
     },
-    [addLine, updateLine, startSnake, toggleTheme, cycleSkin, theme, season, setSeason]
+    [addLine, updateLine, startSnake, runEgg, toggleTheme, cycleSkin, theme, season, setSeason]
   );
 
   const onInputKey = useCallback(
