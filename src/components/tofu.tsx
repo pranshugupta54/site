@@ -6,10 +6,23 @@ import { motion, useMotionValue, animate, useReducedMotion } from "framer-motion
 import framesData from "@/data/tofu-frames.json";
 import quips from "@/data/quips.json";
 import { Scramble } from "@/components/scramble";
+import { useAppearance } from "@/components/providers";
 
 const FRAMES = framesData.frames as Record<string, string[]>;
 const HOP = (framesData.hop as string[][]).map((f) => f.join("\n"));
 const F = (k: string) => (FRAMES[k] ?? FRAMES.idle).join("\n");
+const HATS = (framesData as { hats?: Record<string, string> }).hats ?? {};
+
+// seasonal costume: the hat fills the 3-char gap between the ears (first ear line only).
+// scripts/validate-tofu.mjs checks every frame with every hat.
+const EARS = /([n~.|])   ([n.|])/;
+function dress(frame: string, hat?: string) {
+  if (!hat) return frame;
+  const lines = frame.split("\n");
+  const at = lines.slice(0, 2).findIndex((ln) => EARS.test(ln));
+  if (at !== -1) lines[at] = lines[at].replace(EARS, `$1${hat}$2`);
+  return lines.join("\n");
+}
 
 const PXW = 84;
 const PXH = 58;
@@ -41,6 +54,9 @@ function bounds(side: Side): Bounds {
 export function Tofu() {
   const reduce = useReducedMotion();
   const router = useRouter();
+  const { season } = useAppearance();
+  const hat = season ? HATS[season.id] : undefined;
+  const pool = season?.quips ? [...quips, ...season.quips] : quips;
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -216,10 +232,10 @@ export function Tofu() {
     }
   };
   const pickQuip = () => {
-    let i = Math.floor(Math.random() * quips.length);
-    if (quips.length > 1) while (i === lastQuip.current) i = Math.floor(Math.random() * quips.length);
+    let i = Math.floor(Math.random() * pool.length);
+    if (pool.length > 1) while (i === lastQuip.current) i = Math.floor(Math.random() * pool.length);
     lastQuip.current = i;
-    setQuip(quips[i]);
+    setQuip(pool[i]);
   };
   const onEnter = () => {
     hovering.current = true;
@@ -268,7 +284,7 @@ export function Tofu() {
           title="read my worklog →"
           className="-m-2 block cursor-pointer p-2 text-muted transition-colors hover:text-accent"
         >
-          <pre className="m-0 select-none font-mono text-[12px] leading-[1.15]">{frame}</pre>
+          <pre className="m-0 select-none font-mono text-[12px] leading-[1.15]">{dress(frame, hat)}</pre>
         </button>
       </div>
     </motion.div>

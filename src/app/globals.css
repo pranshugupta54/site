@@ -64,6 +64,11 @@
     --accent: #8aa0ff; --mark: #1d2238; --card: #1c1a15;
   }
 
+  /* ---- SEASONS — a light overlay on any skin × theme (see src/data/seasons.ts).
+     Touch --accent / --mark only. [data-skin] keeps specificity above the skin rules. ---- */
+  [data-season="halloween"][data-skin] { --accent: #c25414; --mark: #e9def3; }
+  [data-season="halloween"][data-skin][data-theme="dark"] { --accent: #ee8f45; --mark: #2d2337; }
+
   * { border-color: var(--line); }
   html { font-size: 87.5%; scroll-behavior: smooth; } /* 14px root — shrinks the whole rem scale */
   html[data-skin="mono"] { font-size: 81.25%; } /* mono renders heavier, go smaller */
@@ -130,6 +135,18 @@
     animation: sig-write 1.1s 0.4s ease forwards;
   }
   @keyframes sig-write { to { clip-path: inset(0 0 0 0); } }
+
+  /* seasonal ambient glyph — one slow pass across the viewport */
+  .season-drift {
+    opacity: 0.6;
+    animation: season-drift 22s linear both;
+  }
+  .season-bob { animation: season-bob 1.4s ease-in-out infinite alternate; }
+  @keyframes season-drift {
+    from { transform: translateX(-3rem); }
+    to { transform: translateX(calc(100vw + 3rem)); }
+  }
+  @keyframes season-bob { to { transform: translateY(-6px); } }
   @media (prefers-reduced-motion: reduce) {
     .sig { animation: none; clip-path: none; }
   }

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // Guarantees Tofu's ascii frames are perfectly aligned: every frame is exactly
-// width x height, every glyph printable ASCII (32-126). Run: node scripts/validate-tofu.mjs
+// width x height, every glyph printable ASCII (32-126).
+// Run: node scripts/validate-tofu.mjs [frames.json]
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const data = JSON.parse(readFileSync(join(here, "..", "src", "data", "tofu-frames.json"), "utf8"));
-const { width, height, frames, hop } = data;
+const framesPath = process.argv[2] || join(here, "..", "src", "data", "tofu-frames.json");
+const data = JSON.parse(readFileSync(framesPath, "utf8"));
+const { width, height, frames, hop, hats = {} } = data;
 
 const errs = [];
 const check = (name, f) => {
@@ -25,8 +27,21 @@ const check = (name, f) => {
 Object.entries(frames).forEach(([k, f]) => check(k, f));
 hop.forEach((f, i) => check(`hop[${i}]`, f));
 
+// seasonal hats: 3 printable chars that replace the gap between the ears.
+// Must match dress() in src/components/tofu.tsx, and land on every frame.
+const EARS = /([n~.|])   ([n.|])/;
+const all = [...Object.entries(frames), ...hop.map((f, i) => [`hop[${i}]`, f])];
+Object.entries(hats).forEach(([id, hat]) => {
+  if (typeof hat !== "string" || hat.length !== 3) return errs.push(`hat ${id}: must be exactly 3 chars`);
+  all.forEach(([name, f]) => {
+    const at = f.slice(0, 2).findIndex((ln) => EARS.test(ln));
+    if (at === -1) return errs.push(`hat ${id}: no ears to sit between in ${name}`);
+    check(`${name}+${id}`, f.map((ln, i) => (i === at ? ln.replace(EARS, `$1${hat}$2`) : ln)));
+  });
+});
+
 if (errs.length) {
   console.error("FAIL — frame alignment errors:\n" + errs.join("\n"));
   process.exit(1);
 }
-console.log(`OK — ${Object.keys(frames).length} states + ${hop.length} hop frames, all ${width}x${height}, ascii-only.`);
+console.log(`OK — ${Object.keys(frames).length} states + ${hop.length} hop frames + ${Object.keys(hats).length} hats, all ${width}x${height}, ascii-only.`);

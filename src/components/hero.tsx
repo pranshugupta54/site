@@ -7,6 +7,7 @@ import { LiveClock } from "@/components/live-clock";
 import { AppearanceSwitcher } from "@/components/appearance-switcher";
 import { Age } from "@/components/age";
 import { InlineLink } from "@/components/inline-link";
+import { useAppearance } from "@/components/providers";
 
 function Lead() {
   // split on {word} — the braced word gets the animated marker highlight
@@ -27,15 +28,17 @@ function Lead() {
 }
 
 export function Hero() {
+  const { season } = useAppearance();
+  // a seasonal greeting slots in second, so first paint still matches the server
+  const greetings: readonly string[] = season?.greeting
+    ? [SITE.greetings[0], season.greeting, ...SITE.greetings.slice(1)]
+    : SITE.greetings;
   const [gi, setGi] = useState(0);
   useEffect(() => {
-    const id = setInterval(
-      () => setGi((i) => (i + 1) % SITE.greetings.length),
-      2600
-    );
+    const id = setInterval(() => setGi((i) => i + 1), 2600);
     return () => clearInterval(id);
   }, []);
-  const greeting = SITE.greetings[gi];
+  const greeting = greetings[gi % greetings.length];
 
   return (
     <header>
