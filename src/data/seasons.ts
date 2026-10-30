@@ -21,7 +21,7 @@ export type Season = {
   quips?: string[];
   /** footer-shell easter eggs: command -> output */
   commands?: Record<string, string>;
-  /** a tiny ascii glyph that drifts across the page now and then */
+  /** a tiny ascii glyph that drifts across the page once per visit */
   ambient?: string;
 };
 
