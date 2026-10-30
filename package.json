@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint .",
     "log": "node scripts/log.mjs",
-    "test": "node --test src/data/seasons.test.ts scripts/validate-tofu.test.ts"
+    "test": "node --test src/data/seasons.test.ts scripts/validate-tofu.test.ts src/data/versions.test.ts next.config.test.mjs scripts/snapshot-version.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
