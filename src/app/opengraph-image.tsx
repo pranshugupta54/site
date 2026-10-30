@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 
-export const runtime = "edge";
 export const alt = `${SITE.name} — ${SITE.role}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -23,7 +22,7 @@ export default function OpengraphImage() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 28, color: "#6f675b", letterSpacing: 2 }}>~ {SITE.role}</div>
+        <div style={{ fontSize: 28, color: "#6f675b", letterSpacing: 2 }}>{`~ ${SITE.role}`}</div>
         <div style={{ fontSize: 156, fontWeight: 700, lineHeight: 1, marginTop: 10 }}>
           {SITE.first}
         </div>

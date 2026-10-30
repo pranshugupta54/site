@@ -19,15 +19,17 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const skill = await getSkill(params.slug);
+  const { slug } = await params;
+  const skill = await getSkill(slug);
   if (!skill) return { title: "skill not found" };
   return pageMeta(skill.name, skill.description, `/skills/${skill.slug}`);
 }
 
-export default async function SkillPage({ params }: { params: { slug: string } }) {
-  const skill = await getSkill(params.slug);
+export default async function SkillPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const skill = await getSkill(slug);
   if (!skill) notFound();
   const html = await renderMarkdown(skill.body);
 

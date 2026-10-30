@@ -1,7 +1,7 @@
 # Architecture
 
 ## Stack
-Next.js 14 (App Router) · TypeScript · Tailwind (CSS-variable tokens) · framer-motion · lucide-react · geist.
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind (CSS-variable tokens) · framer-motion · geist. Node 26 (`engines`).
 
 ## Appearance system (skins × themes)
 Two independent axes on `<html>`: `data-skin` (`editorial` | `mono` | `serif`) × `data-theme` (`light` | `dark`).
@@ -9,7 +9,7 @@ Two independent axes on `<html>`: `data-skin` (`editorial` | `mono` | `serif`) �
 - Tailwind utilities map to them: `bg-bg text-fg text-muted border-line text-accent bg-card bg-mark`, fonts `font-display font-body font-mono`. **Use these tokens, never hardcode colors** (except the footer shell's intentional dark terminal palette).
 - `src/components/providers.tsx` = `AppearanceProvider` + `NO_FLASH_SCRIPT` (no-flash, persisted to localStorage). Switcher: `appearance-switcher.tsx` (skin label hidden below `sm`).
 - Global size knob: `html { font-size: 87.5% }` (mono skin `81.25%`) — shrinks type + rem spacing together.
-- Fonts via next/font: **Geist needs the `geist` npm package** (not `next/font/google` in Next 14); Newsreader/Fraunces/Instrument need `adjustFontFallback: false`. Signature font = Sassy Frass (`--font-signature`).
+- Fonts via next/font: **Geist comes from the `geist` npm package** (not `next/font/google`); Newsreader/Fraunces/Instrument need `adjustFontFallback: false`. Signature font = Sassy Frass (`--font-signature`).
 
 ## Seasons (festival overlays)
 A third, optional axis: `data-season` on `<html>`, set by the no-flash script when the **viewer's local date** falls inside a season's window. No deploy per festival.
