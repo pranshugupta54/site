@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import framesData from "@/data/tofu-frames.json";
 import { useAppearance } from "@/components/providers";
 import { HATS, dress } from "@/components/tofu";
@@ -75,11 +75,12 @@ export function LostTofu() {
   );
 }
 
-// The path that 404'd. Read after mount: the not-found page is prerendered
-// once, so the server never knows which url brought you here.
+// The path that 404'd. The not-found page is prerendered once, so the server
+// never knows which url brought you here: its snapshot is empty and the real
+// path fills in on hydration.
+const noSubscribe = () => () => {};
 export function LostPath() {
-  const [path, setPath] = useState("");
-  useEffect(() => setPath(window.location.pathname), []);
+  const path = useSyncExternalStore(noSubscribe, () => window.location.pathname, () => "");
   if (!path) return null;
   return (
     <>
