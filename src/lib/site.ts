@@ -34,7 +34,7 @@ export const SITE = {
   // hourly (src/lib/cp.ts); `rating` is the fallback when that fetch fails.
   cpHandle: "pranshgupta54",
   competitive: [
-    { platform: "LeetCode", rating: "top 10% · max 1737", href: "https://leetcode.com/u/pranshgupta54/", live: "leetcode" },
+    { platform: "LeetCode", rating: "top 11.7% · max 1737", href: "https://leetcode.com/u/pranshgupta54/", live: "leetcode" },
     { platform: "CodeChef", rating: "3★ · max 1658", href: "https://www.codechef.com/users/pranshgupta54" },
     { platform: "Codeforces", rating: "pupil · max 1316", href: "https://codeforces.com/profile/pranshgupta54", live: "codeforces" },
     { platform: "Meta Hacker Cup '24", rating: "R2 · 1543 global · 273 in", href: "" },
