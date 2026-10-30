@@ -48,9 +48,13 @@ export function LostTofu() {
       if (!mq.matches) timer = setTimeout(tick, 1600);
     };
     sync();
-    mq.addEventListener("change", sync);
+    // Safari < 14 only has the deprecated addListener/removeListener
+    const modern = typeof mq.addEventListener === "function";
+    if (modern) mq.addEventListener("change", sync);
+    else mq.addListener(sync);
     return () => {
-      mq.removeEventListener("change", sync);
+      if (modern) mq.removeEventListener("change", sync);
+      else mq.removeListener(sync);
       stop();
     };
   }, []);
