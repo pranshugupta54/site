@@ -7,6 +7,7 @@ import { Tofu } from "@/components/tofu";
 import { FooterShell } from "@/components/footer-shell";
 import { SeasonAmbient } from "@/components/season-ambient";
 import { SITE } from "@/lib/site";
+import { FEED_LINKS } from "@/lib/feed";
 import "./globals.css";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", adjustFontFallback: false });
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.bio,
   icons: { icon: "/me.jpeg" },
+  alternates: { types: FEED_LINKS },
   openGraph: { title: SITE.name, description: SITE.bio, type: "website" },
   twitter: {
     card: "summary_large_image",
