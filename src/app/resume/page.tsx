@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { resume } from "@/lib/resume";
-import { getPublicRepos, getRepoStars } from "@/lib/github";
+import { getOwnRepoCount, getRepoStars } from "@/lib/github";
 import { ResumePrint } from "@/components/resume-print";
 import { pageMeta } from "@/lib/meta";
 
@@ -42,7 +42,7 @@ const TAG = "ml-2 font-mono text-[11px] text-accent";
 const LINK = "transition-colors hover:text-accent";
 
 export default async function ResumePage() {
-  const [dgStars, repos] = await Promise.all([getRepoStars("digitomize/digitomize"), getPublicRepos()]);
+  const [dgStars, repos] = await Promise.all([getRepoStars("digitomize/digitomize"), getOwnRepoCount()]);
   const r = resume({ stars: { "digitomize/digitomize": dgStars }, repos });
   return (
     <main className="resume-page mx-auto w-full max-w-[640px] px-6 py-16 text-fg sm:py-24 print:max-w-none print:px-[16mm] print:py-[14mm]">

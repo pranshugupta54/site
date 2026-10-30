@@ -9,8 +9,8 @@ export type ResumeLive = { stars?: Record<string, number | null>; repos?: number
 
 const shortUrl = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
-// floored like the projects section — "★ 500+", never a falsely precise count
-const starsLabel = (n: number) => `★ ${Math.floor(n / 100) * 100}+`;
+// exact live count, formatted like the projects section — "★ 599"
+const starsLabel = (n: number) => `★ ${n.toLocaleString("en-US")}`;
 
 const present = (xs: (string | null)[]) => xs.filter((x): x is string => Boolean(x));
 
