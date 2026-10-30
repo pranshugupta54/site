@@ -103,13 +103,14 @@ const restHeaders = (token?: string) => ({
 });
 const REPO_NAME = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const EVENT_PAGES = 3; // the public events feed caps at 300 events (3 × 100)
-const MAX_REPO_CHECKS = 3;
+const MAX_REPO_CHECKS = 5; // distinct repos checked before giving up
 
 // Most recent public push or merged PR, from the *public* events feed only.
 // `/users/:u/events` (no `/public`) can include private activity when
 // authenticated — never use it. Skips: non-public events, anything mentioning
 // traycer (site copy rule), and the profile README repo (its pushes are a daily
-// metrics bot, not shipping). Each candidate repo is re-checked as public.
+// metrics bot, not shipping). Each candidate repo is re-checked: public, not a
+// fork, same name — otherwise the next event is tried.
 export async function getLastShipped(login = SITE.handle): Promise<LastShipped | null> {
   const token = process.env.GITHUB_TOKEN;
   const profileRepo = `${login}/${login}`.toLowerCase();
@@ -138,17 +139,17 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
         .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
       // several events often share a repo; check each repo once
-      const checked = new Map<string, Visibility>();
+      const checked = new Map<string, Eligibility>();
       for (const ship of ships) {
         const key = ship.repo.toLowerCase();
-        let visibility = checked.get(key);
-        if (!visibility) {
+        let eligibility = checked.get(key);
+        if (!eligibility) {
           if (checked.size >= MAX_REPO_CHECKS) return null;
-          visibility = await getRepoVisibility(ship.repo, token);
-          checked.set(key, visibility);
+          eligibility = await getRepoEligibility(ship.repo, token);
+          checked.set(key, eligibility);
         }
-        if (visibility === "public") return ship;
-        if (visibility === "error") return null;
+        if (eligibility === "eligible") return ship;
+        if (eligibility === "error") return null;
       }
       if (ships.length) return null;
       if (events.length < 100) return null; // last page
@@ -159,23 +160,30 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
   }
 }
 
-// "hidden" covers private, missing (404) and renamed-away repos.
-type Visibility = "public" | "hidden" | "error";
-async function getRepoVisibility(repo: string, token?: string): Promise<Visibility> {
+// Only public, non-fork repos that still go by this name are showcased.
+// "skip" covers private, forked, missing (404) and renamed-away repos.
+type Eligibility = "eligible" | "skip" | "error";
+async function getRepoEligibility(repo: string, token?: string): Promise<Eligibility> {
   const res = await fetch(`https://api.github.com/repos/${repo}`, {
     headers: restHeaders(token),
     next: { revalidate: 3600 },
     signal: AbortSignal.timeout(4000),
   });
-  if (res.status === 404) return "hidden";
+  if (res.status === 404) return "skip";
   if (!res.ok) return "error";
-  const json = (await res.json()) as { private?: unknown; visibility?: unknown; full_name?: unknown };
-  const isPublic =
+  const json = (await res.json()) as {
+    private?: unknown;
+    visibility?: unknown;
+    fork?: unknown;
+    full_name?: unknown;
+  };
+  const eligible =
     json.private === false &&
     json.visibility === "public" &&
+    json.fork === false &&
     typeof json.full_name === "string" &&
     json.full_name.toLowerCase() === repo.toLowerCase();
-  return isPublic ? "public" : "hidden";
+  return eligible ? "eligible" : "skip";
 }
 
 export async function getGithub(login = SITE.handle): Promise<Github | null> {

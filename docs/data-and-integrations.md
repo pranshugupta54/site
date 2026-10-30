@@ -11,7 +11,7 @@
   - a merged PR is a `PullRequestEvent` with `action === "merged"` (what the trimmed public feed emits; plain `"closed"` there means closed *unmerged*) or `action === "closed" && pull_request.merged === true` (full payload shape).
   - only `event.public === true`, sorted by `created_at` (the feed isn't strictly ordered); scans up to 3 pages (the feed's 300-event cap).
   - **skips any repo with "traycer" in owner or name** (site copy rule) and the profile README repo `pranshugupta54/pranshugupta54` (its pushes are a daily metrics bot, not real work).
-  - each candidate repo is re-checked via `/repos/:repo` and shown only if `private === false`, `visibility === "public"` and the name still matches; a 404/private/renamed repo falls through to the next event (max 3 distinct repo checks).
+  - each candidate repo is re-checked via `/repos/:repo` and shown only if `private === false`, `visibility === "public"`, **`fork === false`** (pushing to a fork isn't his work to showcase) and the name still matches; a 404/private/forked/renamed repo falls through to the next event (max 5 distinct repo checks).
   - any HTTP error, timeout (4s) or odd shape → `null` → the line renders nothing.
   - the time is server-rendered as ISO and formatted ("3h ago") on the client by `RelativeTime` in `local-time.tsx`, so hourly ISR HTML never shows a stale relative time.
   - payloads are trimmed (no commit messages / PR titles), so the line only says *where* and *when*, not *what*. If every recent public event is excluded, the line is simply hidden.
