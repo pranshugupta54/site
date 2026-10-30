@@ -105,4 +105,20 @@ describe("SEASONS", () => {
     assert.equal(pickSeason(new Date(2026, 9, 31, 12), SEASONS, null), "halloween");
     assert.equal(pickSeason(new Date(2026, 10, 1, 12), SEASONS, null), null);
   });
+
+  it("activates diwali 2026-11-06 → 11-10 local, only in 2026", () => {
+    assert.equal(pickSeason(new Date(2026, 10, 5, 23), SEASONS, null), null);
+    assert.equal(pickSeason(new Date(2026, 10, 6, 0), SEASONS, null), "diwali");
+    assert.equal(pickSeason(new Date(2026, 10, 10, 23), SEASONS, null), "diwali");
+    assert.equal(pickSeason(new Date(2026, 10, 11, 0), SEASONS, null), null);
+    assert.equal(pickSeason(new Date(2027, 10, 8, 12), SEASONS, null), null);
+  });
+
+  it("never has two seasons claiming the same day", () => {
+    const day = new Date(2026, 0, 1, 12);
+    for (let i = 0; i < 366 * 2; i++, day.setDate(day.getDate() + 1)) {
+      const hits = SEASONS.filter((s) => pickSeason(day, [s], null) === s.id).map((s) => s.id);
+      assert.ok(hits.length <= 1, `${day.toDateString()}: ${hits.join(", ")}`);
+    }
+  });
 });
