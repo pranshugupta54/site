@@ -2,7 +2,7 @@
   {
     "t": "2026-10-30T13:50:24.438Z",
     "mood": "🧯",
-    "text": "deploys were quietly dead. node 20 got retired and nobody told the build, it just gave up after one second. pinned node 26. it builds. i'm choosing not to think about the last two months."
+    "text": "vercel retired node 20 while nobody was deploying. first build back gave up in one second flat. pinned node 26. it builds. nobody panic."
   },
   {
     "t": "2026-08-17T08:34:37Z",
