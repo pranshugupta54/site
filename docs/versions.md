@@ -1,0 +1,52 @@
+# Versions
+
+The site keeps its past lives. Each version gets an entry on `/versions`, told in tofu's voice, and a past version can stay walkable as a frozen copy at `/v/<n>`.
+
+## What counts as a version
+A **big revamp or theme overhaul**: new layout, new look, new bones. Features don't count (skills pages, a new shell command, a season). If the old site and the new one would look like different houses, it's a version.
+
+**Seasons vs versions:** seasons (`src/data/seasons.ts`) are temporary overlays that come and go by the calendar: two tokens and a hat. Versions are permanent revamps. A season never bumps the version.
+
+## `src/data/versions.json`
+Single source of truth. It's JSON because `next.config.mjs` reads it too (with `fs` + `JSON.parse`). App code goes through the typed wrapper `src/lib/versions.ts`.
+
+| field | meaning |
+| --- | --- |
+| `current` | version number of the live site. Shows in the home-page marker, the shell boot line, and `version` in the shell. `/v/<current>` redirects to `/`. |
+| `renovation` | `null`, or `{ "version": "2", "href": "https://next.p54.dev" }` while a revamp is in progress. Flips the home marker to "tofu is renovating · peek at v2 →" and adds a note on `/versions`. |
+| `versions[]` | newest first. Each: `version`, `date` (launch day, `YYYY-MM-DD`, shown as-is with no timezone math), `name`, `tofu` (one line in tofu's voice), `highlights` (4–6 short lowercase lines), `archive`. |
+| `archive` | `null` (current, or not kept) or `"static"` (snapshot committed under `public/v/<n>/`; `/versions` links to it and `next.config.mjs` routes it). |
+
+## Revamp workflow
+1. **Cut `vnext`** from `main`. The revamp lives there as long as it needs.
+2. **Add a branch domain in Vercel** (one-time, Pranshu): Project → Domains → add `next.p54.dev`, assign it to the `vnext` branch, add the DNS record. A custom domain skips deployment protection; `*.vercel.app` previews don't (see below).
+3. **Set `renovation`** on `main`: `{ "version": "<n+1>", "href": "https://next.p54.dev" }`. Ship it. The home marker now invites a peek.
+4. **Build** on `vnext`. Merge `main` into it now and then.
+5. **At launch**, on `vnext` (or a launch branch off it):
+   1. Snapshot the outgoing version from its last commit on `main`:
+      `node scripts/snapshot-version.mjs <n> main`
+      This writes `public/v/<n>/` and sets that entry's `archive` to `"static"`.
+   2. Bump `current` to `<n+1>`.
+   3. Add the new entry at the top of `versions` (`archive: null`).
+   4. Clear `renovation` (`null`).
+   5. `npm run build`, check `/versions` and `/v/<n>` with `npx next start`, then merge to `main`.
+6. Optionally drop the branch domain once `vnext` is merged.
+
+## How the snapshot works (`scripts/snapshot-version.mjs <n> [ref]`)
+1. `git worktree add` a throwaway checkout of `ref` (default `HEAD`) in the OS temp dir, then `npm ci` there.
+2. Delete what static export can't handle, in the temp copy only: `src/app/opengraph-image.tsx` (edge runtime), plus `public/v/` so older archives don't get nested inside the new one.
+3. GitHub data: local `.env.local` is copied in; if there's still no `GITHUB_TOKEN`, the script borrows `gh auth token` for the build (read-only, build-time fetches, never in the output). Unauthenticated calls get rate-limited and the archive would freeze with an empty heatmap and skills list.
+4. Build with `SNAPSHOT_BASE_PATH=/v/<n>`. `next.config.mjs` honors it: `output: "export"`, `basePath`, `trailingSlash: true`, unoptimized images. A ref whose config doesn't mention `SNAPSHOT_BASE_PATH` (anything older than this doc) gets a known-good snapshot config written over it. If a dynamic route comes back with zero params (next refuses to export those), the script drops that route and builds again.
+5. Post-process `out/*.html`: root-relative `href`/`src` attributes that skipped `basePath` (raw `<a href="/log">`, metadata icons) are pointed back inside `/v/<n>/`. RSC payloads are left alone on purpose: they also carry `next/link` props, which the router prefixes itself, so rewriting them doubles the prefix. Every page gets a small fixed strip: "you're looking at v<n>, archived <date> · back to now →", styled with that snapshot's own `var(--muted)` etc.
+6. Copy `out/` to `public/v/<n>/`, set `archive: "static"`, remove the temp worktree (also on failure).
+
+Serving: for every `archive: "static"` version, `next.config.mjs` adds afterFiles rewrites `/v/<n>` → `/v/<n>/index.html` and `/v/<n>/:path*` → `/v/<n>/:path*/index.html`. afterFiles runs after public files match, so the snapshot's `_next/` assets, images and `index.txt` payloads are served directly; only page paths hit the rewrite. `public/robots.txt` disallows `/v/`.
+
+## Why static snapshots
+Preview and deployment URLs on this Vercel project sit behind Vercel SSO: an anonymous request gets a 302 to `vercel.com/sso-api`. So "link to the old deployment" is out; only the production domain is public. A static export committed under `public/v/<n>/` is served by the production domain forever, with zero dependency on old deployments still existing.
+
+## Caveats
+- **Data is frozen at snapshot time.** GitHub heatmap, stars, skills list: whatever they were when the script ran. Fine for an archive, since every page says it's archived and when.
+- **Size.** Each snapshot is a few MB in git (JS chunks, fonts, images). Keep only versions worth walking around in; `archive: null` is a perfectly good ending.
+- Rebasing covers full page loads. After a client-side navigation inside the snapshot, raw `<a href="/...">` links come from the RSC payload and point at the live site again. `next/link` links stay inside the archive either way, and "back to now" is always one click away.
+- The OG share image isn't in snapshots (edge runtime). Archive pages are disallowed in robots anyway.

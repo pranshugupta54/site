@@ -7,6 +7,7 @@ Context is split into `docs/` (imported below). Edit the relevant file; keep eac
 - @docs/architecture.md — stack, skin/theme system, key components
 - @docs/data-and-integrations.md — content source, live GitHub data, token safety
 - @docs/tofu.md — the mascot + the AI worklog + logging CLI
+- @docs/versions.md — site versions, /versions, archiving past versions under /v/<n>
 - @docs/conventions.md — dev/build/deploy workflow + gotchas
 - @docs/preferences.md — Pranshu's taste, opinions, likes/dislikes, rules
 - @docs/tasks.md — done / parked / ideas / open questions

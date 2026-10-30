@@ -6,6 +6,7 @@ import { SITE, projectBlurb } from "@/lib/site";
 import { resumeLines } from "@/lib/resume";
 import funfacts from "@/data/funfacts.json";
 import { SEASONS } from "@/data/seasons";
+import { CURRENT, RENOVATION } from "@/lib/versions";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ export function FooterShell() {
 
   // ── boot message (once) ──
   useEffect(() => {
-    addLine("ok", `pranshu.sh v${SITE.version} — type 'help' to start.`);
+    addLine("ok", `pranshu.sh v${CURRENT.version} — type 'help' to start.`);
   }, [addLine]);
 
   // ── global keys: "/" opens, any typed character opens + carries over, Esc closes ──
@@ -275,6 +276,7 @@ export function FooterShell() {
   skin       cycle editorial → mono → serif
   funfact    a fun fact
   season     what's on, or season <name|off|auto>
+  versions   this site's past lives
   goto <x>   github · x · email
   clock · clear · cowsay <msg> · sudo` +
               (season?.commands
@@ -355,6 +357,12 @@ export function FooterShell() {
           } else addLine("warn", `usage: season ${names}|off|auto`);
           break;
         }
+        case "version":
+        case "versions":
+          addLine("res", `v${CURRENT.version} · ${CURRENT.name} · since ${CURRENT.date}\n${CURRENT.tofu}`);
+          if (RENOVATION) addLine("res", `tofu is renovating · peek at v${RENOVATION.version} → ${RENOVATION.href}`);
+          addLine("ok", "the whole story → /versions");
+          break;
         case "sudo":
           addLine("warn", "nice try. you don't have root here 😏");
           break;

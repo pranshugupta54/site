@@ -5,6 +5,7 @@
 - Live GitHub data (heatmap, contributions, followers, streak) + live Digitomize stars (`600+`).
 - WakaTime removed. Photo favicon. Signature in Sassy Frass. Mobile skin-switcher (icon only).
 - Worklog `/log` + logging CLI. CLAUDE.md / docs split.
+- Site versions: `/versions`, home-page marker, shell `versions`, static archives under `/v/<n>` (see @docs/versions.md).
 
 ## Parked (decided not now)
 - **Live multiplayer cursors** — needs a realtime backend (Vercel can't host WebSockets). Options if revisited: Liveblocks (drop-in cursors, just an API key), PartyKit (deploys to Cloudflare), Ably/Pusher. Dropped for now over hosting friction.
