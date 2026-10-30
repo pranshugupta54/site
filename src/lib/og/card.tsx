@@ -3,18 +3,11 @@ import { join } from "node:path";
 import type { ReactNode } from "react";
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
+import { OG_SIZE } from "@/lib/og/image";
 import framesData from "@/data/tofu-frames.json";
 
-// Social-share cards, rendered with next/og (Satori). One card family: the
-// root opengraph-image (home) and /og?title=…&path=…&v=… (every other page).
-
-export const OG_SIZE = { width: 1200, height: 630 };
-export const OG_ALT = `${SITE.name} — ${SITE.role}`;
-
-// /og responses are cached as immutable for a year, keyed by URL. Bump this
-// whenever anything the card draws changes (layout, fonts, colors, the SITE
-// fields it shows, tofu's idle frame) so scrapers and CDNs fetch a fresh one.
-export const OG_VERSION = "1";
+// Social-share cards, rendered with next/og (Satori) by the /og route: the
+// home card with no title, a page card with ?title=…&path=…
 
 // editorial / light tokens — mirror globals.css (Satori can't read CSS vars)
 const C = {
@@ -28,8 +21,7 @@ const C = {
 
 // static TTF instances of the site's fonts (Satori can't read woff2 or
 // variable fonts); OFL licenses sit next to them. Literal paths so build
-// tracing ships them; read on first render, not at import (pages import
-// opengraph-image just for its alt/size exports).
+// tracing ships them; read once, on first render.
 let fonts: Promise<Buffer[]> | undefined;
 const loadFonts = () =>
   (fonts ??= Promise.all([

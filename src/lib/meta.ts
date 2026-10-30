@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { SITE } from "@/lib/site";
 import { FEED_LINKS } from "@/lib/feed";
-import { OG_VERSION } from "@/lib/og/card";
+import { shareImage } from "@/lib/og/image";
 
 // Per-page metadata with matching OpenGraph/Twitter tags. Next.js does NOT
 // cascade a page's `title` into og:/twitter: tags — without these, link
 // previews fall back to the root layout's site-wide values.
 export function pageMeta(title: string, description: string, path: string): Metadata {
-  // file-convention og images don't cascade to nested routes — each page
-  // points at its own card from the /og route instead
-  const image = {
-    url: `/og?${new URLSearchParams({ title, path, v: OG_VERSION })}`,
-    width: 1200,
-    height: 630,
-    alt: `${title} — ${SITE.name}`,
-  };
+  // each page points at its own card from the /og route
+  const image = shareImage({ title, path });
   return {
     title,
     description,
