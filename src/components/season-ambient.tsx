@@ -1,38 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useAppearance } from "@/components/providers";
 
 // The season's ambient glyph drifts across the top of the page once per visit (tab session),
 // a few seconds after load. Never in reduced motion, never below sm (same as tofu).
-const FLOWN_KEY = "season-ambient-flown";
+const flownKey = (id: string) => `season-ambient-flown:${id}`;
 export function SeasonAmbient() {
   const { season } = useAppearance();
   const reduce = useReducedMotion();
-  const [flight, setFlight] = useState<{ top: number; rtl: boolean } | null>(null);
+  const [flight, setFlight] = useState<{ id: string; top: number; rtl: boolean } | null>(null);
+  const flown = useRef(new Set<string>()); // backs up sessionStorage when it's blocked
   const glyph = season?.ambient;
   const id = season?.id;
 
   useEffect(() => {
-    if (!glyph || !id || reduce || !matchMedia("(min-width: 640px)").matches) return;
+    if (!glyph || !id || reduce || flown.current.has(id) || !matchMedia("(min-width: 640px)").matches) return;
     try {
-      if (sessionStorage.getItem(FLOWN_KEY) === id) return;
+      if (sessionStorage.getItem(flownKey(id))) return;
     } catch {
-      /* storage blocked — fly anyway, still once per page load */
+      /* storage blocked — the ref still keeps it to once per page load */
     }
     const t = setTimeout(() => {
+      flown.current.add(id);
       try {
-        sessionStorage.setItem(FLOWN_KEY, id);
+        sessionStorage.setItem(flownKey(id), "1");
       } catch {
         /* ignore */
       }
-      setFlight({ top: 6 + Math.random() * 22, rtl: Math.random() < 0.5 });
+      setFlight({ id, top: 6 + Math.random() * 22, rtl: Math.random() < 0.5 });
     }, 4000);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      setFlight(null); // a season switch or motion change never revives an old flight
+    };
   }, [glyph, id, reduce]);
 
-  if (!glyph || reduce || !flight) return null;
+  if (!glyph || reduce || !flight || flight.id !== id) return null;
 
   return (
     <div
