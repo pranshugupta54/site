@@ -13,7 +13,8 @@ export type FeedEntry = {
   id: string;
   title: string;
   url: string;
-  updated: string; // ISO-8601
+  updated: string; // ISO-8601, last significant change
+  published?: string; // ISO-8601
   summary?: string;
   html?: string;
 };
@@ -34,7 +35,9 @@ export function atom({
   feedPath: string;
   entries: FeedEntry[];
 }): Response {
-  const updated = entries[0]?.updated ?? new Date(0).toISOString();
+  const updated =
+    entries.map((e) => e.updated).sort((a, b) => Date.parse(b) - Date.parse(a))[0] ??
+    new Date(0).toISOString();
   const body = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>${esc(title)}</title>
@@ -50,7 +53,7 @@ ${entries
     <title>${esc(e.title)}</title>
     <id>${esc(e.id)}</id>
     <link href="${esc(e.url)}"/>
-    <updated>${e.updated}</updated>${e.summary ? `\n    <summary>${esc(e.summary)}</summary>` : ""}${
+    <updated>${e.updated}</updated>${e.published ? `\n    <published>${e.published}</published>` : ""}${e.summary ? `\n    <summary>${esc(e.summary)}</summary>` : ""}${
       e.html ? `\n    <content type="html">${esc(e.html)}</content>` : ""
     }
   </entry>`

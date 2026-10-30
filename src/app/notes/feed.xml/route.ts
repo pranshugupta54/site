@@ -11,7 +11,8 @@ export async function GET() {
       id: `${SITE_URL}/notes/${n.slug}`,
       title: n.title,
       url: `${SITE_URL}/notes/${n.slug}`,
-      updated: `${n.date}T00:00:00Z`,
+      published: `${n.date}T00:00:00Z`,
+      updated: `${n.updated}T00:00:00Z`,
       summary: n.summary,
       html: await renderMarkdown(n.body),
     }))
