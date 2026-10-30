@@ -338,7 +338,7 @@ export function Tofu() {
           title="read my worklog →"
           className="-m-2 block cursor-pointer p-2 text-muted transition-colors hover:text-accent"
         >
-          <pre className="m-0 select-none font-mono text-[12px] leading-[1.15]">{dress(frame, hat)}</pre>
+          <pre className="m-0 select-none font-mono text-[12px] leading-[1.15] [font-variant-ligatures:none]">{dress(frame, hat)}</pre>
         </button>
       </div>
     </motion.div>
