@@ -10,9 +10,18 @@ const VERSIONS = JSON.parse(
 // /v/<n>/ of the production site.
 const snapshotBase = process.env.SNAPSHOT_BASE_PATH;
 
+// Build vitals for the site strip, only on Vercel — local builds leave them
+// empty so the strip hides them. `??=` pins one timestamp per build: workers
+// inherit process.env, so every bundle inlines the same value.
+const onVercel = process.env.VERCEL === "1";
+
 /** @type {import('next').NextConfig} */
 const base = {
   reactStrictMode: true,
+  env: {
+    SITE_BUILT_AT: onVercel ? (process.env.SITE_BUILT_AT ??= new Date().toISOString()) : "",
+    SITE_COMMIT_SHA: onVercel ? (process.env.VERCEL_GIT_COMMIT_SHA ?? "") : "",
+  },
   // files read from disk at render time; ship them with every function so ISR
   // revalidation still finds them — notes (e.g. the home page's Writing
   // section) and worklog entries (src/lib/worklog.ts). "/**" also matches "/".
@@ -26,7 +35,7 @@ const nextConfig = snapshotBase
       ...base,
       output: "export",
       basePath: snapshotBase,
-      env: { NEXT_PUBLIC_BASE_PATH: snapshotBase }, // for urls next doesn't base itself
+      env: { ...base.env, NEXT_PUBLIC_BASE_PATH: snapshotBase }, // for urls next doesn't base itself
       trailingSlash: true,
       images: { unoptimized: true },
     }

@@ -128,14 +128,17 @@ async function fetchSitePulls(): Promise<SitePulls & { fetchedAt: number }> {
 // Caches the grouped result (a few hundred bytes), not the raw REST payloads.
 // A throw is never stored: a cold miss rethrows, and a failed refresh keeps
 // the last good value — so a GitHub hiccup can't pin an empty block for an hour.
-const cachedSitePulls = unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate: 3600 });
+// Every caller shares one entry (same key); each judges staleness by its own
+// `revalidate` — /log hourly, /api/pulls every 5 min.
+const cachedSitePulls = (revalidate: number) =>
+  unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate });
 
 // Null on a cold failure (no snapshot yet) or once the last good snapshot is
 // older than PULLS_MAX_AGE_MS — callers hide the block. Otherwise a failed
 // refresh returns the last good snapshot.
-export async function getSitePulls(): Promise<SitePulls | null> {
+export async function getSitePulls({ revalidate = 3600 } = {}): Promise<SitePulls | null> {
   try {
-    const pulls = await cachedSitePulls();
+    const pulls = await cachedSitePulls(revalidate)();
     if (tooOld(pulls.fetchedAt, Date.now())) throw new Error("last good snapshot is over 24h old");
     return pulls;
   } catch (e) {
