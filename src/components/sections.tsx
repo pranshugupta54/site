@@ -61,7 +61,7 @@ export async function Sections() {
                 const stars = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
                 return stars ? (
                   <span className="ml-1.5 font-mono text-[11px] text-accent">
-                    ★ {(Math.floor(stars / 100) * 100).toLocaleString()}+
+                    ★ {stars.toLocaleString("en-US")}
                   </span>
                 ) : null;
               })()}
