@@ -62,6 +62,14 @@ const ENV_FILES = [".env.local", ".env.production.local"];
 // shorter than this can't be a real token, and would match all over the place
 const MIN_SECRET = 8;
 
+// every variable a GitHub credential can sit in (`gh help environment`)
+export const AUTH_VARS = ["GITHUB_TOKEN", "GH_TOKEN", "GH_ENTERPRISE_TOKEN", "GITHUB_ENTERPRISE_TOKEN"];
+
+/** The value of every GitHub credential variable set in `env`. */
+export function authTokens(env = process.env) {
+  return AUTH_VARS.map((k) => env[k]).filter(Boolean);
+}
+
 // GitHub token shapes: classic (ghp_, gho_, ghu_, ghs_, ghr_) and fine-grained
 const SECRET_PATTERNS = [
   { name: "github token (gh*_)", re: /gh[pousr]_[A-Za-z0-9]{20,}/ },
@@ -80,7 +88,7 @@ export function scanForSecrets(dir, tokens = []) {
     const text = readFileSync(file).toString("latin1");
     const rel = relative(dir, file);
     for (const { name, re } of SECRET_PATTERNS) if (re.test(text)) hits.push({ file: rel, pattern: name });
-    if (literals.some((t) => text.includes(t))) hits.push({ file: rel, pattern: "the GITHUB_TOKEN this build used" });
+    if (literals.some((t) => text.includes(t))) hits.push({ file: rel, pattern: "a token this build could see" });
   }
   return hits;
 }
@@ -176,6 +184,18 @@ export function runTee(cmd, args, { secrets = [], out = process.stdout, err = pr
 }
 
 /**
+ * Installs dependencies in `dir`. Install scripts are third-party code and need
+ * no GitHub credentials, so none are passed in; any that reach the output some
+ * other way are redacted.
+ */
+export function installDeps(dir, { env = process.env, ...opts } = {}) {
+  const cmd = existsSync(join(dir, "package-lock.json")) ? "ci" : "install";
+  const clean = { ...env };
+  for (const k of AUTH_VARS) delete clean[k];
+  return runTee("npm", [cmd, "--no-audit", "--no-fund"], { cwd: dir, env: clean, secrets: authTokens(env), ...opts });
+}
+
+/**
  * Root-relative URLs that skipped basePath — raw <a href="/log">, metadata
  * icons, <img src>, srcset candidates, url(/…) in inline styles — would walk
  * out of the archive. Point them back inside it.
@@ -195,14 +215,43 @@ export function rebaseLinks(html, base) {
     if (path === "/v" || path.startsWith("/v/")) return url;
     return base + url;
   };
+  // url(…), its body quoted (" or ', raw or HTML-escaped) up to the matching
+  // quote, or bare up to whitespace or `)`, so `&amp;` in a query stays inside
   const css = (s) =>
-    s.replace(/url\(\s*(&quot;|&#39;|&#x27;|['"])?(\/[^'")\s&]*)\1\s*\)/g, (_, q = "", url) => `url(${q}${fix(url)}${q})`);
+    s.replace(
+      /(url\(\s*)(?:(&quot;|&#0*39;|&#x0*27;|&apos;|["'])((?:(?!\2)[\s\S])*)\2|([^\s"')]+))(\s*\))/gi,
+      (_, open, q, quoted, bare, close) => open + (q ? q + fix(quoted) + q : fix(bare)) + close
+    );
+  // srcset as HTML parses it: a candidate's URL runs to whitespace (so a data:
+  // URL keeps its commas), trailing commas end the candidate, and descriptors
+  // run to the next comma outside parentheses
+  const srcset = (set) => {
+    let out = "";
+    let i = 0;
+    while (i < set.length) {
+      const sep = i;
+      while (i < set.length && /[\s,]/.test(set[i])) i++;
+      out += set.slice(sep, i);
+      if (i === set.length) break;
+      const start = i;
+      while (i < set.length && !/\s/.test(set[i])) i++;
+      const token = set.slice(start, i);
+      const url = token.replace(/,+$/, "");
+      out += fix(url) + token.slice(url.length);
+      if (url !== token) continue;
+      const desc = i;
+      for (let depth = 0; i < set.length && (depth > 0 || set[i] !== ","); i++) {
+        if (set[i] === "(") depth++;
+        else if (set[i] === ")" && depth > 0) depth--;
+      }
+      out += set.slice(desc, i);
+    }
+    return out;
+  };
   const markup = (s) =>
     s
       .replace(/(\s(?:href|src)=")(\/[^"]*)"/g, (_, pre, url) => `${pre}${fix(url)}"`)
-      .replace(/(\s(?:srcset|imagesrcset)=")([^"]*)"/gi, (_, pre, set) =>
-        `${pre}${set.replace(/(^|,)(\s*)(\/[^\s,]*)/g, (m, sep, ws, url) => sep + ws + fix(url))}"`
-      )
+      .replace(/(\s(?:srcset|imagesrcset)=")([^"]*)"/gi, (_, pre, set) => `${pre}${srcset(set)}"`)
       .replace(/(\sstyle=")([^"]*)"/g, (_, pre, style) => `${pre}${css(style)}"`)
       .replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/gi, (_, open, body, close) => open + css(body) + close);
   // odd parts are whole <script> elements: rebase the opening tag, keep the body
@@ -323,8 +372,7 @@ async function main() {
     run("git", ["worktree", "add", "--detach", wt, ref], { cwd: repo });
 
     console.log("\n→ installing");
-    const install = existsSync(join(wt, "package-lock.json")) ? ["ci", "--no-audit", "--no-fund"] : ["install", "--no-audit", "--no-fund"];
-    const installed = await runTee("npm", install, { cwd: wt, secrets: [process.env.GITHUB_TOKEN] });
+    const installed = await installDeps(wt);
     if (installed.code !== 0) throw new Error("npm install failed (see output above)");
 
     for (const b of BLOCKERS) rmSync(join(wt, b), { recursive: true, force: true });
@@ -342,7 +390,7 @@ async function main() {
     // every token the build can see: redacted from its output, scanned for in the export
     const fileToken = envFileToken(wt);
     const borrowed = process.env.GITHUB_TOKEN || fileToken ? undefined : ghToken();
-    const tokens = [process.env.GITHUB_TOKEN, fileToken, borrowed];
+    const tokens = [...authTokens(), fileToken, borrowed];
     const env = { ...process.env, SNAPSHOT_BASE_PATH: base, NEXT_TELEMETRY_DISABLED: "1" };
     if (borrowed) env.GITHUB_TOKEN = borrowed;
 

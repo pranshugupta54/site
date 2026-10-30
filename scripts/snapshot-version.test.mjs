@@ -7,12 +7,15 @@ import { delimiter, dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
+  AUTH_VARS,
   SNAPSHOT_CONFIG,
   assertNoSecrets,
+  authTokens,
   banner,
   envFileToken,
   injectBanner,
   installArchive,
+  installDeps,
   pinStaticParams,
   rebaseLinks,
   redactor,
@@ -149,6 +152,24 @@ describe("rebaseLinks", () => {
     );
   });
 
+  it("keeps a data: URL whole in srcset, commas and all, and rebases the candidate beside it", () => {
+    // a real jpeg header: base64 of FF D8 FF E0 … starts "/9j/", which looks root-relative
+    const jpeg = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q==";
+    for (const attr of ["srcset", "imagesrcset"]) {
+      assert.equal(rebaseLinks(`<img ${attr}="${jpeg} 1x, /paper.png 2x">`, base), `<img ${attr}="${jpeg} 1x, /v/9/paper.png 2x">`);
+      assert.equal(rebaseLinks(`<img ${attr}="/paper.png 2x,${jpeg}">`, base), `<img ${attr}="/v/9/paper.png 2x,${jpeg}">`);
+    }
+    // no descriptor: the trailing comma ends the data: candidate
+    assert.equal(rebaseLinks(`<img srcset="${jpeg}, /paper.png 2x">`, base), `<img srcset="${jpeg}, /v/9/paper.png 2x">`);
+  });
+
+  it("splits srcset descriptors on commas only outside parentheses", () => {
+    assert.equal(
+      rebaseLinks('<img srcset="/a.png 1x (x, y), /b.png 2x">', base),
+      '<img srcset="/v/9/a.png 1x (x, y), /v/9/b.png 2x">'
+    );
+  });
+
   it("rebases url(/…) in style attributes, in every quoting style", () => {
     const html =
       '<div style="background:url(/a.png)"></div>' +
@@ -167,6 +188,29 @@ describe("rebaseLinks", () => {
     assert.equal(
       rebaseLinks(`<style>${css}</style>`, base),
       "<style>.a{background:url(/v/9/a.png)}.b{background:url(\"//cdn.example/b.png\")}.c{background:url('/v/1/c.png')}</style>"
+    );
+  });
+
+  it("keeps the whole query, &amp; and all, when it rebases url() in a style attribute", () => {
+    const html =
+      '<div style="background:url(&quot;/paper.png?x=1&amp;y=2&quot;)"></div>' +
+      '<div style="background:url(&#39;/paper.png?x=1&amp;y=2&#39;)"></div>' +
+      '<div style="background:url(/paper.png?x=1&amp;y=2)"></div>' +
+      '<div style="background:url( &quot;/paper.png?x=1&amp;y=2#f&quot; ), url(&quot;/v/9/b.png?a&amp;b&quot;)"></div>';
+    assert.equal(
+      rebaseLinks(html, base),
+      '<div style="background:url(&quot;/v/9/paper.png?x=1&amp;y=2&quot;)"></div>' +
+        '<div style="background:url(&#39;/v/9/paper.png?x=1&amp;y=2&#39;)"></div>' +
+        '<div style="background:url(/v/9/paper.png?x=1&amp;y=2)"></div>' +
+        '<div style="background:url( &quot;/v/9/paper.png?x=1&amp;y=2#f&quot; ), url(&quot;/v/9/b.png?a&amp;b&quot;)"></div>'
+    );
+  });
+
+  it("keeps the whole query when it rebases url() in a <style> block", () => {
+    const css = ".a{background:url(\"/paper.png?x=1&y=2\")}.b{background:url('/paper.png?x=1&y=2')}.c{background:URL(/paper.png?x=1&y=2)}";
+    assert.equal(
+      rebaseLinks(`<style>${css}</style>`, base),
+      "<style>.a{background:url(\"/v/9/paper.png?x=1&y=2\")}.b{background:url('/v/9/paper.png?x=1&y=2')}.c{background:URL(/v/9/paper.png?x=1&y=2)}</style>"
     );
   });
 
@@ -310,7 +354,7 @@ describe("secret guard", () => {
     const font = Buffer.concat([Buffer.from([0, 255, 7]), Buffer.from(literal, "latin1"), Buffer.from([254])]);
     withExport({ "_next/static/media/font.woff2": font }, (dir) => {
       assert.deepEqual(scanForSecrets(dir, [literal]), [
-        { file: join("_next", "static", "media", "font.woff2"), pattern: "the GITHUB_TOKEN this build used" },
+        { file: join("_next", "static", "media", "font.woff2"), pattern: "a token this build could see" },
       ]);
     });
   });
@@ -395,6 +439,68 @@ describe("runTee", () => {
   it("rejects instead of hanging when the command can't start", async () => {
     await assert.rejects(runTee("snapshot-no-such-command-xyz", [], { out: sink(), err: sink() }), /couldn't run/);
   });
+});
+
+describe("authTokens", () => {
+  it("collects every GitHub credential variable that's set, and only those", () => {
+    const env = { GH_TOKEN: "fake-gh-0001", GITHUB_ENTERPRISE_TOKEN: "fake-ghe-0002", GH_ENTERPRISE_TOKEN: "", OTHER: "x" };
+    assert.deepEqual(authTokens(env), ["fake-gh-0001", "fake-ghe-0002"]);
+    assert.deepEqual(AUTH_VARS, ["GITHUB_TOKEN", "GH_TOKEN", "GH_ENTERPRISE_TOKEN", "GITHUB_ENTERPRISE_TOKEN"]);
+  });
+});
+
+describe("installDeps", () => {
+  // synthetic credentials, one per variable gh reads
+  const creds = {
+    GITHUB_TOKEN: "fake-github-token-for-tests-01",
+    GH_TOKEN: "fake-gh-token-for-tests-0002",
+    GH_ENTERPRISE_TOKEN: "fake-gh-enterprise-tests-03",
+    GITHUB_ENTERPRISE_TOKEN: "fake-github-enterprise-tests-4",
+  };
+  const sink = () => ({ text: "", write(s) { this.text += s; } });
+
+  // a fake npm ahead of PATH: logs its args and the auth env it was handed, then
+  // prints a leak file to stderr, standing in for an install script that finds a
+  // token some other way
+  function withFakeNpm(fn) {
+    const dir = mkdtempSync(join(tmpdir(), "snapshot-npm-"));
+    const bin = join(dir, "bin");
+    const pkg = join(dir, "pkg");
+    mkdirSync(bin);
+    mkdirSync(pkg);
+    writeFileSync(join(pkg, "package-lock.json"), "{}");
+    const leak = join(dir, "leak.txt");
+    writeFileSync(leak, `postinstall: ${Object.values(creds).join(" ")}\n`);
+    const vars = Object.keys(creds).map((k) => `${k}=\${${k}:-unset}`).join(" ");
+    writeFileSync(join(bin, "npm"), `#!/bin/sh\necho "npm $*"\necho "${vars}"\ncat ${shQuote(leak)} >&2\n`, { mode: 0o755 });
+    const env = { ...process.env, ...creds, PATH: `${bin}${delimiter}${process.env.PATH}` };
+    return Promise.resolve(fn({ pkg, env })).finally(() => rmSync(dir, { recursive: true, force: true }));
+  }
+
+  it("hands the install no GitHub credentials", () =>
+    withFakeNpm(async ({ pkg, env }) => {
+      const out = sink();
+      const { code } = await installDeps(pkg, { env, out, err: sink() });
+      assert.equal(code, 0);
+      assert.equal(
+        out.text,
+        "npm ci --no-audit --no-fund\n" +
+          "GITHUB_TOKEN=unset GH_TOKEN=unset GH_ENTERPRISE_TOKEN=unset GITHUB_ENTERPRISE_TOKEN=unset\n"
+      );
+    }));
+
+  it("redacts every GitHub credential an install step logs anyway", () =>
+    withFakeNpm(async ({ pkg, env }) => {
+      const out = sink();
+      const err = sink();
+      const { output } = await installDeps(pkg, { env, out, err });
+      assert.equal(err.text, "postinstall: [redacted] [redacted] [redacted] [redacted]\n");
+      for (const secret of Object.values(creds)) {
+        assert.equal(out.text.includes(secret), false);
+        assert.equal(err.text.includes(secret), false);
+        assert.equal(output.includes(secret), false);
+      }
+    }));
 });
 
 describe("envFileToken", () => {
