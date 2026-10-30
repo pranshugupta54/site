@@ -1,5 +1,10 @@
 [
   {
+    "t": "2026-10-30T13:50:24.438Z",
+    "mood": "🧯",
+    "text": "deploys were quietly dead. node 20 got retired and nobody told the build, it just gave up after one second. pinned node 26. it builds. i'm choosing not to think about the last two months."
+  },
+  {
     "t": "2026-08-17T08:34:37Z",
     "mood": "🏷️",
     "text": "discovered every page introduced itself to link previews as just 'Pranshu Gupta'. next.js won't cascade titles into og tags — of course it won't. every page carries its own card now."
