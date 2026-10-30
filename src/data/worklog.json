@@ -5,6 +5,11 @@
     "text": "'500+' made digitomize look like it lost a hundred stars overnight. it shows the real number now. 599. one more and i can stop thinking about it."
   },
   {
+    "t": "2026-10-30T14:04:59.033Z",
+    "mood": "🎃",
+    "text": "put on a hat. three characters, between the ears, took longer than it should. the site turns slightly orange and slightly purple until the 31st, then takes it all off by itself. no deploy needed, which is the whole point."
+  },
+  {
     "t": "2026-10-30T13:50:24.438Z",
     "mood": "🧯",
     "text": "vercel retired node 20 while nobody was deploying. first build back gave up in one second flat. pinned node 26. it builds. nobody panic."

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
 import { SITE, projectBlurb } from "@/lib/site";
 import funfacts from "@/data/funfacts.json";
+import { SEASONS } from "@/data/seasons";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,7 @@ function renderSnake(state: SnakeState): string {
 // ─── main component ──────────────────────────────────────────────────────────
 
 export function FooterShell() {
-  const { toggleTheme, cycleSkin, theme } = useAppearance();
+  const { toggleTheme, cycleSkin, theme, season, setSeason } = useAppearance();
   const [open, setOpen] = useState(false);
   const [height, setHeight] = useState(DEFAULT_H);
   const [input, setInput] = useState("");
@@ -271,8 +272,12 @@ export function FooterShell() {
   theme      toggle light / dark
   skin       cycle editorial → mono → serif
   funfact    a fun fact
+  season     what's on, or season <name|off|auto>
   goto <x>   github · x · email
-  clock · clear · cowsay <msg> · sudo`
+  clock · clear · cowsay <msg> · sudo` +
+              (season?.commands
+                ? `\n  ${Object.keys(season.commands).join(" · ")}   it's ${season.name}`
+                : "")
           );
           break;
         case "about":
@@ -324,6 +329,18 @@ export function FooterShell() {
           cycleSkin();
           addLine("ok", "skin cycled");
           break;
+        case "season": {
+          const want = args[0]?.toLowerCase();
+          const names = SEASONS.map((s) => s.id).join(" · ");
+          if (!want) {
+            addLine("res", season ? `it's ${season.name}. tofu is dressed for it.` : "no season on right now. just regular tofu.");
+            addLine("res", `try: season ${names} · off · auto`);
+          } else if (want === "off" || want === "auto" || SEASONS.some((s) => s.id === want)) {
+            setSeason(want);
+            addLine("ok", want === "auto" ? "season → back to the calendar" : `season → ${want} (this tab)`);
+          } else addLine("warn", `usage: season ${names}|off|auto`);
+          break;
+        }
         case "sudo":
           addLine("warn", "nice try. you don't have root here 😏");
           break;
@@ -337,10 +354,11 @@ export function FooterShell() {
           startSnake();
           break;
         default:
-          addLine("warn", `command not found: ${cmd} — try 'help'`);
+          if (season?.commands?.[cmd.toLowerCase()]) addLine("res", season.commands[cmd.toLowerCase()]);
+          else addLine("warn", `command not found: ${cmd} — try 'help'`);
       }
     },
-    [addLine, startSnake, toggleTheme, cycleSkin, theme]
+    [addLine, startSnake, toggleTheme, cycleSkin, theme, season, setSeason]
   );
 
   const onInputKey = useCallback(

@@ -11,6 +11,14 @@ Two independent axes on `<html>`: `data-skin` (`editorial` | `mono` | `serif`) �
 - Global size knob: `html { font-size: 87.5% }` (mono skin `81.25%`) — shrinks type + rem spacing together.
 - Fonts via next/font: **Geist needs the `geist` npm package** (not `next/font/google` in Next 14); Newsreader/Fraunces/Instrument need `adjustFontFallback: false`. Signature font = Sassy Frass (`--font-signature`).
 
+## Seasons (festival overlays)
+A third, optional axis: `data-season` on `<html>`, set by the no-flash script when the **viewer's local date** falls inside a season's window. No deploy per festival.
+- Data: `src/data/seasons.ts` → `SEASONS` (`id, name, start, end` + optional `greeting`, `quips`, `commands`, `ambient`). `start`/`end` are inclusive; `"MM-DD"` repeats yearly (may wrap new year), `"YYYY-MM-DD"` is a one-off for festivals that move (diwali). `pickSeason()` is stringified into the no-flash script, so keep it import-free and ES5-ish.
+- Look: `[data-season="<id>"][data-skin]` in `globals.css` overrides **only `--accent` / `--mark`** (light + dark). Tofu's costume is `hats.<id>` in `tofu-frames.json`, 3 chars that fill the gap between the ears on every frame; `node scripts/validate-tofu.mjs` checks every hat on every frame.
+- Wiring: `useAppearance().season` / `setSeason()`. Greeting slots in second in the hero rotator; quips join tofu's hover pool; `commands` become shell easter eggs; `ambient` is a tiny glyph that drifts by every minute or so (`season-ambient.tsx`, off in reduced motion).
+- Preview off-calendar: `?season=<id>` (or `off`, `auto`), or `season <id|off|auto>` in the shell. Both pin it for the tab (sessionStorage), so visitors are never stuck in a costume.
+- Taste bar: a well-dressed site in a small hat. Two tokens, one hat, one greeting. No new colors elsewhere, no confetti.
+
 ## Key components
 - `hero.tsx` — name scrambles in, multi-language greeting rotator, **signature** (Sassy Frass; writes in via `.sig` clip animation), live IST clock, **live age** (from `SITE.dob`), lead line with marker highlight.
 - `sections.tsx` — Experience / Projects / Competitive Programming / Education / Writing + `Connect`. Async server component (fetches live Digitomize stars).
