@@ -41,6 +41,6 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: ["esc"], desc: "close the shell, or this" },
   { keys: ["?"], desc: "this map" },
   { keys: ["↑", "↓"], desc: "shell history" },
-  { keys: ["←↑↓→", "wasd"], desc: "steer the snake" },
+  { keys: ["arrows", "wasd"], desc: "steer the snake" }, // ← → aren't in the mono font's latin subset
   { keys: ["q"], desc: "quit snake · enter restarts after a crash" },
 ];

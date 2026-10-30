@@ -116,11 +116,12 @@ export function KeyboardMap() {
           </button>
         </div>
 
-        <p className="mt-5 text-[11px] text-muted">keys</p>
-        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+        {/* one grid for both lists, so their columns line up */}
+        <div className="mt-5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+          <p className="col-span-2 mb-0.5 text-[11px] text-muted">keys</p>
           {SHORTCUTS.map((s) => (
             <Fragment key={s.desc}>
-              <dt className="flex flex-wrap gap-1">
+              <span className="flex flex-wrap items-start gap-1">
                 {s.keys.map((k) => (
                   <kbd
                     key={k}
@@ -129,16 +130,14 @@ export function KeyboardMap() {
                     {k}
                   </kbd>
                 ))}
-              </dt>
-              <dd className="text-muted">{s.desc}</dd>
+              </span>
+              <span className="text-muted">{s.desc}</span>
             </Fragment>
           ))}
-        </dl>
 
-        <p className="mt-5 text-[11px] text-muted">
-          in the shell <span className="opacity-70">· same as &apos;help&apos;</span>
-        </p>
-        <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
+          <p className="col-span-2 mb-0.5 mt-4 text-[11px] text-muted">
+            in the shell <span className="opacity-70">· same as &apos;help&apos;</span>
+          </p>
           {shellCommands(season).map((c) =>
             c.desc ? (
               <Fragment key={c.usage}>
