@@ -1,0 +1,26 @@
+{
+  "night": [
+    "it's the middle of the night here. i was asleep. it's fine.",
+    "past midnight in india. pranshu's either asleep or shipping. can't tell.",
+    "shh. it's late here. the code is sleeping too.",
+    "i keep ist hours. right now that means naps.",
+    "nobody's awake here. except me, now. thanks.",
+    "you woke me. i'll pretend i was debugging."
+  ],
+  "morning": [
+    "morning. coffee first. hops later.",
+    "first coffee of the day. don't ask about the second.",
+    "it's morning here. i'm 40% caffeine by volume.",
+    "i don't drink the coffee. i just hold it. for morale.",
+    "early here. small hops only until the coffee kicks in.",
+    "morning in india. the build is green. so far."
+  ],
+  "evening": [
+    "it's late here. the yawning is not personal.",
+    "almost bedtime in india. one more hop. maybe two.",
+    "pranshu says 'one more commit'. he's lying.",
+    "i get sleepy after ten. ist. not up for debate.",
+    "the day's done here. i'm staying up for you.",
+    "yawning isn't rude if you're made of text."
+  ]
+}

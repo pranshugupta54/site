@@ -7,6 +7,7 @@ import framesData from "@/data/tofu-frames.json";
 import quips from "@/data/quips.json";
 import { Scramble } from "@/components/scramble";
 import { useAppearance } from "@/components/providers";
+import { MOOD_TRAITS, POSES, moodNow, timedQuip, type Mood, type Pose } from "@/lib/tofu-mood";
 
 const FRAMES = framesData.frames as Record<string, string[]>;
 const HOP = (framesData.hop as string[][]).map((f) => f.join("\n"));
@@ -80,6 +81,20 @@ export function Tofu() {
   const microTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const quipTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastQuip = useRef(-1);
+  const lastTimed = useRef<string | null>(null);
+  const posing = useRef(false);
+  const mood = useRef<Mood>("day");
+  const traits = () => MOOD_TRAITS[mood.current];
+
+  // Pranshu's local hour → mood; declared before the main effect so it's set first
+  useEffect(() => {
+    const tick = () => {
+      mood.current = moodNow();
+    };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, []);
 
   const move = (tx: number | number[], ty: number | number[], dur: number, ease = "easeOut") => {
     const opts = Array.isArray(tx)
@@ -136,10 +151,20 @@ export function Tofu() {
       move(inX, startY, 0.6);
       pos.current = { x: inX, y: startY };
       atEdge.current = false;
-      setFrame(F("idle"));
+      setFrame(F(traits().startAsleep ? "sleep" : "idle"));
       return () => {
         alive.current = false;
       };
+    }
+
+    // night: already napping in the margin instead of peeking in from the edge
+    if (traits().startAsleep) {
+      const napX = s === "left" ? b.minX + 6 : b.maxX - 6;
+      pos.current = { x: napX, y: startY };
+      x.set(napX);
+      atEdge.current = false;
+      sleeping.current = true;
+      setFrame(F("sleep"));
     }
 
     const schedule = (ms: number) => {
@@ -148,7 +173,7 @@ export function Tofu() {
 
     const beat = async () => {
       if (!alive.current) return;
-      if (hovering.current) {
+      if (hovering.current || posing.current) {
         schedule(450);
         return;
       }
@@ -156,9 +181,13 @@ export function Tofu() {
         schedule(1500);
         return;
       }
-      if (Date.now() - lastActive.current > 40000 && !atEdge.current && !busy.current) {
-        sleeping.current = true;
-        setFrame(F("sleep"));
+      if (Date.now() - lastActive.current > traits().sleepAfterMs && !atEdge.current && !busy.current) {
+        const doze = () => {
+          sleeping.current = true;
+          setFrame(F("sleep"));
+        };
+        if (traits().bedtimeYawn) pose(POSES.yawn, doze);
+        else doze();
         schedule(2000);
         return;
       }
@@ -189,22 +218,40 @@ export function Tofu() {
       }
       busy.current = false;
       if (!alive.current) return;
-      schedule(800 + Math.random() * 1500);
+      schedule((800 + Math.random() * 1500) * traits().restScale);
     };
     schedule(1400);
 
     const idleOk = () =>
       alive.current && !busy.current && !sleeping.current && !atEdge.current && !hovering.current;
+    // play a short frame sequence while idle; the beat waits for it, hover cuts it short
+    const pose = (seq: Pose, done = () => setFrame(F("idle"))) => {
+      posing.current = true;
+      interrupt.current = false;
+      const step = (i: number) => {
+        if (interrupt.current || !idleOk() || i === seq.length) {
+          posing.current = false;
+          if (!interrupt.current && idleOk()) done();
+          return;
+        }
+        setFrame(F(seq[i][0]));
+        setTimeout(() => step(i + 1), seq[i][1]);
+      };
+      step(0);
+    };
     const micro = () => {
       microTimer.current = setTimeout(() => {
-        if (idleOk()) {
+        if (idleOk() && !posing.current) {
           const r = Math.random();
-          if (r < 0.12) {
+          const quirk = traits().pose;
+          if (quirk && Math.random() < traits().poseChance) {
+            pose(POSES[quirk]);
+          } else if (r < 0.12) {
             setFrame(F("blink"));
-            setTimeout(() => idleOk() && setFrame(F("idle")), 130);
+            setTimeout(() => idleOk() && !posing.current && setFrame(F("idle")), 130);
           } else if (r < 0.2) {
             setFrame(F("twitch"));
-            setTimeout(() => idleOk() && setFrame(F("idle")), 220);
+            setTimeout(() => idleOk() && !posing.current && setFrame(F("idle")), 220);
           } else {
             altBreath.current = !altBreath.current;
             setFrame(altBreath.current ? F("breathe") : F("idle"));
@@ -232,6 +279,13 @@ export function Tofu() {
     }
   };
   const pickQuip = () => {
+    // time-of-day layer: sometimes a quip for Pranshu's hour, else the regular pool
+    const timed = timedQuip(mood.current, lastTimed.current);
+    if (timed) {
+      lastTimed.current = timed;
+      setQuip(timed);
+      return;
+    }
     let i = Math.floor(Math.random() * pool.length);
     if (pool.length > 1) while (i === lastQuip.current) i = Math.floor(Math.random() * pool.length);
     lastQuip.current = i;

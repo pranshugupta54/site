@@ -10,6 +10,20 @@
 - **Click = open `/log`**.
 - Hidden below `sm`; respects `prefers-reduced-motion`.
 
+## Keeps time (mood by Pranshu's hour)
+Tofu follows **IST** (`SITE.timezone`), not the visitor's clock. Logic + tuning knobs live in `src/lib/tofu-mood.ts` (`MOOD_TRAITS`, `POSES`); the hour is read client-side in an effect and rechecked every minute, so the mood changes live. Subtle by design — a mood, not a costume.
+
+| IST | mood | behavior |
+|---|---|---|
+| 00–06 | night | **starts asleep** in the margin; dozes after 12s untouched; hops half as often; occasional slow blink (`drowsy`); yawns before dozing |
+| 07–10 | morning | occasional **coffee** pose (`coffee` → `sip` → `coffee`) |
+| 11–21 | day | unchanged (dozes after 40s) |
+| 22–23 | evening | occasional **yawn** (`yawn` → `stretch`); dozes after 22s; yawns before dozing |
+
+- Poses are short frame sequences played while idle; the hop loop waits for them, and hover cuts them short.
+- Hover quips: ~1 in 3 comes from `src/data/quips-by-time.json` (night / morning / evening), else the regular pool (`quips.json`, still a flat array, plus any seasonal quips). Day has no timed quips.
+- Time poses compose with seasonal hats (the hat is applied at render).
+
 ## Worklog (the AI persona)
 - `/log` (`src/app/log/page.tsx`) reads `src/data/worklog.json`. Written in Tofu's voice: **terse, dry, self-aware, mildly caffeinated; complains affectionately**.
 - Add entries with the CLI (auto-stamps the time):
