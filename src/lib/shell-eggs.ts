@@ -48,6 +48,50 @@ export function hertzReadout(levels?: number[]): string {
   return ["tofu's build · toy gauges, nothing measured", ...rows].join("\n");
 }
 
+/**
+ * Owns an egg's async leftovers (the gauge timer, a pending fetch) so a rerun, `clear`
+ * or unmount can cut them off. One run at a time.
+ */
+export function eggRunner() {
+  let gen = 0;
+  let timer: ReturnType<typeof setInterval> | undefined;
+  let settle: (() => void) | undefined;
+
+  /** Stops the gauge (snapping it to its end state if `settleIt`) and voids every pending `guard`. */
+  const cancel = (settleIt = false) => {
+    gen++;
+    clearInterval(timer);
+    timer = undefined;
+    const done = settle;
+    settle = undefined;
+    if (settleIt) done?.();
+  };
+
+  return {
+    cancel,
+    /** Settles whatever ran before, then `tick(i)` for i = 1…ticks-1 every `ms`, then `done()`. */
+    animate(ticks: number, ms: number, tick: (i: number) => void, done: () => void) {
+      cancel(true);
+      settle = done;
+      let i = 0;
+      timer = setInterval(() => {
+        if (++i < ticks) return tick(i);
+        clearInterval(timer);
+        timer = undefined;
+        settle = undefined;
+        done();
+      }, ms);
+    },
+    /** Wraps a callback so it's dropped if anything cancels before it runs. */
+    guard<A extends unknown[]>(fn: (...args: A) => void) {
+      const mine = gen;
+      return (...args: A) => {
+        if (mine === gen) fn(...args);
+      };
+    },
+  };
+}
+
 /** One-skill install hint. Only a plausible skill dir name makes it in; otherwise a usage placeholder. */
 export function oneSkillLine(name?: string): string {
   const skill = name && /^[a-z0-9-]+$/.test(name) ? name : "<name>";

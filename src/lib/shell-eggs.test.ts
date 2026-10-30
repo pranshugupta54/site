@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { afterEach, describe, it, mock } from "node:test";
 import {
   GAUGES,
   GAUGE_OFF,
@@ -7,6 +7,7 @@ import {
   GAUGE_WIDTH,
   HERTZ_INSTALL,
   SKILLS_INSTALL,
+  eggRunner,
   hertzReadout,
   matchEgg,
   oneSkillLine,
@@ -129,5 +130,125 @@ describe("constants", () => {
   it("install lines", () => {
     assert.equal(HERTZ_INSTALL, "brew install --cask pranshugupta54/tap/hertz");
     assert.equal(SKILLS_INSTALL, "npx skills add pranshugupta54/skills");
+  });
+});
+
+describe("eggRunner", () => {
+  afterEach(() => mock.timers.reset());
+
+  function run(runner: ReturnType<typeof eggRunner>) {
+    const ticks: number[] = [];
+    let dones = 0;
+    runner.animate(10, 80, (i) => ticks.push(i), () => dones++);
+    return { ticks, done: () => dones };
+  }
+
+  it("runs a full animation, finishing at exactly 800ms", () => {
+    mock.timers.enable({ apis: ["setInterval"] });
+    const a = run(eggRunner());
+    mock.timers.tick(720);
+    assert.deepEqual(a.ticks, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    assert.equal(a.done(), 0);
+    mock.timers.tick(80);
+    assert.equal(a.done(), 1);
+    mock.timers.tick(2000);
+    assert.equal(a.ticks.length, 9);
+    assert.equal(a.done(), 1);
+  });
+
+  it("cancel() mid-run stops ticks and never calls done", () => {
+    mock.timers.enable({ apis: ["setInterval"] });
+    const runner = eggRunner();
+    const a = run(runner);
+    mock.timers.tick(400);
+    assert.equal(a.ticks.length, 5);
+    runner.cancel();
+    mock.timers.tick(2000);
+    assert.equal(a.ticks.length, 5);
+    assert.equal(a.done(), 0);
+  });
+
+  it("a rerun settles the previous run once and leaves one timer", () => {
+    mock.timers.enable({ apis: ["setInterval"] });
+    const runner = eggRunner();
+    const a = run(runner);
+    mock.timers.tick(240);
+    assert.equal(a.ticks.length, 3);
+    const b = run(runner);
+    assert.equal(a.done(), 1);
+    mock.timers.tick(2000);
+    assert.equal(a.ticks.length, 3);
+    assert.equal(a.done(), 1);
+    assert.equal(b.ticks.length, 9);
+    assert.equal(b.done(), 1);
+  });
+
+  it("cancel(true) with nothing running is a no-op", () => {
+    mock.timers.enable({ apis: ["setInterval"] });
+    const runner = eggRunner();
+    assert.doesNotThrow(() => runner.cancel(true));
+    const a = run(runner);
+    mock.timers.tick(800);
+    runner.cancel(true);
+    assert.equal(a.done(), 1);
+  });
+
+  describe("guard", () => {
+    function deferred<T>() {
+      let resolve!: (v: T) => void;
+      const p = new Promise<T>((r) => (resolve = r));
+      return { p, resolve };
+    }
+
+    it("drops a callback if cancelled before it runs", async () => {
+      const runner = eggRunner();
+      const d = deferred<string[]>();
+      const calls: string[][] = [];
+      d.p.then(runner.guard((v: string[]) => calls.push(v)));
+      runner.cancel();
+      d.resolve(["walkthrough-pr"]);
+      await d.p;
+      await Promise.resolve();
+      assert.equal(calls.length, 0);
+    });
+
+    it("runs the callback once when nothing cancels", async () => {
+      const runner = eggRunner();
+      const d = deferred<string[]>();
+      const calls: string[][] = [];
+      d.p.then(runner.guard((v: string[]) => calls.push(v)));
+      d.resolve(["walkthrough-pr"]);
+      await d.p;
+      await Promise.resolve();
+      assert.deepEqual(calls, [["walkthrough-pr"]]);
+    });
+
+    it("a guard created after a cancel still fires", async () => {
+      const runner = eggRunner();
+      runner.cancel();
+      const calls: number[] = [];
+      runner.guard((n: number) => calls.push(n))(1);
+      assert.deepEqual(calls, [1]);
+    });
+
+    it("a guard created before animate() is voided", () => {
+      mock.timers.enable({ apis: ["setInterval"] });
+      const runner = eggRunner();
+      const calls: number[] = [];
+      const g = runner.guard((n: number) => calls.push(n));
+      run(runner);
+      g(1);
+      assert.equal(calls.length, 0);
+    });
+
+    it("is not voided by another runner's cancel", () => {
+      const a = eggRunner();
+      const b = eggRunner();
+      const calls: number[] = [];
+      const g = a.guard((n: number) => calls.push(n));
+      b.cancel(true);
+      g(1);
+      assert.deepEqual(calls, [1]);
+    });
   });
 });

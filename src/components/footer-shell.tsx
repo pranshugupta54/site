@@ -13,6 +13,7 @@ import {
   HERTZ_INSTALL,
   HERTZ_REPO,
   SKILLS_INSTALL,
+  eggRunner,
   hertzReadout,
   matchEgg,
   oneSkillLine,
@@ -88,9 +89,11 @@ export function FooterShell() {
   const outRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dragging = useRef(false);
+  const [eggs] = useState(eggRunner); // gauge timer + pending fetch for the hidden eggs
 
   // ── cleanup snake on unmount ──
   useEffect(() => () => snakeRef.current?.quit(), []);
+  useEffect(() => () => eggs.cancel(), [eggs]);
 
   // ── scroll output to bottom on new line ──
   useEffect(() => {
@@ -124,7 +127,8 @@ export function FooterShell() {
   }, []);
 
   const updateLine = useCallback((id: number, text: string) => {
-    setLines((prev) => prev.map((l) => (l.id === id ? { ...l, text } : l)));
+    // a line that's gone (cleared) leaves state untouched, so nothing re-renders or re-scrolls
+    setLines((prev) => (prev.some((l) => l.id === id) ? prev.map((l) => (l.id === id ? { ...l, text } : l)) : prev));
   }, []);
 
   // ref mirror of `open` — the global key handler must see the current value
@@ -272,6 +276,7 @@ export function FooterShell() {
   // ── hidden eggs (not in help) ──
   const runEgg = useCallback(
     (egg: Egg) => {
+      eggs.cancel(true); // a rerun settles the last gauge and drops its pending fetch
       if (egg === "hertz") {
         addLine("res", "hertz is a cask. the real line:");
         addLine("ok", HERTZ_INSTALL);
@@ -281,13 +286,12 @@ export function FooterShell() {
         if (still) return;
         // gauges fill with a little jitter, then settle on words
         const TICKS = 10;
-        let tick = 0;
-        const t = setInterval(() => {
-          if (++tick >= TICKS) {
-            clearInterval(t);
-            updateLine(id, hertzReadout());
-          } else updateLine(id, hertzReadout(GAUGES.map((g) => (g.level * tick) / TICKS + Math.random() * 3 - 1)));
-        }, 80);
+        eggs.animate(
+          TICKS,
+          80,
+          (tick) => updateLine(id, hertzReadout(GAUGES.map((g) => (g.level * tick) / TICKS + Math.random() * 3 - 1))),
+          () => updateLine(id, hertzReadout())
+        );
         return;
       }
       addLine("res", egg === "skills-bare" ? "needs a repo. the real line:" : "the real line:");
@@ -298,13 +302,21 @@ export function FooterShell() {
       // a real skill name from the live list; the <name> placeholder if it's unavailable
       fetch("/skills.json")
         .then((r) => (r.ok ? r.json() : []))
-        .then((names: string[]) => {
-          if (names.length) updateLine(id, oneSkillLine(names[Math.floor(Math.random() * names.length)]));
-        })
+        .then(
+          eggs.guard((names: string[]) => {
+            if (names.length) updateLine(id, oneSkillLine(names[Math.floor(Math.random() * names.length)]));
+          })
+        )
         .catch(() => {});
     },
-    [addLine, updateLine]
+    [eggs, addLine, updateLine]
   );
+
+  // ── clear: drops the output and any egg work still writing into it ──
+  const clearOutput = useCallback(() => {
+    eggs.cancel();
+    setLines([]);
+  }, [eggs]);
 
   // ── commands ──
   const exec = useCallback(
@@ -374,7 +386,7 @@ export function FooterShell() {
           addLine("res", new Date().toLocaleTimeString("en-GB", { timeZone: SITE.timezone, hour12: false }) + " IST");
           break;
         case "clear":
-          setLines([]);
+          clearOutput();
           break;
         case "goto": {
           const t = args[0]?.toLowerCase();
@@ -441,7 +453,7 @@ export function FooterShell() {
         }
       }
     },
-    [addLine, updateLine, startSnake, runEgg, toggleTheme, cycleSkin, theme, season, setSeason]
+    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason]
   );
 
   const onInputKey = useCallback(
@@ -579,7 +591,7 @@ export function FooterShell() {
             <span style={{ color: GREEN }}>~/pranshu</span>
             <span style={{ color: MUTED, marginLeft: 8 }}>shell</span>
             <div style={{ marginLeft: "auto", display: "flex", gap: 16 }}>
-              <button style={btn} onClick={() => setLines([])}>clear</button>
+              <button style={btn} onClick={clearOutput}>clear</button>
               <button
                 style={{ ...btn, color: FG }}
                 onClick={() => doOpen(false)}
