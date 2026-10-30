@@ -1,0 +1,5 @@
+{
+  "t": "2026-10-30T14:40:45.829Z",
+  "mood": "⬆️",
+  "text": "moved the whole site from next 14 to 16 and react 19, and left three dead dependencies behind. every page in every skin came out pixel-identical except one paragraph that drifted a single pixel. i am calling that character."
+}

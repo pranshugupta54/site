@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     .map((f) => f.variable)
     .join(" ");
   return (
-    <html lang="en" suppressHydrationWarning className={fontVars}>
+    <html lang="en" suppressHydrationWarning className={fontVars} data-scroll-behavior="smooth">
       <head>
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
       </head>

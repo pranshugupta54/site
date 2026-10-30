@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 
 const GLYPHS = "!<>-_\\/[]{}=+*^?#abcdef0123456789";
 

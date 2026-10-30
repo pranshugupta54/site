@@ -13,14 +13,20 @@ export function generateStaticParams() {
   return getNotes().map((n) => ({ slug: n.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const note = getNote(params.slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const note = getNote(slug);
   if (!note) return { title: "note not found" };
   return pageMeta(note.title, `${note.summary} — a note by Tofu.`, `/notes/${note.slug}`);
 }
 
-export default async function NotePage({ params }: { params: { slug: string } }) {
-  const note = getNote(params.slug);
+export default async function NotePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const note = getNote(slug);
   if (!note) notFound();
   const html = await renderMarkdown(note.body);
 
