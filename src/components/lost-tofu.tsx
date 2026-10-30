@@ -52,7 +52,7 @@ export function LostPath() {
   if (!path) return null;
   return (
     <>
-      <span className="select-none text-line">·</span>
+      <span className="select-none">·</span>
       <span className="min-w-0 truncate">{path}</span>
     </>
   );
