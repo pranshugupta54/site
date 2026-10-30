@@ -40,7 +40,7 @@
 
   /* ---- MONO (B) — quiet, all JetBrains Mono ---- */
   [data-skin="mono"] {
-    --bg: #f4f1ea; --fg: #1c1a16; --muted: #7a7468; --line: #e1dac9;
+    --bg: #f4f1ea; --fg: #1c1a16; --muted: #696459; --line: #e1dac9;
     --accent: #1f6f54; --mark: #cfe7dc; --card: #e7e1d4;
     --font-display: var(--font-jetbrains), ui-monospace, monospace;
     --font-body: var(--font-jetbrains), ui-monospace, monospace;
@@ -53,7 +53,7 @@
 
   /* ---- SERIF (C) — Instrument Serif display + Geist body ---- */
   [data-skin="serif"] {
-    --bg: #f7f5f1; --fg: #1b1a17; --muted: #777267; --line: #e7e2d8;
+    --bg: #f7f5f1; --fg: #1b1a17; --muted: #6c675d; --line: #e7e2d8;
     --accent: #3b5bdb; --mark: #dfe5ff; --card: #ebe7dd;
     --font-display: var(--font-instrument), Georgia, serif;
     --font-body: var(--font-geist-sans), system-ui, sans-serif;
