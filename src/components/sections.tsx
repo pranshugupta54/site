@@ -1,6 +1,6 @@
 import { SITE, projectBlurb } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
-import { getPublicRepos, getRepoStars } from "@/lib/github";
+import { getOwnRepoCount, getRepoStars } from "@/lib/github";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -16,7 +16,7 @@ const LINK = "transition-colors hover:text-accent";
 export async function Sections() {
   const [dgStars, repoCount] = await Promise.all([
     getRepoStars("digitomize/digitomize"),
-    getPublicRepos(),
+    getOwnRepoCount(),
   ]);
   return (
     <section className="text-sm">
