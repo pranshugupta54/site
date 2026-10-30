@@ -14,20 +14,20 @@ export type WorklogEntry = { t: string; mood: string; text: string };
 
 const DIR = join(process.cwd(), "src", "data", "worklog");
 
+// Throws if the folder is missing (e.g. not traced into a server function) rather
+// than silently rendering legacy-only entries; ISR then keeps the last good page.
 function readEntryFiles(): WorklogEntry[] {
-  let names: string[];
-  try {
-    names = readdirSync(DIR).filter((n) => n.endsWith(".json"));
-  } catch {
-    return [];
-  }
-  return names.map((n) => {
-    try {
-      return JSON.parse(readFileSync(join(DIR, n), "utf8")) as WorklogEntry;
-    } catch (e) {
-      throw new Error(`bad worklog entry src/data/worklog/${n}: ${(e as Error).message}`);
-    }
-  });
+  return readdirSync(DIR)
+    .filter((n) => n.endsWith(".json"))
+    .map((n) => {
+      try {
+        const e = JSON.parse(readFileSync(join(DIR, n), "utf8")) as WorklogEntry;
+        if (typeof e.t !== "string" || Number.isNaN(Date.parse(e.t))) throw new Error("missing or invalid `t`");
+        return e;
+      } catch (e) {
+        throw new Error(`bad worklog entry src/data/worklog/${n}: ${(e as Error).message}`);
+      }
+    });
 }
 
 export const WORKLOG: WorklogEntry[] = [...(legacy as WorklogEntry[]), ...readEntryFiles()].sort(
