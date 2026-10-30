@@ -129,7 +129,8 @@ async function fetchSitePulls(): Promise<SitePulls> {
 // the last good value — so a GitHub hiccup can't pin an empty block for an hour.
 const cachedSitePulls = unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate: 3600 });
 
-// Null on any failure — callers hide the block.
+// Null only on a cold failure (no snapshot yet) — callers hide the block.
+// After that, a failed refresh returns the last good snapshot.
 export async function getSitePulls(): Promise<SitePulls | null> {
   try {
     return await cachedSitePulls();
