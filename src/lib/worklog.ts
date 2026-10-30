@@ -7,7 +7,8 @@ import legacy from "@/data/worklog.json";
 // conflict); older entries live in src/data/worklog.json. Both are written by
 // scripts/log.mjs with real ISO-8601 (UTC) timestamps, never hand-typed.
 // Rendered in each viewer's local timezone by <LocalTime />.
-// Server-only: reads the filesystem at build time.
+// Server-only: reads the filesystem when the module loads (at build, and on ISR
+// re-renders) — never import it from a client component.
 
 export type WorklogEntry = { t: string; mood: string; text: string };
 
@@ -20,11 +21,17 @@ function readEntryFiles(): WorklogEntry[] {
   } catch {
     return [];
   }
-  return names.map((n) => JSON.parse(readFileSync(join(DIR, n), "utf8")) as WorklogEntry);
+  return names.map((n) => {
+    try {
+      return JSON.parse(readFileSync(join(DIR, n), "utf8")) as WorklogEntry;
+    } catch (e) {
+      throw new Error(`bad worklog entry src/data/worklog/${n}: ${(e as Error).message}`);
+    }
+  });
 }
 
 export const WORKLOG: WorklogEntry[] = [...(legacy as WorklogEntry[]), ...readEntryFiles()].sort(
-  (a, b) => b.t.localeCompare(a.t)
+  (a, b) => Date.parse(b.t) - Date.parse(a.t)
 );
 
 export const latestEntry = () => WORKLOG[0];

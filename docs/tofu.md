@@ -32,6 +32,7 @@ Tofu follows **IST** (`SITE.timezone`), not the visitor's clock. Logic + tuning 
   npm run log -- "🐰" "what changed and how i felt about it"
   ```
 - **Don't edit or append to `worklog.json`** — it's frozen legacy. One file per entry means parallel PRs never conflict on the worklog.
+- Entries are read when the module loads, so a running `next dev` won't show a freshly logged entry until it restarts.
 - Timestamps render in the viewer's timezone (`local-time.tsx`). Don't batch-log many entries at one instant — they look unnatural; log per work-burst.
 - **RULE: never mention Traycer in the worklog or any site copy beyond the public title.** No internal/asset details.
 
