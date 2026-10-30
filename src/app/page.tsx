@@ -1,10 +1,12 @@
 import { Hero } from "@/components/hero";
 import { Sections, Connect } from "@/components/sections";
 import { GitHubPanel } from "@/components/github-panel";
+import { FEED_LINKS } from "@/lib/feed";
 
 export const revalidate = 3600; // refresh live GitHub data hourly
 
-export const metadata = { alternates: { canonical: "/" } };
+// replaces the layout's `alternates` wholesale, so repeat the feeds
+export const metadata = { alternates: { canonical: "/", types: FEED_LINKS } };
 
 export default function Page() {
   return (
