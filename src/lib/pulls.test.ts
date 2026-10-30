@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { GROUP_CAP, groupPulls, isEmpty, MERGED_WINDOW_MS, nextLink, type RawPull } from "./pulls.ts";
+import {
+  GROUP_CAP,
+  groupPulls,
+  isEmpty,
+  MERGED_WINDOW_MS,
+  nextLink,
+  PULLS_MAX_AGE_MS,
+  tooOld,
+  type RawPull,
+} from "./pulls.ts";
 
 const repo = "pranshugupta54/site";
 const owner = "pranshugupta54";
@@ -274,5 +283,39 @@ describe("nextLink", () => {
   it("tolerates whitespace around the semicolon", () => {
     assert.equal(nextLink(`<${api}&page=2>   ;   rel="next"`), `${api}&page=2`);
     assert.equal(nextLink(`  <${api}&page=2>;rel="next"  `), `${api}&page=2`);
+  });
+});
+
+describe("tooOld", () => {
+  it("max age is 24h", () => {
+    assert.equal(PULLS_MAX_AGE_MS, DAY);
+  });
+
+  it("keeps a fresh snapshot", () => {
+    assert.equal(tooOld(now, now), false);
+    assert.equal(tooOld(now - 3 * 60 * 60 * 1000, now), false);
+  });
+
+  it("keeps a snapshot exactly at the limit", () => {
+    assert.equal(tooOld(now - PULLS_MAX_AGE_MS, now), false);
+  });
+
+  it("hides one ms past the limit", () => {
+    assert.equal(tooOld(now - PULLS_MAX_AGE_MS - 1, now), true);
+  });
+
+  it("hides a snapshot days old", () => {
+    assert.equal(tooOld(now - 3 * DAY, now), true);
+  });
+
+  it("hides a missing or invalid stamp", () => {
+    for (const bad of [undefined, null, "1700000000000", NaN, Infinity, -Infinity]) {
+      assert.equal(tooOld(bad, now), true, String(bad));
+    }
+  });
+
+  it("keeps a stamp from the future", () => {
+    assert.equal(tooOld(now + 5000, now), false);
+    assert.equal(tooOld(now + 10 * DAY, now), false);
   });
 });

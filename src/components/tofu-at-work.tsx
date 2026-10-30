@@ -3,8 +3,8 @@ import { isEmpty, type PullState, type SitePull } from "@/lib/pulls";
 import { SITE } from "@/lib/site";
 
 // Async server component: tofu's live PRs on the site repo, titles only.
-// Hidden when there's nothing to show or on a cold fetch failure; after that,
-// a failed refresh keeps the last good snapshot until one succeeds.
+// Hidden when there's nothing to show, on a cold fetch failure, or once the last
+// good snapshot is over 24h old; otherwise a failed refresh keeps showing it.
 const MARK: Record<PullState, string> = {
   drafting: "border border-muted",
   "in review": "border border-accent",

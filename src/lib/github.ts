@@ -2,7 +2,7 @@
 // callers hide the widget rather than show fake data.
 import { unstable_cache } from "next/cache";
 import { SITE } from "@/lib/site";
-import { groupPulls, nextLink, type RawPull, type SitePulls } from "@/lib/pulls";
+import { groupPulls, nextLink, tooOld, type RawPull, type SitePulls } from "@/lib/pulls";
 
 const GQL = "https://api.github.com/graphql";
 const COLS = 30; // weeks shown in the heatmap
@@ -87,8 +87,8 @@ export async function getOwnRepoCount(login = SITE.handle): Promise<number | nul
 // 30 most recently updated closed ones — enough to find this week's merges.
 // Requests skip the fetch cache and share one AbortSignal deadline; that signal
 // is honored here, unlike on Next's stale fetch-cache refresh, which drops it.
-// Throws on any failure.
-async function fetchSitePulls(): Promise<SitePulls> {
+// Stamped with `fetchedAt` on success; throws on any failure.
+async function fetchSitePulls(): Promise<SitePulls & { fetchedAt: number }> {
   const token = process.env.GITHUB_TOKEN;
   const signal = AbortSignal.timeout(PULLS_TIMEOUT_MS);
   const page = async (url: string) => {
@@ -121,7 +121,8 @@ async function fetchSitePulls(): Promise<SitePulls> {
     allOpen(),
     page(`${PULLS_API}?state=closed&sort=updated&direction=desc&per_page=30`).then((p) => p.rows),
   ]);
-  return groupPulls([...open, ...closed], { repo: SITE_REPO, owner: SITE.handle, now: Date.now() });
+  const now = Date.now();
+  return { ...groupPulls([...open, ...closed], { repo: SITE_REPO, owner: SITE.handle, now }), fetchedAt: now };
 }
 
 // Caches the grouped result (a few hundred bytes), not the raw REST payloads.
@@ -129,11 +130,14 @@ async function fetchSitePulls(): Promise<SitePulls> {
 // the last good value — so a GitHub hiccup can't pin an empty block for an hour.
 const cachedSitePulls = unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate: 3600 });
 
-// Null only on a cold failure (no snapshot yet) — callers hide the block.
-// After that, a failed refresh returns the last good snapshot.
+// Null on a cold failure (no snapshot yet) or once the last good snapshot is
+// older than PULLS_MAX_AGE_MS — callers hide the block. Otherwise a failed
+// refresh returns the last good snapshot.
 export async function getSitePulls(): Promise<SitePulls | null> {
   try {
-    return await cachedSitePulls();
+    const pulls = await cachedSitePulls();
+    if (tooOld(pulls.fetchedAt, Date.now())) throw new Error("last good snapshot is over 24h old");
+    return pulls;
   } catch (e) {
     console.error("[github] site pulls:", (e as Error).message);
     return null;

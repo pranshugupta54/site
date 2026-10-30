@@ -24,6 +24,14 @@ export type SitePulls = {
 
 export const MERGED_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 export const GROUP_CAP = 5;
+// a last good snapshot older than this hides rather than shows — the block must
+// never claim a PR is open days after it merged
+export const PULLS_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+// Whether a snapshot stamped `fetchedAt` (epoch ms) is too old to show at `now`;
+// a missing or invalid stamp counts as too old.
+export const tooOld = (fetchedAt: unknown, now: number) =>
+  typeof fetchedAt !== "number" || !Number.isFinite(fetchedAt) || now - fetchedAt > PULLS_MAX_AGE_MS;
 
 const time = (v: unknown) => (typeof v === "string" ? Date.parse(v) : NaN);
 
