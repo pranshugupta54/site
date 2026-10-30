@@ -54,7 +54,7 @@ export function Hero() {
             className="mt-1 block cursor-default font-display text-3xl font-semibold leading-none tracking-tight"
           />
           <div className="mt-1.5 font-mono text-xs text-muted">
-            ~ {SITE.role} · {SITE.location.toLowerCase()} · <Age />
+            ~ {SITE.role} · {SITE.location.toLowerCase()} · <Age className="whitespace-nowrap" />
           </div>
         </div>
         <div className="flex flex-col items-end gap-3">
