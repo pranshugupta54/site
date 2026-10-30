@@ -362,7 +362,7 @@ export function FooterShell() {
         }
       }
     },
-    [addLine, startSnake, toggleTheme, cycleSkin, theme, season, setSeason]
+    [addLine, updateLine, startSnake, toggleTheme, cycleSkin, theme, season, setSeason]
   );
 
   const onInputKey = useCallback(
