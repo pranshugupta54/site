@@ -61,7 +61,7 @@ export const SITE = {
     },
     {
       name: "more on github",
-      // {repos} = live public repo count; blurbOffline shows if the fetch fails
+      // {repos} = live count of his own public repos (forks excluded); blurbOffline shows if the fetch fails
       blurb: "{repos} public repos and counting",
       blurbOffline: "the rest, in public",
       href: "https://github.com/pranshugupta54?tab=repositories",
