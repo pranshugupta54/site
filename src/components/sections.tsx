@@ -1,6 +1,6 @@
-import { SITE } from "@/lib/site";
+import { SITE, projectBlurb } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
-import { getRepoStars } from "@/lib/github";
+import { getPublicRepos, getRepoStars } from "@/lib/github";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +14,10 @@ const META = "shrink-0 whitespace-nowrap font-mono text-xs text-muted";
 const LINK = "transition-colors hover:text-accent";
 
 export async function Sections() {
-  const dgStars = await getRepoStars("digitomize/digitomize");
+  const [dgStars, repoCount] = await Promise.all([
+    getRepoStars("digitomize/digitomize"),
+    getPublicRepos(),
+  ]);
   return (
     <section className="text-sm">
       <H>Experience</H>
@@ -63,7 +66,7 @@ export async function Sections() {
                   </span>
                 ) : null;
               })()}
-              <span className="text-muted"> — {p.blurb}</span>
+              <span className="text-muted"> — {projectBlurb(p, repoCount)}</span>
             </span>
             <a href={p.href} target="_blank" rel="noreferrer" className={`font-mono text-muted ${LINK}`}>
               ↗

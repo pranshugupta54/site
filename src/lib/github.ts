@@ -47,6 +47,26 @@ export async function getRepoStars(repo: string): Promise<number | null> {
   }
 }
 
+// Live public repo count for a user. Returns null on failure.
+export async function getPublicRepos(login = SITE.handle): Promise<number | null> {
+  const token = process.env.GITHUB_TOKEN;
+  try {
+    const res = await fetch(`https://api.github.com/users/${login}`, {
+      headers: {
+        "User-Agent": "pranshugupta54-portfolio",
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { public_repos?: number };
+    return typeof json.public_repos === "number" ? json.public_repos : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getGithub(login = SITE.handle): Promise<Github | null> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return null;

@@ -62,7 +62,9 @@ export const SITE = {
     },
     {
       name: "more on github",
-      blurb: "49 public repos and counting",
+      // {repos} = live public repo count; blurbOffline shows if the fetch fails
+      blurb: "{repos} public repos and counting",
+      blurbOffline: "the rest, in public",
       href: "https://github.com/pranshugupta54?tab=repositories",
     },
   ],
@@ -73,3 +75,10 @@ export const SITE = {
 } as const;
 
 export type Site = typeof SITE;
+
+// Project blurb with {repos} filled from a live count; blurbOffline when there isn't one.
+export function projectBlurb(p: (typeof SITE.projects)[number], repoCount?: number | null): string {
+  if (!p.blurb.includes("{repos}")) return p.blurb;
+  if (repoCount) return p.blurb.replace("{repos}", String(repoCount));
+  return "blurbOffline" in p ? p.blurbOffline : "";
+}

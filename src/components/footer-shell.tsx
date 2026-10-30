@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
-import { SITE } from "@/lib/site";
+import { SITE, projectBlurb } from "@/lib/site";
 import funfacts from "@/data/funfacts.json";
 
 // ─── types ───────────────────────────────────────────────────────────────────
@@ -280,7 +280,7 @@ export function FooterShell() {
           addLine("res", `${SITE.role} — systems that feel inevitable.`);
           break;
         case "projects":
-          addLine("res", SITE.projects.map((p) => `  ${p.name.padEnd(14)} — ${p.blurb}`).join("\n"));
+          addLine("res", SITE.projects.map((p) => `  ${p.name.padEnd(14)} — ${projectBlurb(p)}`).join("\n"));
           break;
         case "writing":
           addLine("res", "worklog + notes → /log");
