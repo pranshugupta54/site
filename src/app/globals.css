@@ -156,3 +156,52 @@
     .sig { animation: none; clip-path: none; }
   }
 }
+
+/* ----------------------------------------------------------------------------
+   Navigation view transitions (app/template.tsx, components/title-morph.tsx).
+   Page content cross-fades; the heading (the name on /) slides into the next
+   page's. Browsers without the API just navigate.
+---------------------------------------------------------------------------- */
+::view-transition-old(.page-fade) { animation: 140ms ease-out both vt-out; }
+::view-transition-new(.page-fade) { animation: 200ms ease-out 50ms both vt-in; }
+
+::view-transition-group(page-title) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* natural size: the words swap as they slide, never stretch between boxes */
+::view-transition-old(page-title),
+::view-transition-new(page-title) { width: auto; height: auto; }
+::view-transition-old(page-title) { animation: 120ms ease-out both vt-out; }
+::view-transition-new(page-title) { animation: 180ms ease-out 70ms both vt-in; }
+
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; } }
+
+/* layout chrome (tofu, the shell, the season glyph) rides above the page while it
+   fades: live image only, following the element, no motion of its own */
+.season-drift { view-transition-name: season-ambient; }
+::view-transition-group(tofu),
+::view-transition-group(shell-bar),
+::view-transition-group(shell-panel),
+::view-transition-group(season-ambient) { animation: none; }
+::view-transition-old(tofu),
+::view-transition-old(shell-bar),
+::view-transition-old(shell-panel),
+::view-transition-old(season-ambient) { display: none; }
+::view-transition-new(tofu),
+::view-transition-new(shell-bar),
+::view-transition-new(shell-panel),
+::view-transition-new(season-ambient) { animation: none; }
+::view-transition-group(season-ambient) { z-index: 1; }
+::view-transition-group(tofu) { z-index: 2; }
+::view-transition-group(shell-bar),
+::view-transition-group(shell-panel) { z-index: 3; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  ::view-transition-old(*) { display: none; } /* the swap is instant, never double-exposed */
+}

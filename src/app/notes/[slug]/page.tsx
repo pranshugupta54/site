@@ -6,6 +6,7 @@ import { fmtDate } from "@/lib/reading";
 import { pageMeta } from "@/lib/meta";
 import { renderMarkdown } from "@/lib/markdown";
 import { Prose } from "@/components/prose";
+import { TitleMorph } from "@/components/title-morph";
 
 export const dynamicParams = false; // notes live in the repo; unknown slugs 404
 
@@ -39,7 +40,9 @@ export default async function NotePage({ params }: { params: Promise<{ slug: str
         ← notes
       </Link>
 
-      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">{note.title}</h1>
+      <TitleMorph>
+        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">{note.title}</h1>
+      </TitleMorph>
       <p className="mt-3 font-mono text-[12px] text-muted">
         written by <Link href="/log" className="text-accent transition-colors hover:underline">tofu 🐰</Link>{" "}
         · {fmtDate(note.date)} · {note.minutes} min

@@ -8,6 +8,7 @@ import { AppearanceSwitcher } from "@/components/appearance-switcher";
 import { Age } from "@/components/age";
 import { InlineLink } from "@/components/inline-link";
 import { useAppearance } from "@/components/providers";
+import { TitleMorph } from "@/components/title-morph";
 
 function Lead() {
   // split on {word} — the braced word gets the animated marker highlight
@@ -47,12 +48,14 @@ export function Hero() {
           <div className="font-mono text-xs text-muted">
             <Scramble key={greeting} text={greeting} />, i&apos;m
           </div>
-          <Scramble
-            as="h1"
-            hover
-            text={SITE.first}
-            className="mt-1 block cursor-default font-display text-3xl font-semibold leading-none tracking-tight"
-          />
+          <TitleMorph>
+            <Scramble
+              as="h1"
+              hover
+              text={SITE.first}
+              className="mt-1 block cursor-default font-display text-3xl font-semibold leading-none tracking-tight"
+            />
+          </TitleMorph>
           <div className="mt-1.5 font-mono text-xs text-muted">
             ~ {SITE.role} · {SITE.location.toLowerCase()} · <Age className="whitespace-nowrap" />
           </div>

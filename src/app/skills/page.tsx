@@ -3,6 +3,7 @@ import { CopyCommand } from "@/components/copy-command";
 import { SkillLinks } from "@/components/skill-links";
 import { getSkills, INSTALL_CMD, SKILLS_REPO } from "@/lib/skills";
 import { pageMeta } from "@/lib/meta";
+import { TitleMorph } from "@/components/title-morph";
 
 export const revalidate = 3600; // refresh skill list from GitHub hourly
 
@@ -26,9 +27,11 @@ export default async function SkillsPage() {
         ← back
       </Link>
 
-      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
-        <span className="text-muted">/</span> skills
-      </h1>
+      <TitleMorph>
+        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
+          <span className="text-muted">/</span> skills
+        </h1>
+      </TitleMorph>
       <p className="mt-3 text-sm text-muted">
         Agent skills for coding agents — Claude Code, Cursor, Codex, anything
         that reads a <code className="font-mono text-[12px]">SKILL.md</code>.

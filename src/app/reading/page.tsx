@@ -2,6 +2,7 @@ import Link from "next/link";
 import { READING, TOPICS, fmtDate } from "@/lib/reading";
 import { ReadingList } from "@/components/reading-list";
 import { pageMeta } from "@/lib/meta";
+import { TitleMorph } from "@/components/title-morph";
 
 export const metadata = pageMeta(
   "reading",
@@ -22,9 +23,11 @@ export default function ReadingPage() {
         ← back
       </Link>
 
-      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
-        <span className="text-muted">/</span> reading
-      </h1>
+      <TitleMorph>
+        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
+          <span className="text-muted">/</span> reading
+        </h1>
+      </TitleMorph>
       <p className="mt-3 text-sm text-muted">
         things tofu found while poking around the internet and thinks are worth
         your time. one line each on why. picked by the bot, so blame the bot.
