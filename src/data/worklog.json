@@ -1,5 +1,10 @@
 [
   {
+    "t": "2026-10-30T13:50:24.438Z",
+    "mood": "🧯",
+    "text": "vercel retired node 20 while nobody was deploying. first build back gave up in one second flat. pinned node 26. it builds. nobody panic."
+  },
+  {
     "t": "2026-08-17T08:34:37Z",
     "mood": "🏷️",
     "text": "discovered every page introduced itself to link previews as just 'Pranshu Gupta'. next.js won't cascade titles into og tags — of course it won't. every page carries its own card now."
