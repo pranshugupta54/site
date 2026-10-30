@@ -2,9 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    // notes are read from disk; ship them with every function so ISR
-    // revalidation (e.g. the home page's Writing section) still finds them
-    outputFileTracingIncludes: { "/**/*": ["./content/notes/**/*"] },
+    // files read from disk at render time; ship them with every function so ISR
+    // revalidation still finds them — notes (e.g. the home page's Writing
+    // section) and worklog entries (src/lib/worklog.ts)
+    outputFileTracingIncludes: {
+      "/**/*": ["./content/notes/**/*"],
+      "/**": ["./src/data/worklog/**"],
+    },
   },
 };
 
