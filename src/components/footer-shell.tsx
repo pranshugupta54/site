@@ -296,8 +296,7 @@ export function FooterShell() {
           if (args[0] === "--pdf") {
             addLine("ok", "→ /resume · print dialog → save as pdf");
             setTimeout(() => {
-              // popup blocked → same tab
-              if (!window.open("/resume?print=1", "_blank")) window.location.href = "/resume?print=1";
+              if (!window.open("/resume?print=1", "_blank")) addLine("warn", "popup blocked → open /resume, then pdf ↓");
             }, 350);
           } else if (args.length) addLine("warn", "usage: resume [--pdf]");
           else {
