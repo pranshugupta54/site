@@ -1,9 +1,13 @@
 // Live GitHub data (server-only). Returns null on any failure / missing token —
 // callers hide the widget rather than show fake data.
 import { SITE } from "@/lib/site";
+import { withDeadline } from "@/lib/deadline";
+import { groupPulls, type RawPull, type SitePulls } from "@/lib/pulls";
 
 const GQL = "https://api.github.com/graphql";
 const COLS = 30; // weeks shown in the heatmap
+const SITE_REPO = `${SITE.handle}/site`;
+const PULLS_DEADLINE_MS = 4000;
 
 type Day = { contributionCount: number };
 type Week = { contributionDays: Day[] };
@@ -72,6 +76,44 @@ export async function getOwnRepoCount(login = SITE.handle): Promise<number | nul
     }
     return null;
   } catch {
+    return null;
+  }
+}
+
+// Tofu's live PRs on the site repo, grouped (see pulls.ts). Two small lists:
+// every open PR, and the 30 most recently updated closed ones — enough to find
+// this week's merges. Null on any failure, or if GitHub misses the deadline.
+export async function getSitePulls(): Promise<SitePulls | null> {
+  const token = process.env.GITHUB_TOKEN;
+  const list = async (query: string) => {
+    const res = await fetch(`https://api.github.com/repos/${SITE_REPO}/pulls?${query}`, {
+      headers: {
+        "User-Agent": "pranshugupta54-portfolio",
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json: unknown = await res.json();
+    if (!Array.isArray(json)) throw new Error("expected a list");
+    return json as RawPull[];
+  };
+  try {
+    const lists = await withDeadline(
+      Promise.all([
+        list("state=open&per_page=100"),
+        list("state=closed&sort=updated&direction=desc&per_page=30"),
+      ]),
+      PULLS_DEADLINE_MS
+    );
+    if (!lists) {
+      console.error("[github] site pulls: timed out");
+      return null;
+    }
+    return groupPulls(lists.flat(), { repo: SITE_REPO, owner: SITE.handle, now: Date.now() });
+  } catch (e) {
+    console.error("[github] site pulls:", (e as Error).message);
     return null;
   }
 }
