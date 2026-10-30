@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Guarantees Tofu's ascii frames are perfectly aligned: every frame is exactly
-// width x height, every glyph printable ASCII (32-126). Run: node scripts/validate-tofu.mjs
+// width x height, every glyph printable ASCII (32-126).
+// Run: node scripts/validate-tofu.mjs [frames.json]
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const data = JSON.parse(readFileSync(join(here, "..", "src", "data", "tofu-frames.json"), "utf8"));
+const framesPath = process.argv[2] || join(here, "..", "src", "data", "tofu-frames.json");
+const data = JSON.parse(readFileSync(framesPath, "utf8"));
 const { width, height, frames, hop, hats = {} } = data;
 
 const errs = [];
