@@ -3,10 +3,9 @@ import { LostTofu, LostPath } from "@/components/lost-tofu";
 
 export const metadata = { title: "not found" };
 
-// data-lost parks the roaming Tofu (see globals.css) — this page brings its own.
 export default function NotFound() {
   return (
-    <main data-lost className="mx-auto w-full max-w-[640px] px-6 py-16 sm:py-24">
+    <main className="mx-auto w-full max-w-[640px] px-6 py-16 sm:py-24">
       <LostTofu />
       <p className="mt-8 flex gap-x-2 font-mono text-[13px] text-muted">
         <span className="shrink-0">404</span>

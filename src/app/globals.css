@@ -89,7 +89,7 @@
   ::selection { background: var(--mark); }
 
   /* the 404 shows its own (lost) Tofu — one bunny on screen, not two */
-  body:has([data-lost]) [data-tofu-roamer] { display: none; }
+  body[data-lost] [data-tofu-roamer] { display: none; }
 }
 
 /* rehype-pretty-code dual-theme code blocks: pick the shiki palette per theme */
