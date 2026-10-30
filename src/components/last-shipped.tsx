@@ -2,7 +2,7 @@ import { getLastShipped } from "@/lib/github";
 import { RelativeTime } from "@/components/local-time";
 
 // Async server component. Hidden entirely when there's no eligible public push
-// (API failure, odd data, nothing recent) — never shows fake data.
+// or merged PR (API failure, odd data, nothing recent) — never shows fake data.
 export async function LastShipped() {
   const last = await getLastShipped();
   if (!last) return null;
@@ -12,15 +12,19 @@ export async function LastShipped() {
       className="mt-10 font-mono text-[12px] text-muted"
       style={{ fontVariantNumeric: "tabular-nums" }}
     >
-      last commit <RelativeTime iso={last.at} /> <span className="select-none text-line">·</span>{" "}
-      <a
-        href={`https://github.com/${last.repo}`}
-        target="_blank"
-        rel="noreferrer"
-        className="transition-colors hover:text-accent"
-      >
-        {last.repo.toLowerCase()}
-      </a>
+      last shipped <RelativeTime iso={last.at} />{" "}
+      {/* keeps the dot with the repo when the line wraps */}
+      <span className="whitespace-nowrap">
+        <span className="select-none">·</span>{" "}
+        <a
+          href={`https://github.com/${last.repo}`}
+          target="_blank"
+          rel="noreferrer"
+          className="transition-colors hover:text-accent"
+        >
+          {last.repo.toLowerCase()}
+        </a>
+      </span>
     </p>
   );
 }

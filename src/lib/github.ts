@@ -83,7 +83,18 @@ type PublicEvent = {
   public?: unknown;
   created_at?: unknown;
   repo?: { name?: unknown };
+  payload?: { action?: unknown; pull_request?: { merged?: unknown } };
 };
+
+// A push, or a merged PR. The public feed's trimmed payload reports merges as
+// `action: "merged"` (and an unmerged close as plain "closed"); the full payload
+// shape reports `action: "closed"` with `pull_request.merged === true`.
+function isShip(e: PublicEvent): boolean {
+  if (e.type === "PushEvent") return true;
+  if (e.type !== "PullRequestEvent") return false;
+  const action = e.payload?.action;
+  return action === "merged" || (action === "closed" && e.payload?.pull_request?.merged === true);
+}
 
 const restHeaders = (token?: string) => ({
   "User-Agent": "pranshugupta54-portfolio",
@@ -94,11 +105,11 @@ const REPO_NAME = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const EVENT_PAGES = 3; // the public events feed caps at 300 events (3 × 100)
 const MAX_REPO_CHECKS = 3;
 
-// Most recent public push, from the *public* events feed only. `/users/:u/events`
-// (no `/public`) can include private activity when authenticated — never use it.
-// Skips: non-public events, anything mentioning traycer (site copy rule), and
-// the profile README repo (its pushes are a daily metrics bot, not shipping).
-// Each candidate repo is re-checked as public before it's shown.
+// Most recent public push or merged PR, from the *public* events feed only.
+// `/users/:u/events` (no `/public`) can include private activity when
+// authenticated — never use it. Skips: non-public events, anything mentioning
+// traycer (site copy rule), and the profile README repo (its pushes are a daily
+// metrics bot, not shipping). Each candidate repo is re-checked as public.
 export async function getLastShipped(login = SITE.handle): Promise<LastShipped | null> {
   const token = process.env.GITHUB_TOKEN;
   const profileRepo = `${login}/${login}`.toLowerCase();
@@ -112,10 +123,10 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
       const events = (await res.json()) as unknown;
       if (!Array.isArray(events)) return null;
 
-      // the feed is only roughly chronological — sort pushes by time ourselves
-      const pushes = (events as PublicEvent[])
+      // the feed is only roughly chronological — sort by time ourselves
+      const ships = (events as PublicEvent[])
         .flatMap((e) => {
-          if (e?.type !== "PushEvent" || e.public !== true) return [];
+          if (!e || !isShip(e) || e.public !== true) return [];
           const repo = e.repo?.name;
           const at = e.created_at;
           if (typeof repo !== "string" || !REPO_NAME.test(repo)) return [];
@@ -126,12 +137,20 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
         })
         .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
-      for (const push of pushes.slice(0, MAX_REPO_CHECKS)) {
-        const visibility = await getRepoVisibility(push.repo, token);
-        if (visibility === "public") return push;
+      // several events often share a repo; check each repo once
+      const checked = new Map<string, Visibility>();
+      for (const ship of ships) {
+        const key = ship.repo.toLowerCase();
+        let visibility = checked.get(key);
+        if (!visibility) {
+          if (checked.size >= MAX_REPO_CHECKS) return null;
+          visibility = await getRepoVisibility(ship.repo, token);
+          checked.set(key, visibility);
+        }
+        if (visibility === "public") return ship;
         if (visibility === "error") return null;
       }
-      if (pushes.length) return null;
+      if (ships.length) return null;
       if (events.length < 100) return null; // last page
     }
     return null;
@@ -141,10 +160,8 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
 }
 
 // "hidden" covers private, missing (404) and renamed-away repos.
-async function getRepoVisibility(
-  repo: string,
-  token?: string,
-): Promise<"public" | "hidden" | "error"> {
+type Visibility = "public" | "hidden" | "error";
+async function getRepoVisibility(repo: string, token?: string): Promise<Visibility> {
   const res = await fetch(`https://api.github.com/repos/${repo}`, {
     headers: restHeaders(token),
     next: { revalidate: 3600 },
