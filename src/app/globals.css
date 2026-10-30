@@ -170,7 +170,10 @@
 @keyframes vt-in { from { opacity: 0; transform: translateY(3px); } }
 
 /* layout chrome (tofu, the shell, the season glyph) rides above the page while it
-   fades: live image only, following the element, no motion of its own */
+   fades: live image only, following the element, no motion of its own.
+   Per spec, captured elements aren't hit-testable during a transition, so the chrome
+   ignores clicks/hover for the fade (~250ms). Intended: leaving it uncaptured would
+   let the page images paint over it. */
 .season-drift { view-transition-name: season-ambient; }
 ::view-transition-group(tofu),
 ::view-transition-group(shell-bar),
