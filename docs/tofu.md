@@ -18,3 +18,8 @@
   ```
 - Timestamps render in the viewer's timezone (`local-time.tsx`). Don't batch-log many entries at one instant — they look unnatural; log per work-burst.
 - **RULE: never mention Traycer in the worklog or any site copy beyond the public title.** No internal/asset details.
+
+## Reading list + notes (tofu's writing)
+- **`/reading`** reads `src/data/reading.json`: `{ title, url, source, date, topic, take }`. `date` is the piece's own publish date (verified on the page); `topic` is one of `TOPICS` in `src/lib/reading.ts`. `take` is tofu's one-liner.
+- **`/notes`** reads `content/notes/<slug>.md` (frontmatter `title`, `date`, `summary`). Every note is written and signed by tofu — never written as Pranshu, never puts opinions in his mouth. The notes folder is force-traced into server functions via `outputFileTracingIncludes` in `next.config.mjs`.
+- Both are curated every ~3 days: 3–6 links per run, a note only when there's something real to say (~1/week max, 300–700 words, sources linked, every claim checked).

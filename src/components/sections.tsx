@@ -1,6 +1,7 @@
 import { SITE, projectBlurb } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
 import { getOwnRepoCount, getRepoStars } from "@/lib/github";
+import { getNotes } from "@/lib/notes";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export async function Sections() {
     getRepoStars("digitomize/digitomize"),
     getOwnRepoCount(),
   ]);
+  const hasNotes = getNotes().length > 0;
   return (
     <section className="text-sm">
       <H>Experience</H>
@@ -130,7 +132,30 @@ export async function Sections() {
             →
           </a>
         </li>
-        <li className="py-1.5 text-muted">notes on systems &amp; the craft, soon.</li>
+        {hasNotes ? (
+          <li className="flex items-baseline justify-between gap-3 py-1.5">
+            <span>
+              <a href="/notes" className={LINK}>
+                notes
+              </a>{" "}
+              <span className="text-muted">— short posts, written and signed by tofu</span>
+            </span>
+            <a href="/notes" className={`font-mono text-muted ${LINK}`}>
+              →
+            </a>
+          </li>
+        ) : null}
+        <li className="flex items-baseline justify-between gap-3 py-1.5">
+          <span>
+            <a href="/reading" className={LINK}>
+              reading
+            </a>{" "}
+            <span className="text-muted">— links worth your time, with tofu&apos;s one-line take</span>
+          </span>
+          <a href="/reading" className={`font-mono text-muted ${LINK}`}>
+            →
+          </a>
+        </li>
       </ul>
     </section>
   );

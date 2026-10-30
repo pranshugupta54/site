@@ -288,7 +288,7 @@ export function FooterShell() {
           addLine("res", SITE.projects.map((p) => `  ${p.name.padEnd(14)} — ${projectBlurb(p)}`).join("\n"));
           break;
         case "writing":
-          addLine("res", "worklog + notes → /log");
+          addLine("res", "worklog → /log · notes → /notes · reading → /reading");
           break;
         case "gh":
           addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);

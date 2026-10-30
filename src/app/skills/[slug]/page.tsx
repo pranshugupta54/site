@@ -6,6 +6,7 @@ import { SkillLinks } from "@/components/skill-links";
 import { getSkill, getSkills, INSTALL_CMD } from "@/lib/skills";
 import { pageMeta } from "@/lib/meta";
 import { renderMarkdown } from "@/lib/markdown";
+import { Prose } from "@/components/prose";
 
 export const revalidate = 3600; // refresh skill content from GitHub hourly
 export const dynamicParams = true; // new skills resolve without a redeploy
@@ -49,10 +50,7 @@ export default async function SkillPage({ params }: { params: { slug: string } }
         <CopyCommand cmd={`${INSTALL_CMD} --skill ${skill.slug}`} />
       </div>
 
-      <article
-        className="prose prose-sm mt-10 max-w-none prose-headings:font-display prose-headings:tracking-tight prose-headings:text-fg prose-p:text-fg prose-li:text-fg prose-strong:text-fg prose-a:text-accent prose-blockquote:border-line prose-blockquote:text-muted prose-code:rounded prose-code:bg-card prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.85em] prose-code:font-normal prose-code:text-fg prose-code:before:content-none prose-code:after:content-none prose-pre:border prose-pre:border-line prose-pre:bg-card prose-th:text-fg prose-td:text-fg prose-hr:border-line"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <Prose html={html} className="mt-10" />
     </main>
   );
 }
