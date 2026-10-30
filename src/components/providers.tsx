@@ -67,9 +67,9 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     const d = document.documentElement;
     setSkinState((d.getAttribute("data-skin") as Skin) || "editorial");
     setThemeState((d.getAttribute("data-theme") as Theme) || "light");
-    setSeasonState(getSeason(d.getAttribute("data-season")));
     pin.current = d.getAttribute("data-season-pin");
-  }, []);
+    applySeason(); // re-pick: midnight may have passed between the head script and hydration
+  }, [applySeason]);
 
   // the calendar moves while tabs stay open: re-check at local midnight and on return to the tab
   useEffect(() => {
