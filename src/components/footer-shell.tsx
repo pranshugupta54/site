@@ -545,6 +545,7 @@ export function FooterShell() {
       {/* expanded panel */}
       <div
         aria-label="Terminal shell"
+        data-open={open} // the ? keyboard map stays shut while the shell owns the keyboard
         style={{
           position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 50,
           background: BG, color: FG, borderTop: `1px solid ${LINE}`,

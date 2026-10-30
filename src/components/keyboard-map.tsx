@@ -3,20 +3,12 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
 import { SHORTCUTS, shellCommands } from "@/lib/shell-commands";
+import { closesKeymap, opensKeymap } from "@/lib/keymap";
 
 const FOCUSABLE = 'button, [href], input, [tabindex]:not([tabindex="-1"])';
 
-function typingIn(el: Element | null): boolean {
-  if (!el) return false;
-  return (
-    el.tagName === "INPUT" ||
-    el.tagName === "TEXTAREA" ||
-    el.tagName === "SELECT" ||
-    (el as HTMLElement).isContentEditable
-  );
-}
-
-// "?" anywhere outside a text field opens a map of every shortcut and shell command.
+// "?" opens a map of every shortcut and shell command, unless a text field,
+// the open shell or a snake game owns the keyboard (see opensKeymap).
 export function KeyboardMap() {
   const { season } = useAppearance();
   const [open, setOpen] = useState(false);
@@ -63,16 +55,15 @@ export function KeyboardMap() {
     };
 
     const onKey = (e: KeyboardEvent) => {
-      const bare = !e.ctrlKey && !e.metaKey && !e.altKey;
       if (openRef.current) {
-        if (e.key === "Escape" || (e.key === "?" && bare)) {
+        if (closesKeymap(e)) {
           e.preventDefault();
           show(false);
         } else if (e.key === "Tab") trap(e);
         e.stopPropagation(); // the page underneath (shell, snakes) hears nothing while the map is up
         return;
       }
-      if (e.key !== "?" || !bare || e.repeat || e.isComposing || typingIn(document.activeElement)) return;
+      if (!opensKeymap(e, document)) return;
       e.preventDefault();
       e.stopPropagation(); // or the shell's type-anywhere opens with a "?"
       show(true);
