@@ -12,7 +12,7 @@ export async function GET() {
       title: n.title,
       url: `${SITE_URL}/notes/${n.slug}`,
       published: `${n.date}T00:00:00Z`,
-      updated: `${n.updated}T00:00:00Z`,
+      updated: n.updated,
       summary: n.summary,
       html: await renderMarkdown(n.body),
     }))

@@ -10,7 +10,7 @@ export type Note = {
   slug: string;
   title: string;
   date: string; // YYYY-MM-DD, publication
-  updated: string; // YYYY-MM-DD, last significant edit (frontmatter `updated`, defaults to date)
+  updated: string; // ISO-8601 timestamp of the last significant edit (frontmatter `updated`, defaults to date)
   summary: string;
   body: string;
   minutes: number;
@@ -18,6 +18,12 @@ export type Note = {
 
 // gray-matter parses bare YAML dates into Date objects
 const day = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v));
+
+// full timestamp; a bare date means UTC midnight. null if unparseable.
+const stamp = (v: unknown): string | null => {
+  const d = v instanceof Date ? v : new Date(String(v));
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+};
 
 function read(file: string): Note | null {
   const { data, content } = matter(readFileSync(join(DIR, file), "utf8"));
@@ -28,7 +34,7 @@ function read(file: string): Note | null {
     slug: file.replace(/\.md$/, ""),
     title: String(data.title),
     date,
-    updated: data.updated ? day(data.updated) : date,
+    updated: (data.updated && stamp(data.updated)) || `${date}T00:00:00.000Z`,
     summary: String(data.summary),
     body: content,
     minutes: Math.max(1, Math.round(words / 220)),
