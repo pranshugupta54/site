@@ -44,14 +44,13 @@ export const SITE = {
     { degree: "Senior Secondary", school: "The Vivekanand School", start: "2020", end: "2022" },
   ],
 
-  // Projects — Digitomize is your flagship; star count fetched live, this is the fallback
+  // Projects — Digitomize is your flagship; star count fetched live (hidden if the fetch fails)
   projects: [
     {
       name: "digitomize",
       blurb: "open-source coding-contests + profiles platform",
       repo: "digitomize/digitomize",
       href: "https://github.com/digitomize/digitomize",
-      stars: 602,
       users: "50k+ users",
       featured: true,
     },
