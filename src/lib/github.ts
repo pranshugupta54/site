@@ -188,8 +188,9 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
 
 // Only public, non-fork repos that still go by this name are showcased.
 // "skip" covers private, forked, missing (404) and renamed-away repos.
-// Cached for one revalidate window like the page, so a repo flipped
-// public → private can keep showing for up to ~1h before it disappears.
+// Like the page HTML, this uses hourly, request-triggered revalidation: a repo
+// made private may stay visible until the next refresh, which can be longer
+// than an hour when traffic is sparse.
 type Eligibility = "eligible" | "skip" | "error";
 async function getRepoEligibility(repo: string, token?: string): Promise<Eligibility> {
   const res = await getJson(`https://api.github.com/repos/${repo}`, token);
