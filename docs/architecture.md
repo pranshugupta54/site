@@ -25,4 +25,5 @@ A third, optional axis: `data-season` on `<html>`, set by the no-flash script wh
 - `github-panel.tsx` (server; renders nothing if no live data) + `github-board.tsx` (client heatmap + **playable snake**).
 - `footer-shell.tsx` — sticky terminal; `/` opens; commands: help/about/projects/gh/snake/theme/skin/funfact/goto/clock/clear/cowsay/sudo.
 - `tofu.tsx` — the mascot (see @docs/tofu.md).
+- `src/lib/resume.ts` — compact CV built from `SITE`; feeds the shell's `resume` command and the `/resume` page. `/resume` carries its own print CSS (light palette, one page, Tofu + shell hidden); `resume --pdf` opens it with `?print=1`, which calls `window.print()` once.
 - `scramble.tsx` has `speedMs`/`reveal` props (faster scramble for the Tofu bubble).
