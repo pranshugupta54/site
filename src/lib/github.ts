@@ -76,6 +76,91 @@ export async function getOwnRepoCount(login = SITE.handle): Promise<number | nul
   }
 }
 
+export type LastShipped = { repo: string; at: string }; // repo "owner/name", at = ISO
+
+type PublicEvent = {
+  type?: unknown;
+  public?: unknown;
+  created_at?: unknown;
+  repo?: { name?: unknown };
+};
+
+const restHeaders = (token?: string) => ({
+  "User-Agent": "pranshugupta54-portfolio",
+  Accept: "application/vnd.github+json",
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+});
+const REPO_NAME = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
+const EVENT_PAGES = 3; // the public events feed caps at 300 events (3 × 100)
+const MAX_REPO_CHECKS = 3;
+
+// Most recent public push, from the *public* events feed only. `/users/:u/events`
+// (no `/public`) can include private activity when authenticated — never use it.
+// Skips: non-public events, anything mentioning traycer (site copy rule), and
+// the profile README repo (its pushes are a daily metrics bot, not shipping).
+// Each candidate repo is re-checked as public before it's shown.
+export async function getLastShipped(login = SITE.handle): Promise<LastShipped | null> {
+  const token = process.env.GITHUB_TOKEN;
+  const profileRepo = `${login}/${login}`.toLowerCase();
+  try {
+    for (let page = 1; page <= EVENT_PAGES; page++) {
+      const res = await fetch(
+        `https://api.github.com/users/${login}/events/public?per_page=100&page=${page}`,
+        { headers: restHeaders(token), next: { revalidate: 3600 }, signal: AbortSignal.timeout(4000) },
+      );
+      if (!res.ok) return null;
+      const events = (await res.json()) as unknown;
+      if (!Array.isArray(events)) return null;
+
+      // the feed is only roughly chronological — sort pushes by time ourselves
+      const pushes = (events as PublicEvent[])
+        .flatMap((e) => {
+          if (e?.type !== "PushEvent" || e.public !== true) return [];
+          const repo = e.repo?.name;
+          const at = e.created_at;
+          if (typeof repo !== "string" || !REPO_NAME.test(repo)) return [];
+          if (typeof at !== "string" || Number.isNaN(Date.parse(at))) return [];
+          const lower = repo.toLowerCase();
+          if (lower.includes("traycer") || lower === profileRepo) return [];
+          return [{ repo, at: new Date(at).toISOString() }];
+        })
+        .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+      for (const push of pushes.slice(0, MAX_REPO_CHECKS)) {
+        const visibility = await getRepoVisibility(push.repo, token);
+        if (visibility === "public") return push;
+        if (visibility === "error") return null;
+      }
+      if (pushes.length) return null;
+      if (events.length < 100) return null; // last page
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// "hidden" covers private, missing (404) and renamed-away repos.
+async function getRepoVisibility(
+  repo: string,
+  token?: string,
+): Promise<"public" | "hidden" | "error"> {
+  const res = await fetch(`https://api.github.com/repos/${repo}`, {
+    headers: restHeaders(token),
+    next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(4000),
+  });
+  if (res.status === 404) return "hidden";
+  if (!res.ok) return "error";
+  const json = (await res.json()) as { private?: unknown; visibility?: unknown; full_name?: unknown };
+  const isPublic =
+    json.private === false &&
+    json.visibility === "public" &&
+    typeof json.full_name === "string" &&
+    json.full_name.toLowerCase() === repo.toLowerCase();
+  return isPublic ? "public" : "hidden";
+}
+
 export async function getGithub(login = SITE.handle): Promise<Github | null> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return null;

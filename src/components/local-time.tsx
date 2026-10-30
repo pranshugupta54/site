@@ -39,3 +39,21 @@ export function LocalTime({ iso, className }: { iso: string; className?: string 
     </time>
   );
 }
+
+// Relative-only ("3h ago"), computed on the client so cached HTML never goes
+// stale; ticks every minute while the page is open.
+export function RelativeTime({ iso, className }: { iso: string; className?: string }) {
+  const [label, setLabel] = useState("");
+  useEffect(() => {
+    const d = new Date(iso);
+    const tick = () => setLabel(relative(d));
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, [iso]);
+  return (
+    <time dateTime={iso} suppressHydrationWarning className={className}>
+      {label || iso.slice(0, 10)}
+    </time>
+  );
+}

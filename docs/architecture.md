@@ -23,6 +23,7 @@ A third, optional axis: `data-season` on `<html>`, set by the no-flash script wh
 - `hero.tsx` — name scrambles in, multi-language greeting rotator, **signature** (Sassy Frass; writes in via `.sig` clip animation), live IST clock, **live age** (from `SITE.dob`), lead line with marker highlight.
 - `sections.tsx` — Experience / Projects / Competitive Programming / Education / Writing + `Connect`. Async server component (fetches live Digitomize stars).
 - `github-panel.tsx` (server; renders nothing if no live data) + `github-board.tsx` (client heatmap + **playable snake**).
+- `last-shipped.tsx` (server; renders nothing if no eligible public push) — quiet `last commit 3h ago · owner/repo` line at the bottom of the main column; time formatted client-side by `RelativeTime` (`local-time.tsx`).
 - `footer-shell.tsx` — sticky terminal; `/` opens; commands: help/about/projects/gh/snake/theme/skin/funfact/goto/clock/clear/cowsay/sudo.
 - `tofu.tsx` — the mascot (see @docs/tofu.md).
 - `scramble.tsx` has `speedMs`/`reveal` props (faster scramble for the Tofu bubble).
