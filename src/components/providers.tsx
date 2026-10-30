@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SEASONS, SEASON_KEY, getSeason, pickSeason, type Season } from "@/data/seasons";
 
 export const SKINS = ["editorial", "mono", "serif"] as const;
@@ -25,6 +25,7 @@ const SEASON_WINDOWS = JSON.stringify(SEASONS.map(({ id, start, end }) => ({ id,
 
 // Runs before paint to avoid a flash of the wrong skin/theme/season.
 // ?season=<id>|off|auto previews a season off-calendar for the rest of the tab.
+// The pin is also left on data-season-pin so it survives blocked storage.
 export const NO_FLASH_SCRIPT = `(function(){try{
   var d=document.documentElement;
   var s=localStorage.getItem('skin')||'editorial';
@@ -37,18 +38,29 @@ export const NO_FLASH_SCRIPT = `(function(){try{
   document.documentElement.setAttribute('data-theme','light');
 }
 try{
-  var q=new URLSearchParams(location.search).get('season');
-  if(q==='auto')sessionStorage.removeItem('${SEASON_KEY}');
-  else if(q)sessionStorage.setItem('${SEASON_KEY}',q);
-  var o=null;try{o=sessionStorage.getItem('${SEASON_KEY}');}catch(e){}
+  var d=document.documentElement,k='${SEASON_KEY}',o=null,q=null;
+  try{q=new URLSearchParams(location.search).get('season');}catch(e){}
+  try{o=sessionStorage.getItem(k);}catch(e){}
+  if(q==='auto')o=null;else if(q)o=q;
+  try{if(q==='auto')sessionStorage.removeItem(k);else if(q)sessionStorage.setItem(k,q);}catch(e){}
+  if(o)d.setAttribute('data-season-pin',o);
   var id=(${pickSeason.toString()})(new Date(),${SEASON_WINDOWS},o);
-  if(id)document.documentElement.setAttribute('data-season',id);
+  if(id)d.setAttribute('data-season',id);
 }catch(e){}})();`;
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
   const [skin, setSkinState] = useState<Skin>("editorial");
   const [theme, setThemeState] = useState<Theme>("light");
   const [season, setSeasonState] = useState<Season | null>(null);
+  const pin = useRef<string | null>(null); // tab override: season id | "off" | null (calendar)
+
+  const applySeason = useCallback(() => {
+    const id = pickSeason(new Date(), SEASONS, pin.current);
+    const d = document.documentElement;
+    if (id) d.setAttribute("data-season", id);
+    else d.removeAttribute("data-season");
+    setSeasonState(getSeason(id));
+  }, []);
 
   // hydrate from what the no-flash script already applied
   useEffect(() => {
@@ -56,7 +68,28 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     setSkinState((d.getAttribute("data-skin") as Skin) || "editorial");
     setThemeState((d.getAttribute("data-theme") as Theme) || "light");
     setSeasonState(getSeason(d.getAttribute("data-season")));
+    pin.current = d.getAttribute("data-season-pin");
   }, []);
+
+  // the calendar moves while tabs stay open: re-check at local midnight and on return to the tab
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const atMidnight = () => {
+      const now = new Date();
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
+      t = setTimeout(() => {
+        applySeason();
+        atMidnight();
+      }, next.getTime() - now.getTime());
+    };
+    const onVisible = () => document.visibilityState === "visible" && applySeason();
+    atMidnight();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [applySeason]);
 
   const setSkin = useCallback((s: Skin) => {
     document.documentElement.setAttribute("data-skin", s);
@@ -70,19 +103,19 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     setThemeState(t);
   }, []);
 
-  const setSeason = useCallback((v: string) => {
-    try {
-      if (v === "auto") sessionStorage.removeItem(SEASON_KEY);
-      else sessionStorage.setItem(SEASON_KEY, v);
-    } catch {
-      /* storage blocked — still apply for this page */
-    }
-    const id = pickSeason(new Date(), SEASONS, v === "auto" ? null : v);
-    const d = document.documentElement;
-    if (id) d.setAttribute("data-season", id);
-    else d.removeAttribute("data-season");
-    setSeasonState(getSeason(id));
-  }, []);
+  const setSeason = useCallback(
+    (v: string) => {
+      pin.current = v === "auto" ? null : v;
+      try {
+        if (v === "auto") sessionStorage.removeItem(SEASON_KEY);
+        else sessionStorage.setItem(SEASON_KEY, v);
+      } catch {
+        /* storage blocked — the pin still holds for this tab's lifetime */
+      }
+      applySeason();
+    },
+    [applySeason]
+  );
 
   const cycleSkin = useCallback(() => {
     setSkin(SKINS[(SKINS.indexOf(skin) + 1) % SKINS.length]);

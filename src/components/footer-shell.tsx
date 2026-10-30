@@ -353,9 +353,13 @@ export function FooterShell() {
         case "snake":
           startSnake();
           break;
-        default:
-          if (season?.commands?.[cmd.toLowerCase()]) addLine("res", season.commands[cmd.toLowerCase()]);
+        default: {
+          const egg = season?.commands && Object.hasOwn(season.commands, cmd.toLowerCase())
+            ? season.commands[cmd.toLowerCase()]
+            : undefined;
+          if (typeof egg === "string") addLine("res", egg);
           else addLine("warn", `command not found: ${cmd} — try 'help'`);
+        }
       }
     },
     [addLine, startSnake, toggleTheme, cycleSkin, theme, season, setSeason]
