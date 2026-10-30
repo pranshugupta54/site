@@ -19,6 +19,7 @@ import {
   oneSkillLine,
   type Egg,
 } from "@/lib/shell-eggs";
+import { helpText, shellCommands } from "@/lib/shell-commands";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -330,23 +331,7 @@ export function FooterShell() {
 
       switch (cmd.toLowerCase()) {
         case "help":
-          addLine(
-            "res",
-            `commands:
-  about · projects · writing · gh
-  resume     cv · --pdf to save one
-  snake      play snake on my commits
-  theme      toggle light / dark
-  skin       cycle editorial → mono → serif
-  funfact    a fun fact
-  season     what's on, or season <name|off|auto>
-  versions   this site's past lives
-  goto <x>   github · x · email
-  clock · clear · cowsay <msg> · sudo` +
-              (season?.commands
-                ? `\n  ${Object.keys(season.commands).join(" · ")}   it's ${season.name}`
-                : "")
-          );
+          addLine("res", helpText(shellCommands(season)));
           break;
         case "about":
           addLine("res", SITE.bio);
