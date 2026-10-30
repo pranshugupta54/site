@@ -9,10 +9,11 @@
 - Page revalidates hourly: `export const revalidate = 3600` in `app/page.tsx`.
 - **Last shipped line** (`last-shipped.tsx`, after `<Connect />`, copy `last shipped 3h ago · owner/repo`): `getLastShipped()` → most recent `PushEvent` **or merged PR** from **`/users/:u/events/public` only** (never `/users/:u/events` — with a token it can include private activity). Works without a token. Rules:
   - a merged PR is a `PullRequestEvent` with `action === "merged"` (what the trimmed public feed emits; plain `"closed"` there means closed *unmerged*) or `action === "closed" && pull_request.merged === true` (full payload shape).
-  - only `event.public === true`, sorted by `created_at` (the feed isn't strictly ordered); scans up to 3 pages (the feed's 300-event cap).
+  - collects up to 3 pages first (the feed's 300-event cap; stops early on a short page or a failed request — page 1 failing hides the line), then keeps only `event.public === true` and sorts **all** of them by `created_at` (the feed isn't strictly ordered, so a newer event can sit on a later page).
   - **skips any repo with "traycer" in owner or name** (site copy rule) and the profile README repo `pranshugupta54/pranshugupta54` (its pushes are a daily metrics bot, not real work).
   - each candidate repo is re-checked via `/repos/:repo` and shown only if `private === false`, `visibility === "public"`, **`fork === false`** (pushing to a fork isn't his work to showcase) and the name still matches; a 404/private/forked/renamed repo falls through to the next event (max 5 distinct repo checks).
-  - any HTTP error, timeout (4s) or odd shape → `null` → the line renders nothing.
+  - the repo check is cached for one revalidate window like the page, so a repo flipped public → private **can keep showing for up to ~1h** before it disappears (accepted trade-off vs. opting the home page out of ISR).
+  - any HTTP error, timeout or odd shape → `null` → the line renders nothing. Every call has a hard 4s deadline (`getJson`'s `Promise.race`), because Next 14 drops `fetch`'s `signal` when refreshing a stale ISR entry; the `AbortSignal` is kept for the cold path.
   - the time is server-rendered as ISO and formatted ("3h ago") on the client by `RelativeTime` in `local-time.tsx`, so hourly ISR HTML never shows a stale relative time.
   - payloads are trimmed (no commit messages / PR titles), so the line only says *where* and *when*, not *what*. If every recent public event is excluded, the line is simply hidden.
 - WakaTime was removed (user stopped using it). Spotify was never built. Don't re-add either without asking.

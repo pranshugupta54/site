@@ -104,6 +104,32 @@ const restHeaders = (token?: string) => ({
 const REPO_NAME = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/;
 const EVENT_PAGES = 3; // the public events feed caps at 300 events (3 × 100)
 const MAX_REPO_CHECKS = 5; // distinct repos checked before giving up
+const DEADLINE_MS = 4000;
+
+type JsonResult = { ok: boolean; status: number; body: unknown };
+
+// GET + parse with a hard deadline; null on timeout or network/parse error.
+// Next 14's patched fetch drops `signal` when it refreshes a stale ISR entry, so
+// the AbortSignal alone can't bound the call — the race below always does.
+async function getJson(url: string, token?: string): Promise<JsonResult | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), DEADLINE_MS);
+  });
+  const request = (async (): Promise<JsonResult> => {
+    const res = await fetch(url, {
+      headers: restHeaders(token),
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(DEADLINE_MS),
+    });
+    return { ok: res.ok, status: res.status, body: res.ok ? await res.json() : null };
+  })().catch(() => null);
+  try {
+    return await Promise.race([request, deadline]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // Most recent public push or merged PR, from the *public* events feed only.
 // `/users/:u/events` (no `/public`) can include private activity when
@@ -115,44 +141,44 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
   const token = process.env.GITHUB_TOKEN;
   const profileRepo = `${login}/${login}`.toLowerCase();
   try {
+    // collect the whole feed before picking: it's only roughly chronological,
+    // so a newer event can sit on a later page
+    const events: PublicEvent[] = [];
     for (let page = 1; page <= EVENT_PAGES; page++) {
-      const res = await fetch(
+      const res = await getJson(
         `https://api.github.com/users/${login}/events/public?per_page=100&page=${page}`,
-        { headers: restHeaders(token), next: { revalidate: 3600 }, signal: AbortSignal.timeout(4000) },
+        token,
       );
-      if (!res.ok) return null;
-      const events = (await res.json()) as unknown;
-      if (!Array.isArray(events)) return null;
+      if (!res?.ok || !Array.isArray(res.body)) break; // page 1 failing → nothing to show
+      events.push(...(res.body as PublicEvent[]));
+      if (res.body.length < 100) break; // last page
+    }
 
-      // the feed is only roughly chronological — sort by time ourselves
-      const ships = (events as PublicEvent[])
-        .flatMap((e) => {
-          if (!e || !isShip(e) || e.public !== true) return [];
-          const repo = e.repo?.name;
-          const at = e.created_at;
-          if (typeof repo !== "string" || !REPO_NAME.test(repo)) return [];
-          if (typeof at !== "string" || Number.isNaN(Date.parse(at))) return [];
-          const lower = repo.toLowerCase();
-          if (lower.includes("traycer") || lower === profileRepo) return [];
-          return [{ repo, at: new Date(at).toISOString() }];
-        })
-        .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+    const ships = events
+      .flatMap((e) => {
+        if (!e || !isShip(e) || e.public !== true) return [];
+        const repo = e.repo?.name;
+        const at = e.created_at;
+        if (typeof repo !== "string" || !REPO_NAME.test(repo)) return [];
+        if (typeof at !== "string" || Number.isNaN(Date.parse(at))) return [];
+        const lower = repo.toLowerCase();
+        if (lower.includes("traycer") || lower === profileRepo) return [];
+        return [{ repo, at: new Date(at).toISOString() }];
+      })
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 
-      // several events often share a repo; check each repo once
-      const checked = new Map<string, Eligibility>();
-      for (const ship of ships) {
-        const key = ship.repo.toLowerCase();
-        let eligibility = checked.get(key);
-        if (!eligibility) {
-          if (checked.size >= MAX_REPO_CHECKS) return null;
-          eligibility = await getRepoEligibility(ship.repo, token);
-          checked.set(key, eligibility);
-        }
-        if (eligibility === "eligible") return ship;
-        if (eligibility === "error") return null;
+    // several events often share a repo; check each repo once
+    const checked = new Map<string, Eligibility>();
+    for (const ship of ships) {
+      const key = ship.repo.toLowerCase();
+      let eligibility = checked.get(key);
+      if (!eligibility) {
+        if (checked.size >= MAX_REPO_CHECKS) return null;
+        eligibility = await getRepoEligibility(ship.repo, token);
+        checked.set(key, eligibility);
       }
-      if (ships.length) return null;
-      if (events.length < 100) return null; // last page
+      if (eligibility === "eligible") return ship;
+      if (eligibility === "error") return null;
     }
     return null;
   } catch {
@@ -162,16 +188,15 @@ export async function getLastShipped(login = SITE.handle): Promise<LastShipped |
 
 // Only public, non-fork repos that still go by this name are showcased.
 // "skip" covers private, forked, missing (404) and renamed-away repos.
+// Cached for one revalidate window like the page, so a repo flipped
+// public → private can keep showing for up to ~1h before it disappears.
 type Eligibility = "eligible" | "skip" | "error";
 async function getRepoEligibility(repo: string, token?: string): Promise<Eligibility> {
-  const res = await fetch(`https://api.github.com/repos/${repo}`, {
-    headers: restHeaders(token),
-    next: { revalidate: 3600 },
-    signal: AbortSignal.timeout(4000),
-  });
+  const res = await getJson(`https://api.github.com/repos/${repo}`, token);
+  if (!res) return "error";
   if (res.status === 404) return "skip";
-  if (!res.ok) return "error";
-  const json = (await res.json()) as {
+  if (!res.ok || typeof res.body !== "object" || res.body === null) return "error";
+  const json = res.body as {
     private?: unknown;
     visibility?: unknown;
     fork?: unknown;
