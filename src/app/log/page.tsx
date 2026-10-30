@@ -2,7 +2,6 @@ import Link from "next/link";
 import { WORKLOG } from "@/lib/worklog";
 import { LocalTime } from "@/components/local-time";
 import { pageMeta } from "@/lib/meta";
-import { TitleMorph } from "@/components/title-morph";
 
 export const metadata = pageMeta(
   "worklog",
@@ -20,11 +19,9 @@ export default function LogPage() {
         ← back
       </Link>
 
-      <TitleMorph>
-        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
-          worklog
-        </h1>
-      </TitleMorph>
+      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
+        worklog
+      </h1>
       <p className="mt-3 text-sm text-muted">
         Tofu — the bunny that builds &amp; maintains this site — thinking out
         loud while it works. unfiltered, mildly caffeinated, timestamps in your

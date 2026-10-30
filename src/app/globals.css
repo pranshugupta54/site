@@ -158,25 +158,16 @@
 }
 
 /* ----------------------------------------------------------------------------
-   Navigation view transitions (app/template.tsx, components/title-morph.tsx).
-   Page content cross-fades; the heading (the name on /) slides into the next
-   page's. Browsers without the API just navigate.
+   Navigation view transitions (app/template.tsx). Staggered, never a double
+   exposure: the old page is under 7% when the new one starts at 90ms (settling
+   up 3px), and the two never show above ~4% at once. Browsers without the API
+   just navigate.
 ---------------------------------------------------------------------------- */
-::view-transition-old(.page-fade) { animation: 140ms ease-out both vt-out; }
-::view-transition-new(.page-fade) { animation: 200ms ease-out 50ms both vt-in; }
-
-::view-transition-group(page-title) {
-  animation-duration: 250ms;
-  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-/* natural size: the words swap as they slide, never stretch between boxes */
-::view-transition-old(page-title),
-::view-transition-new(page-title) { width: auto; height: auto; }
-::view-transition-old(page-title) { animation: 120ms ease-out both vt-out; }
-::view-transition-new(page-title) { animation: 180ms ease-out 70ms both vt-in; }
+::view-transition-old(.page-fade) { animation: 110ms ease-out both vt-out; }
+::view-transition-new(.page-fade) { animation: 160ms ease-out 90ms both vt-in; }
 
 @keyframes vt-out { to { opacity: 0; } }
-@keyframes vt-in { from { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(3px); } }
 
 /* layout chrome (tofu, the shell, the season glyph) rides above the page while it
    fades: live image only, following the element, no motion of its own */

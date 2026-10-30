@@ -7,7 +7,6 @@ import { getSkill, getSkills, INSTALL_CMD } from "@/lib/skills";
 import { pageMeta } from "@/lib/meta";
 import { renderMarkdown } from "@/lib/markdown";
 import { Prose } from "@/components/prose";
-import { TitleMorph } from "@/components/title-morph";
 
 export const revalidate = 3600; // refresh skill content from GitHub hourly
 export const dynamicParams = true; // new skills resolve without a redeploy
@@ -43,12 +42,10 @@ export default async function SkillPage({ params }: { params: Promise<{ slug: st
         ← skills
       </Link>
 
-      <TitleMorph>
-        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
-          <span className="text-muted">/</span> {skill.name}
-          <SkillLinks ghHref={skill.href} />
-        </h1>
-      </TitleMorph>
+      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
+        <span className="text-muted">/</span> {skill.name}
+        <SkillLinks ghHref={skill.href} />
+      </h1>
       <p className="mt-3 text-sm text-muted">{skill.description}</p>
 
       <div className="mt-6">

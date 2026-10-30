@@ -22,8 +22,7 @@ A third, optional axis: `data-season` on `<html>`, set by the no-flash script wh
 
 ## View transitions (navigation)
 React 19.3's stable `ViewTransition` (no next.config flag in Next 16.4). Client navigations only, so internal links must be `next/link`; a plain `<a>` reloads the page with no transition.
-- `app/template.tsx`: page content in a `ViewTransition` keyed by pathname, with a quick asymmetric cross-fade (`.page-fade`: old out 140ms, new in 200ms after 50ms).
-- `title-morph.tsx`: the hero name and every page's `h1` share the name `page-title`, so the heading slides into the next page's heading over 250ms. The images keep their natural size, so the text swaps instead of stretching. React skips the pair when the old heading is scrolled off-screen, so it just fades with the page.
+- `app/template.tsx`: page content in a `ViewTransition` keyed by pathname, with a staggered fade (`.page-fade`: old out 110ms; new in 160ms from 90ms, settling up 3px). The two pages are never visible together. No shared-element morph, by design: different words morphing into each other reads as a trick.
 - Layout chrome is named (`tofu`, `shell-bar`, `shell-panel`, `.season-drift` → `season-ambient`). It shows only its live image, stays unanimated, and sits above the fading page.
 - Reduced motion: no animation, instant swap. No API: plain navigation. All CSS is at the end of `globals.css`.
 

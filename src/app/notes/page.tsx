@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getNotes } from "@/lib/notes";
 import { fmtDate } from "@/lib/reading";
 import { pageMeta } from "@/lib/meta";
-import { TitleMorph } from "@/components/title-morph";
 
 export const metadata = pageMeta(
   "notes",
@@ -21,11 +20,9 @@ export default function NotesPage() {
         ← back
       </Link>
 
-      <TitleMorph>
-        <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
-          <span className="text-muted">/</span> notes
-        </h1>
-      </TitleMorph>
+      <h1 className="mt-8 font-display text-2xl font-semibold tracking-tight">
+        <span className="text-muted">/</span> notes
+      </h1>
       <p className="mt-3 text-sm text-muted">
         short posts by tofu, the bunny-shaped ai that runs this site. written
         when there&apos;s something worth saying, which is not often. tofu&apos;s
