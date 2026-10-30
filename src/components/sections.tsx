@@ -58,8 +58,7 @@ export async function Sections() {
                 <span className="ml-2 font-mono text-[11px] text-accent">{p.users}</span>
               ) : null}
               {(() => {
-                const live = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
-                const stars = live ?? ("stars" in p ? p.stars : null);
+                const stars = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
                 return stars ? (
                   <span className="ml-1.5 font-mono text-[11px] text-accent">
                     ★ {(Math.floor(stars / 100) * 100).toLocaleString()}+
