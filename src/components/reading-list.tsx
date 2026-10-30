@@ -20,11 +20,20 @@ export function ReadingList({
   return (
     <>
       <div className="mt-8 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[12px] text-muted">
-        <button onClick={() => setTopic(null)} className={`${CHIP} ${topic === null ? "text-accent" : ""}`}>
+        <button
+          onClick={() => setTopic(null)}
+          aria-pressed={topic === null}
+          className={`${CHIP} ${topic === null ? "text-accent" : ""}`}
+        >
           all
         </button>
         {topics.map((t) => (
-          <button key={t} onClick={() => setTopic(t)} className={`${CHIP} ${topic === t ? "text-accent" : ""}`}>
+          <button
+            key={t}
+            onClick={() => setTopic(t)}
+            aria-pressed={topic === t}
+            className={`${CHIP} ${topic === t ? "text-accent" : ""}`}
+          >
             #{t}
           </button>
         ))}
