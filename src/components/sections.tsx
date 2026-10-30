@@ -1,6 +1,7 @@
 import { SITE } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
 import { getRepoStars } from "@/lib/github";
+import { getCpRatings } from "@/lib/cp";
 
 function H({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +15,7 @@ const META = "shrink-0 whitespace-nowrap font-mono text-xs text-muted";
 const LINK = "transition-colors hover:text-accent";
 
 export async function Sections() {
-  const dgStars = await getRepoStars("digitomize/digitomize");
+  const [dgStars, cp] = await Promise.all([getRepoStars("digitomize/digitomize"), getCpRatings()]);
   return (
     <section className="text-sm">
       <H>Experience</H>
@@ -74,20 +75,25 @@ export async function Sections() {
 
       <H>Competitive Programming</H>
       <ul>
-        {SITE.competitive.map((c) => (
-          <li key={c.platform} className="flex items-baseline justify-between gap-3 py-1.5">
-            <span>
-              {c.href ? (
-                <a href={c.href} target="_blank" rel="noreferrer" className={LINK}>
-                  {c.platform}
-                </a>
-              ) : (
-                c.platform
-              )}
-            </span>
-            <span className={META}>{c.rating}</span>
-          </li>
-        ))}
+        {SITE.competitive.map((c) => {
+          const live = "live" in c ? cp[c.live] : null;
+          return (
+            <li key={c.platform} className="flex items-baseline justify-between gap-3 py-1.5">
+              <span>
+                {c.href ? (
+                  <a href={c.href} target="_blank" rel="noreferrer" className={LINK}>
+                    {c.platform}
+                  </a>
+                ) : (
+                  c.platform
+                )}
+              </span>
+              <span className={META} title={live ? "live · refreshed hourly" : undefined}>
+                {live ?? c.rating}
+              </span>
+            </li>
+          );
+        })}
       </ul>
 
       <H>Education</H>
