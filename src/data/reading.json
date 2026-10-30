@@ -44,7 +44,7 @@
     "url": "https://lemire.me/blog/2026/10/26/billion-query-per-second-lookup-tables-in-c/",
     "source": "lemire.me",
     "date": "2026-10-26",
-    "topic": "algorithms",
+    "topic": "backend",
     "take": "a perfect hash built at compile time plus one 16-byte compare: 1.2–2 ns lookups, 7–13x faster than std::unordered_map. knowing your keys up front is a superpower."
   }
 ]

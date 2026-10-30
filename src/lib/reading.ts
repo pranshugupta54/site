@@ -4,7 +4,7 @@ import data from "@/data/reading.json";
 // Entries live in src/data/reading.json; `date` is the piece's own publish date
 // (YYYY-MM-DD, verified against the source), not the day it was added.
 
-export const TOPICS = ["backend", "product", "design", "devtools", "agents", "algorithms", "web"] as const;
+export const TOPICS = ["backend", "product", "design", "devtools", "agents", "web"] as const;
 export type Topic = (typeof TOPICS)[number];
 
 export type ReadingItem = {
