@@ -23,8 +23,8 @@ const PRINT_CSS = `
   body > :not(.resume-page) { display: none !important; }
   .resume-page { --bg: #fff; }
   [data-skin="editorial"] .resume-page { --fg: #211c16; --muted: #6f675b; --line: #e6ddcd; --accent: #c2410c; }
-  [data-skin="mono"] .resume-page { --fg: #1c1a16; --muted: #7a7468; --line: #e1dac9; --accent: #1f6f54; }
-  [data-skin="serif"] .resume-page { --fg: #1b1a17; --muted: #777267; --line: #e7e2d8; --accent: #3b5bdb; }
+  [data-skin="mono"] .resume-page { --fg: #1c1a16; --muted: #696459; --line: #e1dac9; --accent: #1f6f54; }
+  [data-skin="serif"] .resume-page { --fg: #1b1a17; --muted: #6c675d; --line: #e7e2d8; --accent: #3b5bdb; }
 }
 `;
 
