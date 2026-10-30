@@ -9,21 +9,32 @@ const DIR = join(process.cwd(), "content", "notes");
 export type Note = {
   slug: string;
   title: string;
-  date: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD, publication
+  updated: string; // ISO-8601 timestamp of the last significant edit (frontmatter `updated`, defaults to date)
   summary: string;
   body: string;
   minutes: number;
+};
+
+// gray-matter parses bare YAML dates into Date objects
+const day = (v: unknown) => (v instanceof Date ? v.toISOString().slice(0, 10) : String(v));
+
+// full timestamp; a bare date means UTC midnight. null if unparseable.
+const stamp = (v: unknown): string | null => {
+  const d = v instanceof Date ? v : new Date(String(v));
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 };
 
 function read(file: string): Note | null {
   const { data, content } = matter(readFileSync(join(DIR, file), "utf8"));
   if (!data.title || !data.date || !data.summary) return null;
   const words = content.trim().split(/\s+/).length;
+  const date = day(data.date);
   return {
     slug: file.replace(/\.md$/, ""),
     title: String(data.title),
-    // gray-matter parses bare YAML dates into Date objects
-    date: data.date instanceof Date ? data.date.toISOString().slice(0, 10) : String(data.date),
+    date,
+    updated: (data.updated && stamp(data.updated)) || `${date}T00:00:00.000Z`,
     summary: String(data.summary),
     body: content,
     minutes: Math.max(1, Math.round(words / 220)),
