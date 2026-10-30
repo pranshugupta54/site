@@ -1,14 +1,20 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { ReactNode } from "react";
 import { ImageResponse } from "next/og";
 import { SITE } from "@/lib/site";
 import framesData from "@/data/tofu-frames.json";
 
 // Social-share cards, rendered with next/og (Satori). One card family: the
-// root opengraph-image (home) and /og?title=…&path=… (every other page).
+// root opengraph-image (home) and /og?title=…&path=…&v=… (every other page).
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_ALT = `${SITE.name} — ${SITE.role}`;
+
+// /og responses are cached as immutable for a year, keyed by URL. Bump this
+// whenever anything the card draws changes (layout, fonts, colors, the SITE
+// fields it shows, tofu's idle frame) so scrapers and CDNs fetch a fresh one.
+export const OG_VERSION = "1";
 
 // editorial / light tokens — mirror globals.css (Satori can't read CSS vars)
 const C = {
@@ -37,31 +43,46 @@ const loadFonts = () =>
 
 const PAD_X = 80;
 const TOFU_PX = 30; // mono size of the ascii face
-const TITLE_MAX = 90; // chars, before clamping with an ellipsis
+const TITLE_MAX = 90; // graphemes, before clamping with an ellipsis
 const PATH_MAX = 48;
 const TITLE_WIDTH = 820; // leaves room for tofu at the right
+const TITLE_MIN_PX = 48;
+// Fraunces 600 glyph widths in em: typical lowercase, and a worst case (w, m, emoji)
+const EM_AVG = 0.56;
+const EM_WIDE = 1;
+
+// user-perceived characters, so clamping never splits an emoji or surrogate pair
+const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+const graphemes = (s: string) => Array.from(segmenter.segment(s), (g) => g.segment);
 
 const clamp = (s: string, max: number) => {
-  if (s.length <= max) return s;
-  const cut = s.slice(0, max);
+  const chars = graphemes(s);
+  if (chars.length <= max) return s;
+  const cut = chars.slice(0, max).join("");
   const space = cut.lastIndexOf(" ");
-  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
+  return `${(space > cut.length * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
 };
 
 // Words split into wrap points: spaces, and after hyphens (kebab-case slugs).
 const segments = (word: string) => word.split(/(?<=-)/);
 
 // Pick a size that fits the title in ~3 lines. Shrink so the longest word
-// stays on one line (Fraunces 600 ≈ 0.5em per glyph, padded); only words too
-// long for that fall back to breaking after their hyphens.
+// stays on one line; only words too long for that fall back to breaking
+// after their hyphens, and below TITLE_MIN_PX, anywhere (see Words).
 function titleSize(title: string) {
-  const n = title.length;
+  const n = graphemes(title).length;
   const byLength = n <= 10 ? 140 : n <= 18 ? 112 : n <= 30 ? 92 : n <= 48 ? 76 : n <= 72 ? 64 : 54;
-  const fit = (runs: string[]) => Math.floor(TITLE_WIDTH / (Math.max(...runs.map((r) => r.length)) * 0.56));
+  const fit = (runs: string[]) =>
+    Math.floor(TITLE_WIDTH / (Math.max(...runs.map((r) => graphemes(r).length)) * EM_AVG));
   const words = title.split(" ");
   const whole = fit(words);
-  return Math.min(byLength, whole >= 64 ? whole : fit(words.flatMap(segments)));
+  return Math.max(TITLE_MIN_PX, Math.min(byLength, whole >= 64 ? whole : fit(words.flatMap(segments))));
 }
+
+// Runs wider than the column: possibly (worst-case glyphs), or likely (typical).
+const width = (run: string, size: number, em: number) => graphemes(run).length * em * size;
+const mayOverflow = (run: string, size: number) => width(run, size, EM_WIDE) > TITLE_WIDTH;
+const likelyWraps = (run: string, size: number) => width(run, size, EM_AVG) > TITLE_WIDTH;
 
 // Words as wrapping flex items, so one of them can carry the marker
 // highlight the hero's lead line uses.
@@ -73,9 +94,17 @@ function Words({ text, size, mark }: { text: string; size: number; mark: (i: num
         segments(w).map((s, j, all) => (
           <div
             key={`${i}-${j}`}
-            style={{ display: "flex", position: "relative", marginRight: j === all.length - 1 ? size * 0.24 : 0 }}
+            style={{
+              display: "flex",
+              position: "relative",
+              maxWidth: TITLE_WIDTH,
+              marginRight: j === all.length - 1 ? size * 0.24 : 0,
+              // break runs that could escape the title box between any glyphs
+              wordBreak: mayOverflow(s, size) ? "break-all" : "normal",
+            }}
           >
-            {mark(i, w) && (
+            {/* no marker on words that wrap mid-run: it would span the whole box */}
+            {mark(i, w) && !segments(w).some((r) => likelyWraps(r, size)) && (
               <div
                 style={{
                   position: "absolute",
@@ -118,7 +147,7 @@ function Tofu() {
   );
 }
 
-function Card({ path, children }: { path: string; children: React.ReactNode }) {
+function Card({ path, children }: { path: string; children: ReactNode }) {
   return (
     <div
       style={{
@@ -135,7 +164,11 @@ function Card({ path, children }: { path: string; children: React.ReactNode }) {
       {/* prompt-style location, like the footer shell */}
       <div style={{ display: "flex", alignItems: "center", fontSize: 28 }}>
         <span style={{ color: C.muted }}>~</span>
-        <span style={{ color: C.accent }}>{path}</span>
+        <span
+          style={{ color: C.accent, maxWidth: 980, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+        >
+          {path}
+        </span>
         <div style={{ width: 14, height: 30, marginLeft: 10, background: C.accent, opacity: 0.85 }} />
       </div>
 
