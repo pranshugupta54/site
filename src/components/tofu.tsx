@@ -12,12 +12,12 @@ import { MOOD_TRAITS, POSES, moodNow, timedQuip, type Mood, type Pose } from "@/
 const FRAMES = framesData.frames as Record<string, string[]>;
 const HOP = (framesData.hop as string[][]).map((f) => f.join("\n"));
 const F = (k: string) => (FRAMES[k] ?? FRAMES.idle).join("\n");
-const HATS = (framesData as { hats?: Record<string, string> }).hats ?? {};
+export const HATS = (framesData as { hats?: Record<string, string> }).hats ?? {};
 
 // seasonal costume: the hat fills the 3-char gap between the ears (first ear line only).
 // scripts/validate-tofu.mjs checks every frame with every hat.
 const EARS = /([n~.|])   ([n.|])/;
-function dress(frame: string, hat?: string) {
+export function dress(frame: string, hat?: string) {
   if (!hat) return frame;
   const lines = frame.split("\n");
   const at = lines.slice(0, 2).findIndex((ln) => EARS.test(ln));

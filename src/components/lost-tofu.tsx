@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import framesData from "@/data/tofu-frames.json";
+import { useAppearance } from "@/components/providers";
+import { HATS, dress } from "@/components/tofu";
 
 const FRAMES = framesData.frames as Record<string, string[]>;
 const F = (k: string) => FRAMES[k].join("\n");
 
-// Tofu in place, glancing side to side with the odd blink. Static under
-// reduced motion (tracked live). Server renders the first frame, so no
-// hydration flash.
+// Tofu in place, glancing side to side with the odd blink, in the season's
+// hat like the roaming one. Static under reduced motion (tracked live).
+// Server renders the first frame, so no hydration flash.
 export function LostTofu() {
+  const { season } = useAppearance();
+  const hat = season ? HATS[season.id] : undefined;
   const [frame, setFrame] = useState(F("lost"));
 
   // one bunny on screen: body[data-lost] parks the roaming Tofu (globals.css)
@@ -64,9 +68,9 @@ export function LostTofu() {
   return (
     <pre
       aria-hidden
-      className="m-0 -ml-[2ch] select-none font-mono text-[16px] leading-[1.15] text-muted"
+      className="m-0 -ml-[2ch] select-none font-mono text-[16px] leading-[1.15] text-muted [font-variant-ligatures:none]"
     >
-      {frame}
+      {dress(frame, hat)}
     </pre>
   );
 }
