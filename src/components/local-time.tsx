@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 export function relative(d: Date): string {
   const diff = Date.now() - d.getTime();
@@ -19,16 +19,21 @@ export function relative(d: Date): string {
 
 // Renders a UTC ISO timestamp in the *viewer's* local timezone + a relative hint.
 // Client-only (after mount) to avoid SSR/locale hydration mismatch.
+// false on the server and during hydration, true once mounted on the client
+const noSubscribe = () => () => {};
+const useMounted = () => useSyncExternalStore(noSubscribe, () => true, () => false);
+
 export function LocalTime({ iso, className }: { iso: string; className?: string }) {
-  const [label, setLabel] = useState("");
-  useEffect(() => {
+  const mounted = useMounted();
+  let label = "";
+  if (mounted) {
     const d = new Date(iso);
     const local = d.toLocaleString(undefined, {
       dateStyle: "medium",
       timeStyle: "short",
     });
-    setLabel(`${local} · ${relative(d)}`);
-  }, [iso]);
+    label = `${local} · ${relative(d)}`;
+  }
   return (
     <time
       dateTime={iso}
