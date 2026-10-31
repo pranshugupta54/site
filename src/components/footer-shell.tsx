@@ -555,6 +555,7 @@ export function FooterShell() {
       <div
         aria-label="Terminal shell"
         data-open={open} // the ? keyboard map stays shut while the shell owns the keyboard
+        inert={!open} // closed at height 0: its controls must not be Tab stops
         style={{
           position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 50,
           background: BG, color: FG, borderTop: `1px solid ${LINE}`,
