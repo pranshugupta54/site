@@ -15,6 +15,9 @@ import { MOOD_WORD, PULLS_REFRESH_MS, builtAt, countAfter, prsLabel, refreshDue,
 const BUILT = builtAt(process.env.SITE_BUILT_AT ?? "");
 const SHA = process.env.SITE_COMMIT_SHA ?? "";
 const SHORT = shortSha(SHA);
+// fetch skips next's basePath: an archived build (/v/<n>/) asks its own path,
+// which has no route, so its count hides instead of showing today's
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // a clock that ticks once a minute on the client and is null on the server
 const everyMinute = (tick: () => void) => {
@@ -41,7 +44,7 @@ export function Vitals() {
       last = now;
       inflight?.abort();
       const req = (inflight = new AbortController());
-      fetch("/api/pulls", { signal: req.signal })
+      fetch(`${BASE_PATH}/api/pulls`, { signal: req.signal })
         .then(async (r) => countAfter(r.status, r.status === 200 ? await r.json() : null))
         .catch(() => null)
         .then((n) => {
