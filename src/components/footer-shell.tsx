@@ -22,6 +22,10 @@ const SNAKE_W = 34;
 const SNAKE_H = 12;
 const CHIPS = ["help", "projects", "gh", "snake", "theme"];
 
+// window.open skips next's basePath, so archived builds (/v/<n>/) prefix it themselves
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const RESUME = BASE_PATH ? `${BASE_PATH}/resume/` : "/resume";
+
 const MIN_H = 200;
 const DEFAULT_H = 440;
 
@@ -296,9 +300,9 @@ export function FooterShell() {
           break;
         case "resume":
           if (args[0] === "--pdf") {
-            addLine("ok", "→ /resume · print dialog → save as pdf");
+            addLine("ok", `→ ${RESUME} · print dialog → save as pdf`);
             setTimeout(() => {
-              if (!window.open("/resume?print=1", "_blank")) addLine("warn", "popup blocked → open /resume, then pdf ↓");
+              if (!window.open(`${RESUME}?print=1`, "_blank")) addLine("warn", `popup blocked → open ${RESUME}, then pdf ↓`);
             }, 350);
           } else if (args.length) addLine("warn", "usage: resume [--pdf]");
           else {

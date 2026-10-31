@@ -26,6 +26,7 @@ const nextConfig = snapshotBase
       ...base,
       output: "export",
       basePath: snapshotBase,
+      env: { NEXT_PUBLIC_BASE_PATH: snapshotBase }, // for urls next doesn't base itself
       trailingSlash: true,
       images: { unoptimized: true },
     }
