@@ -1,9 +1,15 @@
 // Live GitHub data (server-only). Returns null on any failure / missing token —
 // callers hide the widget rather than show fake data.
+import { unstable_cache } from "next/cache";
 import { SITE } from "@/lib/site";
+import { groupPulls, nextLink, tooOld, type RawPull, type SitePulls } from "@/lib/pulls";
 
 const GQL = "https://api.github.com/graphql";
 const COLS = 30; // weeks shown in the heatmap
+const SITE_REPO = `${SITE.handle}/site`;
+const PULLS_API = `https://api.github.com/repos/${SITE_REPO}/pulls`;
+const PULLS_TIMEOUT_MS = 4000; // one deadline across every page of a refresh
+const OPEN_PAGES = 3; // × 100 open PRs
 
 type Day = { contributionCount: number };
 type Week = { contributionDays: Day[] };
@@ -72,6 +78,68 @@ export async function getOwnRepoCount(login = SITE.handle): Promise<number | nul
     }
     return null;
   } catch {
+    return null;
+  }
+}
+
+// Tofu's PRs on the site repo, grouped (see pulls.ts). Every open PR (up to
+// OPEN_PAGES pages, else it throws rather than undercount) plus a sample of the
+// 30 most recently updated closed ones — enough to find this week's merges.
+// Requests skip the fetch cache and share one AbortSignal deadline; that signal
+// is honored here, unlike on Next's stale fetch-cache refresh, which drops it.
+// Stamped with `fetchedAt` on success; throws on any failure.
+async function fetchSitePulls(): Promise<SitePulls & { fetchedAt: number }> {
+  const token = process.env.GITHUB_TOKEN;
+  const signal = AbortSignal.timeout(PULLS_TIMEOUT_MS);
+  const page = async (url: string) => {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "pranshugupta54-portfolio",
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      cache: "no-store",
+      signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows: unknown = await res.json();
+    if (!Array.isArray(rows)) throw new Error("expected a list");
+    return { rows: rows as RawPull[], next: nextLink(res.headers.get("link")) };
+  };
+  const allOpen = async () => {
+    const rows: RawPull[] = [];
+    let url: string | null = `${PULLS_API}?state=open&per_page=100`;
+    for (let n = 0; url; n++) {
+      if (n === OPEN_PAGES) throw new Error(`more than ${OPEN_PAGES} pages of open PRs`);
+      const p = await page(url);
+      rows.push(...p.rows);
+      url = p.next;
+    }
+    return rows;
+  };
+  const [open, closed] = await Promise.all([
+    allOpen(),
+    page(`${PULLS_API}?state=closed&sort=updated&direction=desc&per_page=30`).then((p) => p.rows),
+  ]);
+  const now = Date.now();
+  return { ...groupPulls([...open, ...closed], { repo: SITE_REPO, owner: SITE.handle, now }), fetchedAt: now };
+}
+
+// Caches the grouped result (a few hundred bytes), not the raw REST payloads.
+// A throw is never stored: a cold miss rethrows, and a failed refresh keeps
+// the last good value — so a GitHub hiccup can't pin an empty block for an hour.
+const cachedSitePulls = unstable_cache(fetchSitePulls, ["site-pulls"], { revalidate: 3600 });
+
+// Null on a cold failure (no snapshot yet) or once the last good snapshot is
+// older than PULLS_MAX_AGE_MS — callers hide the block. Otherwise a failed
+// refresh returns the last good snapshot.
+export async function getSitePulls(): Promise<SitePulls | null> {
+  try {
+    const pulls = await cachedSitePulls();
+    if (tooOld(pulls.fetchedAt, Date.now())) throw new Error("last good snapshot is over 24h old");
+    return pulls;
+  } catch (e) {
+    console.error("[github] site pulls:", (e as Error).message);
     return null;
   }
 }

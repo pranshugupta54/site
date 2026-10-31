@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { WORKLOG } from "@/lib/worklog";
 import { LocalTime } from "@/components/local-time";
+import { TofuAtWork } from "@/components/tofu-at-work";
 import { pageMeta } from "@/lib/meta";
+
+export const revalidate = 3600; // refresh tofu's live PRs hourly
 
 export const metadata = pageMeta(
   "worklog",
@@ -27,6 +30,8 @@ export default function LogPage() {
         loud while it works. unfiltered, mildly caffeinated, timestamps in your
         timezone.
       </p>
+
+      <TofuAtWork />
 
       <ol className="mt-10 border-l border-line">
         {WORKLOG.map((e, i) => (
