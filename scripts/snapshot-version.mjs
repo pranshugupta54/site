@@ -37,7 +37,8 @@ export default {
 
 // can't be statically exported; the archive does fine without them
 const BLOCKERS = [
-  "src/app/opengraph-image.tsx", // edge runtime
+  "src/app/og", // share-card route handler; archived pages point at the live /og
+  "src/app/opengraph-image.tsx", // edge runtime (older refs)
   "public/v", // older archives — they're already served from the live site
 ];
 
