@@ -91,7 +91,8 @@ export function FooterShell() {
   const lineCounter = useRef(0);
   const outRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const dragging = useRef(false);
+  const dragging = useRef(false); // read by the window listeners
+  const [isDragging, setIsDragging] = useState(false); // read by render (drops the height transition)
   const [eggs] = useState(eggRunner); // gauge timer + pending fetch for the hidden eggs
 
   // ── cleanup snake on unmount ──
@@ -113,6 +114,7 @@ export function FooterShell() {
     const up = () => {
       if (!dragging.current) return;
       dragging.current = false;
+      setIsDragging(false);
       document.body.style.userSelect = "";
     };
     window.addEventListener("mousemove", move);
@@ -560,7 +562,7 @@ export function FooterShell() {
           position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 50,
           background: BG, color: FG, borderTop: `1px solid ${LINE}`,
           height: open ? height : 0, overflow: "hidden",
-          transition: dragging.current ? "none" : "height 0.26s cubic-bezier(0.2,0.8,0.2,1)",
+          transition: isDragging ? "none" : "height 0.26s cubic-bezier(0.2,0.8,0.2,1)",
           boxShadow: "0 -30px 60px -30px rgba(0,0,0,0.5)",
           fontFamily: "var(--font-mono)",
           viewTransitionName: "shell-panel",
@@ -570,6 +572,7 @@ export function FooterShell() {
         <div
           onMouseDown={() => {
             dragging.current = true;
+            setIsDragging(true);
             document.body.style.userSelect = "none";
           }}
           title="drag to resize"

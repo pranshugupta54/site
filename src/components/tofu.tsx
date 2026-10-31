@@ -141,6 +141,8 @@ export function Tofu() {
     pos.current = { x: tuckX, y: startY };
     x.set(tuckX);
     y.set(startY);
+    // mount-time setup: the random start side and window size are client-only
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFrame(F("peek"));
     atEdge.current = true;
     lastActive.current = Date.now();

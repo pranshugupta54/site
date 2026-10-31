@@ -65,6 +65,8 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   // hydrate from what the no-flash script already applied
   useEffect(() => {
     const d = document.documentElement;
+    // one-time sync from the DOM the head script set; the server can't know it
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSkinState((d.getAttribute("data-skin") as Skin) || "editorial");
     setThemeState((d.getAttribute("data-theme") as Theme) || "light");
     pin.current = d.getAttribute("data-season-pin");
