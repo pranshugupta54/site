@@ -8,6 +8,7 @@ import { FooterShell } from "@/components/footer-shell";
 import { SeasonAmbient } from "@/components/season-ambient";
 import { SITE } from "@/lib/site";
 import { FEED_LINKS } from "@/lib/feed";
+import { shareImage } from "@/lib/og/image";
 import "./globals.css";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", adjustFontFallback: false });
@@ -22,12 +23,14 @@ export const metadata: Metadata = {
   description: SITE.bio,
   icons: { icon: "/me.jpeg" },
   alternates: { types: FEED_LINKS },
-  openGraph: { title: SITE.name, description: SITE.bio, type: "website" },
+  // home card; pages without their own pageMeta (home, 404) inherit it
+  openGraph: { title: SITE.name, description: SITE.bio, type: "website", images: [shareImage()] },
   twitter: {
     card: "summary_large_image",
     title: SITE.name,
     description: SITE.bio,
     creator: "@pranshgupta54",
+    images: [shareImage()],
   },
 };
 
