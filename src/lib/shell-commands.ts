@@ -7,6 +7,7 @@ export type CommandRow = { usage: string; desc?: string };
 export const SHELL_COMMANDS: CommandRow[] = [
   { usage: "about · projects · writing · gh" },
   { usage: "resume", desc: "cv · --pdf to save one" },
+  { usage: "tofu", desc: "visit tofu's room" },
   { usage: "snake", desc: "play snake on my commits" },
   { usage: "theme", desc: "toggle light / dark" },
   { usage: "skin", desc: "cycle editorial → mono → serif" },

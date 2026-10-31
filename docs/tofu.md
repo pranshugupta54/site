@@ -8,7 +8,7 @@
 - The `<pre>` turns font ligatures off — JetBrains Mono would otherwise draw `|-` / `-|` as ⊢ / ⊣.
 - Roams the page gutters by **continuous hops — never teleports**; edge-peek (slides partly off, not a cut); sleeps when idle.
 - **Hover = freeze in place + scramble speech bubble** (new quip every 5s).
-- **Click = open `/log`**.
+- **Click = open `/tofu`** — tofu's room (`src/app/tofu/page.tsx`): a short intro plus the latest note, a few reading picks, recent worklog entries, the "tofu at work" PR block and a link to `/versions`. Built from the existing loaders, no extra fetches. Also reachable from the home hero line, the `tofu` shell command and the Writing section.
 - Hidden below `sm`; respects `prefers-reduced-motion`.
 
 ## Keeps time (mood by Pranshu's hour)

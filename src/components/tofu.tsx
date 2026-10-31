@@ -334,9 +334,9 @@ export function Tofu() {
         )}
         <button
           type="button"
-          onClick={() => router.push("/log")}
-          aria-label="open Tofu's worklog"
-          title="read my worklog →"
+          onClick={() => router.push("/tofu")}
+          aria-label="visit Tofu's room"
+          title="come see my room →"
           className="-m-2 block cursor-pointer p-2 text-muted transition-colors hover:text-accent"
         >
           <pre className="m-0 select-none font-mono text-[12px] leading-[1.15] [font-variant-ligatures:none]">{dress(frame, hat)}</pre>
