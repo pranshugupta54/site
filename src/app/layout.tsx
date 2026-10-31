@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import { AppearanceProvider, NO_FLASH_SCRIPT } from "@/components/providers";
 import { Tofu } from "@/components/tofu";
 import { FooterShell } from "@/components/footer-shell";
+import { KeyboardMap } from "@/components/keyboard-map";
 import { SeasonAmbient } from "@/components/season-ambient";
 import { SITE } from "@/lib/site";
 import { FEED_LINKS } from "@/lib/feed";
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Tofu />
           <SeasonAmbient />
           <FooterShell />
+          <KeyboardMap />
         </AppearanceProvider>
       </body>
     </html>
