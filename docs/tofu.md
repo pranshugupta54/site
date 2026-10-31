@@ -24,6 +24,7 @@ Tofu follows **IST** (`SITE.timezone`), not the visitor's clock. Logic + tuning 
 - Poses are short frame sequences played while idle; the hop loop waits for them, and hover cuts them short.
 - Hover quips: ~1 in 3 comes from `src/data/quips-by-time.json` (night / morning / evening), else the regular pool (`quips.json`, still a flat array, plus any seasonal quips). Day has no timed quips.
 - Time poses compose with seasonal hats (the hat is applied at render).
+- The footer vitals (`vitals.tsx`) show the same mood as a word: night → *asleep*, morning → *on coffee*, day → *awake*, evening → *yawning* (`MOOD_WORD` in `src/lib/vitals.ts`).
 
 ## Worklog (the AI persona)
 - `/log` (`src/app/log/page.tsx`) reads `src/lib/worklog.ts`, which merges `src/data/worklog/*.json` (one file per entry) with the legacy `src/data/worklog.json`, newest first. Written in Tofu's voice: **terse, dry, self-aware, mildly caffeinated; complains affectionately**.

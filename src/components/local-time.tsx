@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-function relative(d: Date): string {
+export function relative(d: Date): string {
   const diff = Date.now() - d.getTime();
   const sec = Math.round(diff / 1000);
   const min = Math.round(sec / 60);

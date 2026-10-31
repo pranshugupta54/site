@@ -7,6 +7,7 @@ import { resumeLines } from "@/lib/resume";
 import funfacts from "@/data/funfacts.json";
 import { SEASONS } from "@/data/seasons";
 import { CURRENT, RENOVATION } from "@/lib/versions";
+import { Vitals } from "@/components/vitals";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -467,6 +468,7 @@ export function FooterShell() {
         role="button"
         tabIndex={0}
         aria-label="Open terminal shell"
+        inert={open}
         onClick={() => doOpen(true)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -484,10 +486,11 @@ export function FooterShell() {
           viewTransitionName: "shell-bar", // stays on top through page transitions (globals.css)
         }}
       >
-        <span style={{ color: GREEN }}>~/pranshu ❯</span>
-        <span style={{ color: MUTED }}>type &apos;help&apos;</span>
+        <span className="shrink-0 whitespace-nowrap" style={{ color: GREEN }}>~/pranshu ❯</span>
+        <span className="shrink-0 whitespace-nowrap" style={{ color: MUTED }}>type &apos;help&apos;</span>
         <span style={{ color: FG }} aria-hidden className="animate-[blink_1s_steps(1)_infinite]">▋</span>
-        <span style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>just start typing</span>
+        <span className="lg:hidden" style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>just start typing</span>
+        <span className="ml-auto hidden lg:block" style={{ color: MUTED }}><Vitals /></span>
       </div>
 
       {/* expanded panel */}
