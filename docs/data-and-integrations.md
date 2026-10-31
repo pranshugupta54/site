@@ -11,7 +11,7 @@
 
 ## Token safety (important)
 - `GITHUB_TOKEN` is a Vercel **server** env var — **no `NEXT_PUBLIC_` prefix**, so it never reaches the client bundle.
-- `src/lib/github.ts` must be imported **only by server components** (currently `github-panel.tsx`, `sections.tsx`). Never import it from a `"use client"` file, or the token could be bundled to the browser.
+- `src/lib/github.ts` must be imported **only by server components** (currently `github-panel.tsx`, `sections.tsx`, `app/resume/page.tsx`). Never import it from a `"use client"` file, or the token could be bundled to the browser.
 
 ## Misc
 - Favicon = `/me.jpeg` (his photo) via `metadata.icons` in `layout.tsx`.

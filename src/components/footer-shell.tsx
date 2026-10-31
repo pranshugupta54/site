@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
 import { SITE, projectBlurb } from "@/lib/site";
+import { resumeLines } from "@/lib/resume";
 import funfacts from "@/data/funfacts.json";
 import { SEASONS } from "@/data/seasons";
 
@@ -268,6 +269,7 @@ export function FooterShell() {
             "res",
             `commands:
   about · projects · writing · gh
+  resume     cv · --pdf to save one
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif
@@ -289,6 +291,18 @@ export function FooterShell() {
           break;
         case "writing":
           addLine("res", "worklog → /log · notes → /notes · reading → /reading");
+          break;
+        case "resume":
+          if (args[0] === "--pdf") {
+            addLine("ok", "→ /resume · print dialog → save as pdf");
+            setTimeout(() => {
+              if (!window.open("/resume?print=1", "_blank")) addLine("warn", "popup blocked → open /resume, then pdf ↓");
+            }, 350);
+          } else if (args.length) addLine("warn", "usage: resume [--pdf]");
+          else {
+            resumeLines().forEach((l) => addLine(l.kind === "head" ? "ok" : "res", l.text));
+            addLine("res", "\npdf → resume --pdf");
+          }
           break;
         case "gh":
           addLine("res", "live github stats are up on the page → " + SITE.socials.github.url);
