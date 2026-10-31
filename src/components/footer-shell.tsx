@@ -346,11 +346,11 @@ export function FooterShell() {
           addLine("res", "tofu's room → /tofu · worklog → /log · notes → /notes · reading → /reading");
           break;
         case "tofu":
-          addLine("ok", "→ tofu's room …");
-          setTimeout(() => {
-            doOpen(false);
-            router.push("/tofu");
-          }, 350);
+          // navigate now, not on a timer: a deferred push can't outlive a clear,
+          // a newer command or an unmount
+          addLine("ok", "→ tofu's room");
+          doOpen(false);
+          router.push("/tofu");
           break;
         case "resume":
           if (args[0] === "--pdf") {
