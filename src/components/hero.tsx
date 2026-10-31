@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { Scramble } from "@/components/scramble";
 import { LiveClock } from "@/components/live-clock";
@@ -88,6 +89,12 @@ export function Hero() {
         </InlineLink>
         .
       </p>
+      <Link
+        href="/tofu"
+        className="mt-3 inline-block font-mono text-xs text-muted transition-colors hover:text-accent"
+      >
+        tofu lives here too →
+      </Link>
     </header>
   );
 }

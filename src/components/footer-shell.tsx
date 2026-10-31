@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAppearance } from "@/components/providers";
 import { SITE, projectBlurb } from "@/lib/site";
 import { resumeLines } from "@/lib/resume";
@@ -77,6 +78,7 @@ function renderSnake(state: SnakeState): string {
 
 export function FooterShell() {
   const { toggleTheme, cycleSkin, theme, season, setSeason } = useAppearance();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [height, setHeight] = useState(DEFAULT_H);
   const [input, setInput] = useState("");
@@ -341,7 +343,14 @@ export function FooterShell() {
           addLine("res", SITE.projects.map((p) => `  ${p.name.padEnd(14)} — ${projectBlurb(p)}`).join("\n"));
           break;
         case "writing":
-          addLine("res", "worklog → /log · notes → /notes · reading → /reading");
+          addLine("res", "tofu's room → /tofu · worklog → /log · notes → /notes · reading → /reading");
+          break;
+        case "tofu":
+          addLine("ok", "→ tofu's room …");
+          setTimeout(() => {
+            doOpen(false);
+            router.push("/tofu");
+          }, 350);
           break;
         case "resume":
           if (args[0] === "--pdf") {
@@ -438,7 +447,7 @@ export function FooterShell() {
         }
       }
     },
-    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason]
+    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason, doOpen, router]
   );
 
   const onInputKey = useCallback(

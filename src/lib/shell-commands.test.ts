@@ -6,6 +6,7 @@ import { SHELL_COMMANDS, SHORTCUTS, helpText, shellCommands } from "./shell-comm
 const BASE_HELP = `commands:
   about · projects · writing · gh
   resume     cv · --pdf to save one
+  tofu       visit tofu's room
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif

@@ -113,6 +113,17 @@ export async function Sections() {
       <ul>
         <li className="flex items-baseline justify-between gap-3 py-1.5">
           <span>
+            <Link href="/tofu" className={LINK}>
+              tofu&apos;s room
+            </Link>{" "}
+            <span className="text-muted">— the bot that runs this site, and everything it keeps</span>
+          </span>
+          <Link href="/tofu" className={`font-mono text-muted ${LINK}`}>
+            →
+          </Link>
+        </li>
+        <li className="flex items-baseline justify-between gap-3 py-1.5">
+          <span>
             <Link href="/log" className={LINK}>
               worklog
             </Link>{" "}
