@@ -6,6 +6,7 @@ import { SITE, projectBlurb } from "@/lib/site";
 import { resumeLines } from "@/lib/resume";
 import funfacts from "@/data/funfacts.json";
 import { SEASONS } from "@/data/seasons";
+import { CURRENT, RENOVATION } from "@/lib/versions";
 
 // ─── types ───────────────────────────────────────────────────────────────────
 
@@ -20,6 +21,10 @@ type OutputLine = {
 const SNAKE_W = 34;
 const SNAKE_H = 12;
 const CHIPS = ["help", "projects", "gh", "snake", "theme"];
+
+// window.open skips next's basePath, so archived builds (/v/<n>/) prefix it themselves
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const RESUME = BASE_PATH ? `${BASE_PATH}/resume/` : "/resume";
 
 const MIN_H = 200;
 const DEFAULT_H = 440;
@@ -130,7 +135,7 @@ export function FooterShell() {
 
   // ── boot message (once) ──
   useEffect(() => {
-    addLine("ok", `pranshu.sh v${SITE.version} — type 'help' to start.`);
+    addLine("ok", `pranshu.sh v${CURRENT.version} — type 'help' to start.`);
   }, [addLine]);
 
   // ── global keys: "/" opens, any typed character opens + carries over, Esc closes ──
@@ -275,6 +280,7 @@ export function FooterShell() {
   skin       cycle editorial → mono → serif
   funfact    a fun fact
   season     what's on, or season <name|off|auto>
+  versions   this site's past lives
   goto <x>   github · x · email
   clock · clear · cowsay <msg> · sudo` +
               (season?.commands
@@ -294,9 +300,9 @@ export function FooterShell() {
           break;
         case "resume":
           if (args[0] === "--pdf") {
-            addLine("ok", "→ /resume · print dialog → save as pdf");
+            addLine("ok", `→ ${RESUME} · print dialog → save as pdf`);
             setTimeout(() => {
-              if (!window.open("/resume?print=1", "_blank")) addLine("warn", "popup blocked → open /resume, then pdf ↓");
+              if (!window.open(`${RESUME}?print=1`, "_blank")) addLine("warn", `popup blocked → open ${RESUME}, then pdf ↓`);
             }, 350);
           } else if (args.length) addLine("warn", "usage: resume [--pdf]");
           else {
@@ -355,6 +361,12 @@ export function FooterShell() {
           } else addLine("warn", `usage: season ${names}|off|auto`);
           break;
         }
+        case "version":
+        case "versions":
+          addLine("res", `v${CURRENT.version} · ${CURRENT.name} · since ${CURRENT.date}\n${CURRENT.tofu}`);
+          if (RENOVATION) addLine("res", `tofu is renovating · peek at v${RENOVATION.version} → ${RENOVATION.href}`);
+          addLine("ok", "the whole story → /versions");
+          break;
         case "sudo":
           addLine("warn", "nice try. you don't have root here 😏");
           break;

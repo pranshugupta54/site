@@ -18,6 +18,7 @@ A third, optional axis: `data-season` on `<html>`, set by the no-flash script wh
 - Wiring: `useAppearance().season` / `setSeason()`. Greeting slots in second in the hero rotator; quips join tofu's hover pool; `commands` become shell easter eggs; `ambient` is a tiny glyph that drifts across once per visit, ~4s after load (`season-ambient.tsx`; desktop only, off in reduced motion).
 - Preview off-calendar: `?season=<id>` (or `off`, `auto`), or `season <id|off|auto>` in the shell. Both pin it for the tab (sessionStorage), so visitors are never stuck in a costume.
 - Taste bar: a well-dressed site in a small hat. Two tokens, one hat, one greeting. No new colors elsewhere, no confetti.
+- Seasons are temporary overlays; permanent revamps are **versions** (@docs/versions.md).
 
 ## Key components
 - `hero.tsx` — name scrambles in, multi-language greeting rotator, **signature** (Sassy Frass; writes in via `.sig` clip animation), live IST clock, **live age** (from `SITE.dob`), lead line with marker highlight.

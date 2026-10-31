@@ -2,6 +2,7 @@ import { Hero } from "@/components/hero";
 import { Sections, Connect } from "@/components/sections";
 import { GitHubPanel } from "@/components/github-panel";
 import { FEED_LINKS } from "@/lib/feed";
+import { VersionMarker } from "@/components/version-marker";
 
 export const revalidate = 3600; // refresh live GitHub data hourly
 
@@ -15,6 +16,7 @@ export default function Page() {
       <Sections />
       <GitHubPanel />
       <Connect />
+      <VersionMarker />
     </main>
   );
 }

@@ -69,8 +69,6 @@ export const SITE = {
   ],
 
   skills: ["TypeScript", "JavaScript", "C++", "C", "Node", "Express", "React", "MongoDB", "Firebase", "Jest"],
-
-  version: "1.0.0",
 } as const;
 
 export type Site = typeof SITE;
