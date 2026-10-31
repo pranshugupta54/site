@@ -16,6 +16,7 @@
 - Widgets **return `null` (hide) on any failure / missing key** — no fake fallbacks. Digitomize stars render as the exact live count (e.g. `★ 599`), hidden if the fetch fails. The PR block hides when there's nothing to show, on a cold failure, or past 24h stale (see caching above).
 - Next 16 doesn't cache `fetch` by default — the other REST calls pass `next: { revalidate: 3600 }`, and pages with live data export `revalidate = 3600` (`app/page.tsx`, `app/log/page.tsx`). Both still prerender at build (`○ … 1h` in the build output).
 - Unauthenticated GitHub calls share a 60/hour per-IP limit; locally, build with `GITHUB_TOKEN=$(gh auth token)` or the live blocks hide (403).
+- `src/lib/skills.ts` (server-only, also reads `GITHUB_TOKEN`) feeds `/skills` and `/skills.json` (slugs only, hourly). Client code fetches `/skills.json` (the shell's `npx skills add` egg); it never imports `skills.ts`.
 - WakaTime was removed (user stopped using it). Spotify was never built. Don't re-add either without asking.
 
 ## Token safety (important)
