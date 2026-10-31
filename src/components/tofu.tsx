@@ -315,7 +315,7 @@ export function Tofu() {
     <motion.div
       data-tofu-roamer
       className="pointer-events-none fixed left-0 top-0 z-30 hidden select-none sm:block"
-      style={{ x, y, opacity: ready ? 1 : 0 }}
+      style={{ x, y, opacity: ready ? 1 : 0, viewTransitionName: "tofu" }}
     >
       <div className="pointer-events-auto relative" onMouseEnter={onEnter} onMouseLeave={onLeave}>
         {quip && (

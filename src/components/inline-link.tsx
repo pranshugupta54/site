@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 // Inline prose link with the target site's favicon — used in the hero bio.
 // Favicons come from Google's s2 service; grayscale keeps them quiet in the
 // editorial palette, dark-theme invert keeps dark logos (X, GitHub) visible.
@@ -11,8 +13,9 @@ export function InlineLink({
   children: React.ReactNode;
 }) {
   const external = href.startsWith("http");
+  const Anchor = external ? "a" : Link; // internal links navigate client-side (view transitions)
   return (
-    <a
+    <Anchor
       href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
       className="whitespace-nowrap text-fg underline decoration-line decoration-1 underline-offset-[3px] transition-colors hover:text-accent hover:decoration-accent"
@@ -26,6 +29,6 @@ export function InlineLink({
         className="mr-[3px] inline-block h-[13px] w-[13px] rounded-[3px] align-[-2px] grayscale dark:invert"
       />
       {children}
-    </a>
+    </Anchor>
   );
 }

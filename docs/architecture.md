@@ -20,6 +20,12 @@ A third, optional axis: `data-season` on `<html>`, set by the no-flash script wh
 - Taste bar: a well-dressed site in a small hat. Two tokens, one hat, one greeting. No new colors elsewhere, no confetti.
 - Seasons are temporary overlays; permanent revamps are **versions** (@docs/versions.md).
 
+## View transitions (navigation)
+React 19.3's stable `ViewTransition` (no next.config flag in Next 16.4). Client navigations only, so internal links must be `next/link`; a plain `<a>` reloads the page with no transition.
+- `app/template.tsx`: page content in a `ViewTransition` keyed by pathname, with a staggered fade (`.page-fade`: old out 110ms; new in 160ms from 90ms, settling up 3px). The pages overlap briefly at low opacity. No shared-element morph, by design: different words morphing into each other reads as a trick.
+- Layout chrome is named (`tofu`, `shell-bar`, `shell-panel`, `.season-drift` → `season-ambient`). It shows only its live image, stays unanimated, and sits above the fading page. Tradeoff: captured elements aren't hit-testable during a transition (spec), so the chrome ignores clicks and hover for the ~250ms fade. This is intended; uncaptured, the page images would paint over it.
+- Reduced motion: no animation, instant swap. No API: plain navigation. All CSS is at the end of `globals.css`.
+
 ## Key components
 - `hero.tsx` — name scrambles in, multi-language greeting rotator, **signature** (Sassy Frass; writes in via `.sig` clip animation), live IST clock, **live age** (from `SITE.dob`), lead line with marker highlight.
 - `sections.tsx` — Experience / Projects / Competitive Programming / Education / Writing + `Connect`. Async server component (fetches live Digitomize stars).

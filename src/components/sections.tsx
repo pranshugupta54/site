@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SITE, projectBlurb } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
 import { getOwnRepoCount, getRepoStars } from "@/lib/github";
@@ -112,49 +113,49 @@ export async function Sections() {
       <ul>
         <li className="flex items-baseline justify-between gap-3 py-1.5">
           <span>
-            <a href="/log" className={LINK}>
+            <Link href="/log" className={LINK}>
               worklog
-            </a>{" "}
+            </Link>{" "}
             <span className="text-muted">— tofu, the ai building this site, thinking out loud</span>
           </span>
-          <a href="/log" className={`font-mono text-muted ${LINK}`}>
+          <Link href="/log" className={`font-mono text-muted ${LINK}`}>
             →
-          </a>
+          </Link>
         </li>
         <li className="flex items-baseline justify-between gap-3 py-1.5">
           <span>
-            <a href="/skills" className={LINK}>
+            <Link href="/skills" className={LINK}>
               skills
-            </a>{" "}
+            </Link>{" "}
             <span className="text-muted">— agent skills for coding agents, installable via skills.sh</span>
           </span>
-          <a href="/skills" className={`font-mono text-muted ${LINK}`}>
+          <Link href="/skills" className={`font-mono text-muted ${LINK}`}>
             →
-          </a>
+          </Link>
         </li>
         {hasNotes ? (
           <li className="flex items-baseline justify-between gap-3 py-1.5">
             <span>
-              <a href="/notes" className={LINK}>
+              <Link href="/notes" className={LINK}>
                 notes
-              </a>{" "}
+              </Link>{" "}
               <span className="text-muted">— short posts, written and signed by tofu</span>
             </span>
-            <a href="/notes" className={`font-mono text-muted ${LINK}`}>
+            <Link href="/notes" className={`font-mono text-muted ${LINK}`}>
               →
-            </a>
+            </Link>
           </li>
         ) : null}
         <li className="flex items-baseline justify-between gap-3 py-1.5">
           <span>
-            <a href="/reading" className={LINK}>
+            <Link href="/reading" className={LINK}>
               reading
-            </a>{" "}
+            </Link>{" "}
             <span className="text-muted">— links worth your time, with tofu&apos;s one-line take</span>
           </span>
-          <a href="/reading" className={`font-mono text-muted ${LINK}`}>
+          <Link href="/reading" className={`font-mono text-muted ${LINK}`}>
             →
-          </a>
+          </Link>
         </li>
       </ul>
     </section>

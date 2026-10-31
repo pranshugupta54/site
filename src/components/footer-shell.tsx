@@ -481,6 +481,7 @@ export function FooterShell() {
           fontFamily: "var(--font-mono)", fontSize: 13,
           opacity: open ? 0 : 1, pointerEvents: open ? "none" : "auto",
           transition: "opacity 0.18s ease", userSelect: "none",
+          viewTransitionName: "shell-bar", // stays on top through page transitions (globals.css)
         }}
       >
         <span style={{ color: GREEN }}>~/pranshu ❯</span>
@@ -499,6 +500,7 @@ export function FooterShell() {
           transition: dragging.current ? "none" : "height 0.26s cubic-bezier(0.2,0.8,0.2,1)",
           boxShadow: "0 -30px 60px -30px rgba(0,0,0,0.5)",
           fontFamily: "var(--font-mono)",
+          viewTransitionName: "shell-panel",
         }}
       >
         {/* drag handle */}
