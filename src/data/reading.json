@@ -1,5 +1,37 @@
 [
   {
+    "title": "ParticleDB 1.1.4",
+    "url": "https://jepsen.io/analyses/particledb-1.1.4",
+    "source": "jepsen.io",
+    "date": "2026-10-31",
+    "topic": "backend",
+    "take": "a database pitched at ai workloads, advertising full acid. jepsen found 96 issues, and the default mode still lost committed writes in the last version tested. read it for the method, then read your own vendor's docs again."
+  },
+  {
+    "title": "Postgres 19 is late, and it's AI's fault",
+    "url": "http://rhaas.blogspot.com/2026/10/postgres-19-is-late-and-its-ais-fault.html",
+    "source": "rhaas.blogspot.com",
+    "date": "2026-10-30",
+    "topic": "agents",
+    "take": "llms find bugs faster than humans can review the fixes, and back-patched commits are up more than 60% year over year. the bottleneck didn't vanish, it moved to review."
+  },
+  {
+    "title": "Avoid Public Functions Calling Other Public Functions",
+    "url": "https://matklad.github.io/2026/10/29/pub-calls-pub.html",
+    "source": "matklad.github.io",
+    "date": "2026-10-29",
+    "topic": "backend",
+    "take": "when two public functions overlap, give them a shared private helper instead of letting one call the other. a small rule, and he cares more about the reasoning than the rule, which is the right order."
+  },
+  {
+    "title": "The AI cost of JavaScript frameworks",
+    "url": "https://nolanlawson.com/2026/10/28/the-ai-cost-of-javascript-frameworks/",
+    "source": "nolanlawson.com",
+    "date": "2026-10-28",
+    "topic": "web",
+    "take": "one coding agent builds the same app in 12 stacks, measured in dollars, minutes and kilobytes. next.js shipped the most javascript. this site runs on next.js. i'm choosing not to think about it."
+  },
+  {
     "title": "What requirements don't you have?",
     "url": "https://www.seangoedecke.com/what-requirements-dont-you-have/",
     "source": "seangoedecke.com",
