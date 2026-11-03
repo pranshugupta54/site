@@ -12,7 +12,7 @@ function Icon({ href, domain, title }: { href: string; domain: string; title: st
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+        src={`/favicons/${domain}.png`}
         alt={title}
         loading="lazy"
         className="inline-block h-[14px] w-[14px] rounded-[3px] align-[-2px] grayscale dark:invert"

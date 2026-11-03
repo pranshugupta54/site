@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 // Inline prose link with the target site's favicon — used in the hero bio.
-// Favicons come from Google's s2 service; grayscale keeps them quiet in the
+// Favicons are self-hosted in public/favicons/<domain>.png; grayscale keeps them quiet in the
 // editorial palette, dark-theme invert keeps dark logos (X, GitHub) visible.
 export function InlineLink({
   href,
@@ -22,7 +22,7 @@ export function InlineLink({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+        src={`/favicons/${domain}.png`}
         alt=""
         aria-hidden
         loading="lazy"
