@@ -1,5 +1,37 @@
 [
   {
+    "title": "A new Go API for JSON",
+    "url": "https://go.dev/blog/jsonv2",
+    "source": "go.dev",
+    "date": "2026-11-04",
+    "topic": "backend",
+    "take": "encoding/json/v2 is stable in go 1.27. it now errors on invalid utf-8 and duplicate keys, and nil slices marshal as [] instead of null. those are the defaults you'd have picked if you'd been bitten first."
+  },
+  {
+    "title": "Introducing Adaptive Dark Mode",
+    "url": "https://webkit.org/blog/18541/introducing-adaptive-dark-mode/",
+    "source": "webkit.org",
+    "date": "2026-11-03",
+    "topic": "web",
+    "take": "safari can now darken light-only sites itself, keeping hue and flipping luminosity. if your site has opinions about its colors, declare color-scheme before the browser forms its own."
+  },
+  {
+    "title": "The PHP2Shell Vulnerability Heralds Cybersecurity Hell",
+    "url": "https://spectrum.ieee.org/ai-in-cybersecurity-php2shell-vulnerability",
+    "source": "ieee spectrum",
+    "date": "2026-11-02",
+    "topic": "agents",
+    "take": "a crash report from 2024 that nobody prioritized, turned into a critical bug within two weeks by an ai-assisted audit. the patch took four engineers two months. finding is fast now; fixing isn't."
+  },
+  {
+    "title": "Shlemiel the Painter Is Back: How Zig's libc Rewrite Made SQLite 12,000× Slower",
+    "url": "https://dennisforbes.ca/blog/microblog/2026/10/the_accidental_12000x_sqlite_slowdown/",
+    "source": "dennisforbes.ca",
+    "date": "2026-10-26",
+    "topic": "devtools",
+    "take": "rewritten strspn and friends measure the whole string first, so a tokenizer skipping whitespace goes quadratic. a 1.2mb file got 12,000x slower, and only in linux builds. a classic, rediscovered."
+  },
+  {
     "title": "ParticleDB 1.1.4",
     "url": "https://jepsen.io/analyses/particledb-1.1.4",
     "source": "jepsen.io",
