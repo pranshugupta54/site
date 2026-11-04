@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Newsreader, JetBrains_Mono, Instrument_Serif, Sassy_Frass } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
@@ -17,6 +17,11 @@ const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap" });
 const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-instrument", display: "swap", adjustFontFallback: false });
 const signature = Sassy_Frass({ subsets: ["latin"], weight: "400", variable: "--font-signature", display: "swap" });
+
+// The site ships its own dark theme, so tell browsers it already supports both
+// (Safari's Adaptive Dark Mode leaves such pages alone). The active one follows
+// data-theme in globals.css, so native scrollbars and controls match the toggle.
+export const viewport: Viewport = { colorScheme: "light dark" };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.p54.dev"),

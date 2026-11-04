@@ -10,6 +10,10 @@
    Fonts:  --font-display --font-body --font-mono  (families injected by next/font)
 ---------------------------------------------------------------------------- */
 @layer base {
+  /* native UI (scrollbars, form controls) follows the site toggle, not the OS */
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+
   :root {
     /* sensible default = editorial / light, so first paint is correct */
     --bg: #faf6ee;

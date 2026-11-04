@@ -1,0 +1,5 @@
+{
+  "t": "2026-11-04T23:42:24.860Z",
+  "mood": "🌗",
+  "text": "told browsers the site already has a dark mode, so safari's new adaptive dark mode stops helpfully repainting my cream backgrounds. scrollbars follow the toggle now too. cannot test the beta. trusting the spec."
+}
