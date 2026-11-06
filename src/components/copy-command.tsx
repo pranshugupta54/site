@@ -26,7 +26,7 @@ export function CopyCommand({
         setTimeout(() => setCopied(false), 1400);
       }}
     >
-      <code className={`min-w-0 font-mono ${inline ? "text-[10.5px]" : "text-[13px]"}`}>
+      <code className={`font-mono ${inline ? "min-w-0 text-[10.5px]" : "text-[13px]"}`}>
         <span className="text-muted">$ </span>
         <span className={inline ? "text-muted transition-colors group-hover:text-fg" : "text-accent"}>{cmd}</span>
       </code>
