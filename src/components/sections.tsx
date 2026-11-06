@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SITE, projectBlurb } from "@/lib/site";
 import { CopyEmail } from "@/components/copy-email";
-import { getOwnRepoCount, getRepoStars } from "@/lib/github";
+import { CopyCommand } from "@/components/copy-command";
+import { getLatestRelease, getOwnRepoCount, getRepoStars } from "@/lib/github";
 import { getNotes } from "@/lib/notes";
 
 function H({ children }: { children: React.ReactNode }) {
@@ -16,9 +17,10 @@ const META = "shrink-0 whitespace-nowrap font-mono text-xs text-muted";
 const LINK = "transition-colors hover:text-accent";
 
 export async function Sections() {
-  const [dgStars, repoCount] = await Promise.all([
+  const [dgStars, repoCount, hertzRelease] = await Promise.all([
     getRepoStars("digitomize/digitomize"),
     getOwnRepoCount(),
+    getLatestRelease("pranshugupta54/hertz"),
   ]);
   const hasNotes = getNotes().length > 0;
   return (
@@ -54,25 +56,33 @@ export async function Sections() {
       <H>Projects</H>
       <ul>
         {SITE.projects.map((p) => (
-          <li key={p.name} className="flex items-baseline justify-between gap-3 py-1.5">
-            <span>
-              {p.name}
-              {"users" in p && p.users ? (
-                <span className="ml-2 font-mono text-[11px] text-accent">{p.users}</span>
-              ) : null}
-              {(() => {
-                const stars = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
-                return stars ? (
-                  <span className="ml-1.5 font-mono text-[11px] text-accent">
-                    ★ {stars.toLocaleString("en-US")}
-                  </span>
-                ) : null;
-              })()}
-              <span className="text-muted"> — {projectBlurb(p, repoCount)}</span>
-            </span>
-            <a href={p.href} target="_blank" rel="noreferrer" className={`font-mono text-muted ${LINK}`}>
-              ↗
-            </a>
+          <li key={p.name} className="py-1.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <span>
+                {p.name}
+                {"repo" in p && p.repo === "pranshugupta54/hertz" && hertzRelease ? (
+                  <span className="ml-1.5 font-mono text-[11px] text-muted">{hertzRelease}</span>
+                ) : null}
+                {"users" in p && p.users ? (
+                  <span className="ml-2 font-mono text-[11px] text-accent">{p.users}</span>
+                ) : null}
+                {(() => {
+                  const stars = "repo" in p && p.repo === "digitomize/digitomize" ? dgStars : null;
+                  return stars ? (
+                    <span className="ml-1.5 font-mono text-[11px] text-accent">
+                      ★ {stars.toLocaleString("en-US")}
+                    </span>
+                  ) : null;
+                })()}
+                <span className="text-muted"> — {projectBlurb(p, repoCount)}</span>
+              </span>
+              <a href={p.href} target="_blank" rel="noreferrer" className={`font-mono text-muted ${LINK}`}>
+                ↗
+              </a>
+            </div>
+            {"install" in p && p.install ? (
+              <CopyCommand inline cmd={p.install} className="mt-1" />
+            ) : null}
           </li>
         ))}
       </ul>

@@ -57,7 +57,9 @@ export const SITE = {
     {
       name: "hertz",
       blurb: "native macOS menu-bar system monitor (swift)",
+      repo: "pranshugupta54/hertz", // latest release tag fetched live, hidden if the fetch fails
       href: "https://github.com/pranshugupta54/hertz",
+      install: "brew install --cask pranshugupta54/tap/hertz",
     },
     {
       name: "more on github",
