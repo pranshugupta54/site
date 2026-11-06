@@ -54,6 +54,26 @@ export async function getRepoStars(repo: string): Promise<number | null> {
 }
 
 // Live count of a user's own public repos (forks excluded). Returns null on failure.
+// Latest release tag for a repo ("owner/name"), e.g. "v0.1.16". Returns null on failure.
+export async function getLatestRelease(repo: string): Promise<string | null> {
+  const token = process.env.GITHUB_TOKEN;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
+      headers: {
+        "User-Agent": "pranshugupta54-portfolio",
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { tag_name?: string };
+    return typeof json.tag_name === "string" && json.tag_name ? json.tag_name : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getOwnRepoCount(login = SITE.handle): Promise<number | null> {
   const token = process.env.GITHUB_TOKEN;
   try {
