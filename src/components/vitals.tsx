@@ -27,7 +27,20 @@ const everyMinute = (tick: () => void) => {
 const thisMinute = () => Math.floor(Date.now() / 60_000) * 60_000;
 const onServer = () => null;
 
-export function Vitals() {
+export type SiteVitals = {
+  /** "deployed 2h ago", once mounted and only on Vercel builds */
+  deployed: string | null;
+  /** short + full commit sha, on Vercel builds only */
+  short: string | null;
+  sha: string;
+  /** tofu's open PR count; null while unknown or on failure */
+  open: number | null;
+  /** tofu's mood as a word (IST), once mounted */
+  mood: string | null;
+};
+
+// The live readings behind the strip — also read by p54 os's menu bar.
+export function useSiteVitals(): SiteVitals {
   const now = useSyncExternalStore(everyMinute, thisMinute, onServer);
   const [open, setOpen] = useState<number | null>(null);
 
@@ -63,6 +76,11 @@ export function Vitals() {
 
   const deployed = BUILT && now !== null ? `deployed ${relative(BUILT)}` : null;
   const mood = now !== null ? MOOD_WORD[moodNow(new Date(now))] : null;
+  return { deployed, short: SHORT, sha: SHA, open, mood };
+}
+
+export function Vitals() {
+  const { deployed, short: SHORT, open, mood } = useSiteVitals();
   const tofu = [open !== null ? prsLabel(open) : null, mood].filter((v) => v !== null);
   if (!deployed && !SHORT && !tofu.length) return null;
 

@@ -3,10 +3,7 @@ import { Fraunces, Newsreader, JetBrains_Mono, Instrument_Serif, Sassy_Frass } f
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { AppearanceProvider, NO_FLASH_SCRIPT } from "@/components/providers";
-import { Tofu } from "@/components/tofu";
-import { FooterShell } from "@/components/footer-shell";
-import { KeyboardMap } from "@/components/keyboard-map";
-import { SeasonAmbient } from "@/components/season-ambient";
+import { SiteChrome } from "@/components/site-chrome";
 import { SITE } from "@/lib/site";
 import { FEED_LINKS } from "@/lib/feed";
 import { shareImage } from "@/lib/og/image";
@@ -52,10 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-body antialiased">
         <AppearanceProvider>
           {children}
-          <Tofu />
-          <SeasonAmbient />
-          <FooterShell />
-          <KeyboardMap />
+          <SiteChrome />
         </AppearanceProvider>
       </body>
     </html>
