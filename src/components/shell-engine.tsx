@@ -130,6 +130,8 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
 
   // ── snake ──
   const startSnake = useCallback(() => {
+    // a second `snake` retires the first game, so no stray timer or key listener survives it
+    snakeRef.current?.quit(false);
     setSnakeOn(true);
     const rnd = () => ({ x: Math.floor(Math.random() * SNAKE_W), y: Math.floor(Math.random() * SNAKE_H) });
     const ref = {
