@@ -135,6 +135,8 @@ export function Phone({ data }: { data: OsData }) {
   );
 
   const mood = v.mood ? `tofu is ${v.mood}` : "tofu";
+  const note = data.notes[0];
+  const pick = data.reading[0];
 
   return (
     <>
@@ -144,7 +146,9 @@ export function Phone({ data }: { data: OsData }) {
         <span className="font-normal text-muted">{season ? `${season.ambient ?? ""} ${season.name}` : "p54 os"}</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 px-5 pt-3">
+      {/* sections share the height evenly, so no band of the screen sits empty */}
+      <div className="flex min-h-0 flex-1 flex-col justify-evenly gap-4 pb-3 pt-2">
+      <div className="grid grid-cols-2 gap-4 px-5">
         <button type="button" onClick={(e) => launch("about", e)} className="os-widget p-4" aria-label="about pranshu">
           <Image src="/me.jpeg" alt="" width={88} height={88} className="h-11 w-11 rounded-full object-cover" priority />
           <span className="mt-auto block pt-5 font-display text-[16px] font-semibold leading-tight tracking-tight">{SITE.name}</span>
@@ -160,7 +164,7 @@ export function Phone({ data }: { data: OsData }) {
       </div>
 
       {data.latestLog ? (
-        <div className="px-5 pt-4">
+        <div className="px-5">
           <button type="button" onClick={(e) => launch("tofu", e)} className="os-widget w-full p-4" aria-label="tofu's latest worklog entry">
             <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">tofu&apos;s log · latest</span>
             <span className="mt-2 line-clamp-3 text-[14px] leading-snug">
@@ -172,9 +176,32 @@ export function Phone({ data }: { data: OsData }) {
         </div>
       ) : null}
 
-      <div className="os-home-grid mt-7">{GRID.map(appBtn)}</div>
+      <div className="os-home-grid">{GRID.map(appBtn)}</div>
 
-      <div className="mt-auto">
+      {note || pick ? (
+        // only where the screen has room for a second row of widgets
+        <div className="grid grid-cols-2 gap-4 px-5 [@media(max-height:740px)]:hidden">
+          {note ? (
+            <button type="button" onClick={(e) => launch("notes", e)} className="os-widget p-4" aria-label={`latest note: ${note.title}`}>
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">latest note</span>
+              <span className="mt-2 line-clamp-3 font-display text-[15px] font-semibold leading-snug tracking-tight">{note.title}</span>
+              <span className="mt-auto block pt-3 font-mono text-[10.5px] text-muted">
+                {note.date} · {note.minutes} min
+              </span>
+            </button>
+          ) : null}
+          {pick ? (
+            <button type="button" onClick={(e) => launch("reading", e)} className="os-widget p-4" aria-label={`latest reading pick: ${pick.title}`}>
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">reading · latest</span>
+              <span className="mt-2 line-clamp-3 text-[14px] leading-snug">{pick.title}</span>
+              <span className="mt-auto block truncate pt-3 font-mono text-[10.5px] text-muted">{pick.source}</span>
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      </div>
+
+      <div>
         <div className="mb-3 flex justify-center gap-1.5" aria-hidden>
           <span className="h-1.5 w-1.5 rounded-full bg-fg/70" />
         </div>

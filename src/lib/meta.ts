@@ -5,9 +5,10 @@ import { shareImage } from "@/lib/og/image";
 // Per-page metadata with matching OpenGraph/Twitter tags. Next.js does NOT
 // cascade a page's `title` into og:/twitter: tags — without these, link
 // previews fall back to the root layout's site-wide values.
-export function pageMeta(title: string, description: string, path: string): Metadata {
-  // each page points at its own card from the /og route
-  const image = shareImage({ title, path });
+export function pageMeta(title: string, description: string, path: string, card?: string): Metadata {
+  // each page points at its own card from the /og route; `card` is a longer
+  // line for the card itself when the page title alone says too little
+  const image = shareImage({ title: card ?? title, path });
   return {
     title,
     description,

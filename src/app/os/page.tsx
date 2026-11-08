@@ -14,7 +14,8 @@ export const revalidate = 3600; // live repos + stars, hourly like the home page
 export const metadata = pageMeta(
   "p54 os",
   "Pranshu Gupta's site as a tiny desktop: projects, a terminal, tofu's notes and reading, and tofu itself.",
-  "/os"
+  "/os",
+  "p54 os: a desktop you can poke"
 );
 
 // Everything is fetched and rendered here, on the server; the client desktop
