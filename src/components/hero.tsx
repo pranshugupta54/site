@@ -95,6 +95,12 @@ export function Hero() {
       >
         tofu lives here too →
       </Link>
+      <Link
+        href="/os"
+        className="mt-1 block w-fit font-mono text-xs text-muted transition-colors hover:text-accent"
+      >
+        or boot p54 os →
+      </Link>
     </header>
   );
 }

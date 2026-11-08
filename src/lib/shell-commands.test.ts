@@ -7,6 +7,7 @@ const BASE_HELP = `commands:
   about · projects · writing · gh
   resume     cv · --pdf to save one
   tofu       visit tofu's room
+  os         boot p54 os, the site as a desktop
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif

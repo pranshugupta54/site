@@ -3,6 +3,9 @@
 import { unstable_cache } from "next/cache";
 import { SITE } from "@/lib/site";
 import { groupPulls, nextLink, tooOld, type RawPull, type SitePulls } from "@/lib/pulls";
+import { toOwnRepo, type OwnRepo, type RawRepo } from "@/lib/repos";
+
+export type { OwnRepo } from "@/lib/repos";
 
 const GQL = "https://api.github.com/graphql";
 const COLS = 30; // weeks shown in the heatmap
@@ -75,9 +78,14 @@ export async function getLatestRelease(repo: string): Promise<string | null> {
 }
 
 export async function getOwnRepoCount(login = SITE.handle): Promise<number | null> {
+  return (await getOwnRepos(login))?.length ?? null;
+}
+
+// His own public repos (forks excluded), most recently pushed first. Null on failure.
+export async function getOwnRepos(login = SITE.handle): Promise<OwnRepo[] | null> {
   const token = process.env.GITHUB_TOKEN;
   try {
-    let count = 0;
+    const own: OwnRepo[] = [];
     for (let page = 1; page <= 10; page++) {
       const res = await fetch(
         `https://api.github.com/users/${login}/repos?type=owner&per_page=100&page=${page}`,
@@ -91,10 +99,13 @@ export async function getOwnRepoCount(login = SITE.handle): Promise<number | nul
         },
       );
       if (!res.ok) return null;
-      const repos = (await res.json()) as { fork?: boolean }[];
+      const repos = (await res.json()) as RawRepo[];
       if (!Array.isArray(repos)) return null;
-      count += repos.filter((r) => r.fork === false).length;
-      if (repos.length < 100) return count;
+      for (const r of repos) {
+        const repo = toOwnRepo(r);
+        if (repo) own.push(repo);
+      }
+      if (repos.length < 100) return own.sort((a, b) => b.pushedAt.localeCompare(a.pushedAt));
     }
     return null;
   } catch {
