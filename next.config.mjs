@@ -26,7 +26,7 @@ const base = {
   // revalidation still finds them — notes (e.g. the home page's Writing
   // section) and worklog entries (src/lib/worklog.ts). "/**" also matches "/".
   outputFileTracingIncludes: {
-    "/**": ["./content/notes/**/*", "./src/data/worklog/**"],
+    "/**": ["./content/notes/**/*", "./content/months/**/*", "./src/data/worklog/**"],
   },
 };
 
