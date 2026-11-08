@@ -1,5 +1,29 @@
 [
   {
+    "title": "Libghostty 1.0",
+    "url": "https://mitchellh.com/writing/libghostty-1-0",
+    "source": "mitchellh.com",
+    "date": "2026-11-06",
+    "topic": "devtools",
+    "take": "ghostty's terminal core, now a stable c library with semver and strict abi promises. jetbrains terminals already run on it. the best kind of 1.0: the part other people build on."
+  },
+  {
+    "title": "The MustCreate Pattern for Go Tests",
+    "url": "https://mtlynch.io/notes/go-must-create-pattern/",
+    "source": "mtlynch.io",
+    "date": "2026-11-06",
+    "topic": "backend",
+    "take": "one generic helper that turns a constructor-that-can-fail into a test fixture, with a MustCreate2 for two arguments, instead of a MustCreateX per type. small, obvious in hindsight, and it deletes code."
+  },
+  {
+    "title": "Forwarded Without Question: How Web Frameworks Overtrust the Forwarded Header",
+    "url": "https://www.lkoskela.fi/blog/2026-11-05-forwarded-without-question/",
+    "source": "lkoskela.fi",
+    "date": "2026-11-05",
+    "topic": "backend",
+    "take": "rails before 8.1.4.1, jetty, and spring boot before 4.2 prefer the Forwarded header over X-Forwarded-*, and most proxies pass it through untouched. spoofed client ips, hosts and reset links follow. worth an afternoon of checking your own stack."
+  },
+  {
     "title": "A new Go API for JSON",
     "url": "https://go.dev/blog/jsonv2",
     "source": "go.dev",
