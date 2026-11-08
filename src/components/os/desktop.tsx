@@ -137,8 +137,9 @@ export function Desktop({ data }: { data: OsData }) {
   }, [state, snakeOn]);
 
   const ctxFor = useCallback(
-    (id: string): AppCtx => ({
+    (id: string, isActive: boolean): AppCtx => ({
       data,
+      active: isActive,
       compact: false,
       openApp,
       openProject,
@@ -192,7 +193,7 @@ export function Desktop({ data }: { data: OsData }) {
             onClosed={onClosed}
             onMinimized={onMinimized}
           >
-            <AppView kind={w.kind} arg={w.arg} ctx={ctxFor(w.id)} />
+            <AppView kind={w.kind} arg={w.arg} ctx={ctxFor(w.id, w.id === active?.id)} />
           </OsWindow>
         ))}
         <FloatingTofu brain={brain} onOpen={openTofu} />

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { OwnRepo } from "@/lib/github";
+import type { OwnRepo } from "@/lib/repos";
 import type { ReadingItem, Topic } from "@/lib/reading";
 
 // What the /os server page hands the client desktop. Everything live is

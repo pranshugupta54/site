@@ -102,14 +102,14 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
   const [, setHistoryIdx] = useState(-1);
 
   const [snakeOn, setSnakeOn] = useState(false);
-  const snakeRef = useRef<{ quit: () => void } | null>(null);
+  const snakeRef = useRef<{ quit: (refocus?: boolean) => void } | null>(null);
   const lineCounter = useRef(0);
   const outRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [eggs] = useState(eggRunner); // gauge timer + pending fetch for the hidden eggs
 
   // ── cleanup snake + eggs on unmount ──
-  useEffect(() => () => snakeRef.current?.quit(), []);
+  useEffect(() => () => snakeRef.current?.quit(false), []);
   useEffect(() => () => eggs.cancel(), [eggs]);
 
   // ── scroll output to bottom on new line ──
@@ -137,7 +137,7 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
       dir: { x: 1, y: 0 },
       loop: null as ReturnType<typeof setInterval> | null,
       lineId: -1,
-      quit: () => {},
+      quit: (() => {}) as (refocus?: boolean) => void,
     };
 
     const instructId = addLine("res", "arrows / WASD to move · q or esc to quit");
@@ -169,7 +169,9 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
       if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(k)) e.preventDefault();
     };
 
-    ref.quit = () => {
+    ref.quit = (refocus = true) => {
+      if (snakeRef.current !== ref) return; // already over
+      snakeRef.current = null;
       if (ref.loop) clearInterval(ref.loop);
       window.removeEventListener("keydown", key);
       setSnakeOn(false);
@@ -179,7 +181,7 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
       } catch { /* ignore */ }
       setLines((prev) => prev.filter((l) => l.id !== instructId));
       addLine("ok", "← back to shell");
-      setTimeout(() => inputRef.current?.focus(), 50);
+      if (refocus) setTimeout(() => inputRef.current?.focus(), 50);
     };
 
     ref.loop = setInterval(() => {
@@ -416,7 +418,10 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
     [input, exec, history]
   );
 
-  return { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, outRef, inputRef };
+  // end a running game without pulling focus back (its window went to the back, say)
+  const quitSnake = useCallback(() => snakeRef.current?.quit(false), []);
+
+  return { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, quitSnake, outRef, inputRef };
 }
 
 // ─── one output line ─────────────────────────────────────────────────────────

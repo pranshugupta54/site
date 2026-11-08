@@ -14,11 +14,14 @@ export function TerminalApp({
   openApp,
   close,
   onSnake,
+  active,
 }: {
   openApp: (id: AppId) => void;
   close: () => void;
   /** the snake owns the keyboard (Esc quits it); the desktop keeps its hands off */
   onSnake: (on: boolean) => void;
+  /** the snake only owns the keyboard while this window is frontmost */
+  active: boolean;
 }) {
   const onTofu = useCallback(() => openApp("tofu"), [openApp]);
   const extra = useCallback(
@@ -43,13 +46,18 @@ export function TerminalApp({
     },
     [openApp, close]
   );
-  const { input, setInput, lines, onInputKey, snakeOn, outRef, inputRef } = useShellEngine({
+  const { input, setInput, lines, onInputKey, snakeOn, quitSnake, outRef, inputRef } = useShellEngine({
     onTofu,
     extra,
     helpExtra: OS_HELP,
   });
 
   useEffect(() => onSnake(snakeOn), [snakeOn, onSnake]);
+  // minimized or sent behind another window: the game ends rather than
+  // keep eating arrow keys and Esc meant for the window in front
+  useEffect(() => {
+    if (!active) quitSnake();
+  }, [active, quitSnake]);
   useEffect(() => () => onSnake(false), [onSnake]);
 
   return (

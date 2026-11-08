@@ -28,6 +28,8 @@ export type AppCtx = {
   openProject: (name: string) => void;
   close: () => void;
   onSnake: (on: boolean) => void;
+  /** this window is frontmost (always, for a phone screen) */
+  active: boolean;
 };
 
 /** one window's (or phone screen's) content */
@@ -39,7 +41,7 @@ export function AppView({ kind, arg, ctx }: { kind: WinKind; arg?: string; ctx: 
     case "project":
       return <ProjectDetail name={arg ?? ""} repos={data.repos} featured={data.featured} />;
     case "terminal":
-      return <TerminalApp openApp={ctx.openApp} close={ctx.close} onSnake={ctx.onSnake} />;
+      return <TerminalApp openApp={ctx.openApp} close={ctx.close} onSnake={ctx.onSnake} active={ctx.active} />;
     case "notes":
       return <NotesApp notes={data.notes} compact={ctx.compact} />;
     case "reading":

@@ -34,7 +34,6 @@ const tick = (f: () => void) => {
   return () => clearInterval(id);
 };
 const none = () => "";
-const noop = () => {};
 
 function readOpen(): AppId | null {
   try {
@@ -79,7 +78,10 @@ export function Phone({ data }: { data: OsData }) {
   const [open, setOpen] = useState<AppId | null>(readOpen);
   const [leaving, setLeaving] = useState(false);
   const [detail, setDetail] = useState<string | null>(null);
+  const [snake, setSnake] = useState(false); // the terminal's snake owns Esc while it runs
   const opener = useRef<HTMLElement | null>(null);
+  const home = useRef<HTMLDivElement>(null);
+  const refocus = useRef(false);
   const back = useRef<HTMLButtonElement>(null);
   const time = useSyncExternalStore(tick, timeNow, none);
   const v = useSiteVitals();
@@ -96,6 +98,13 @@ export function Phone({ data }: { data: OsData }) {
 
   useEffect(() => {
     if (open) back.current?.focus({ preventScroll: true });
+    else if (refocus.current) {
+      // after the close commits: the home screen is no longer inert, so focus can land.
+      // A sheet restored from the session has no opener; fall back to its icon.
+      refocus.current = false;
+      const el = opener.current?.isConnected ? opener.current : home.current?.querySelector<HTMLElement>("button, a");
+      el?.focus({ preventScroll: true });
+    }
   }, [open]);
 
   const launch = (id: AppId, e: React.MouseEvent<HTMLElement>) => {
@@ -109,7 +118,7 @@ export function Phone({ data }: { data: OsData }) {
       setOpen(null);
       setLeaving(false);
       setDetail(null);
-      opener.current?.focus({ preventScroll: true });
+      refocus.current = true;
     };
     if (still) return done();
     setLeaving(true);
@@ -119,13 +128,13 @@ export function Phone({ data }: { data: OsData }) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape" || e.defaultPrevented) return;
+      if (e.key !== "Escape" || e.defaultPrevented || snake) return;
       if (detail) setDetail(null);
       else goHome();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, detail, goHome]);
+  }, [open, detail, goHome, snake]);
 
   const appBtn = (id: AppId) => (
     <button key={id} type="button" className="os-app-btn" onClick={(e) => launch(id, e)} aria-label={APPS[id].name}>
@@ -140,7 +149,7 @@ export function Phone({ data }: { data: OsData }) {
 
   return (
     <>
-    <div className="os-phone" inert={!!open}>
+    <div ref={home} className="os-phone" inert={!!open}>
       <div className="os-status" aria-hidden>
         <span suppressHydrationWarning>{time}</span>
         <span className="font-normal text-muted">{season ? `${season.ambient ?? ""} ${season.name}` : "p54 os"}</span>
@@ -243,7 +252,8 @@ export function Phone({ data }: { data: OsData }) {
                   },
                   openProject: setDetail,
                   close: goHome,
-                  onSnake: noop,
+                  onSnake: setSnake,
+                  active: true,
                 }}
               />
             )}

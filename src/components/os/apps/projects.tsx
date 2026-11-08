@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { relative } from "@/components/local-time";
 import { CopyCommand } from "@/components/copy-command";
 import { SITE } from "@/lib/site";
-import type { OwnRepo } from "@/lib/github";
+import type { OwnRepo } from "@/lib/repos";
 import type { Featured } from "../data";
 
 type Sort = "recent" | "stars" | "name";
