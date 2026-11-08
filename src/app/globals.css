@@ -74,6 +74,8 @@
   [data-season="halloween"][data-skin][data-theme="dark"] { --accent: #ee8f45; --mark: #2d2337; }
   [data-season="diwali"][data-skin] { --accent: #b45f06; --mark: #fbe4ae; }
   [data-season="diwali"][data-skin][data-theme="dark"] { --accent: #f2b24c; --mark: #3a2c12; }
+  [data-season="winter"][data-skin] { --accent: #35618c; --mark: #dbe7f2; }
+  [data-season="winter"][data-skin][data-theme="dark"] { --accent: #8db7df; --mark: #1c2a3a; }
 
   * { border-color: var(--line); }
   html { font-size: 87.5%; scroll-behavior: smooth; } /* 14px root — shrinks the whole rem scale */

@@ -20,7 +20,8 @@
   },
   "hats": {
     "halloween": "_^_",
-    "diwali": ".*."
+    "diwali": ".*.",
+    "winter": "_o_"
   },
   "hop": [
     ["           ", "   n   n   ", "  .=====.  ", " (o . o)   "],

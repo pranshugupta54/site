@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { SEASONS } from "../data/seasons.ts";
+import { SEASONS, seasonCommands } from "../data/seasons.ts";
 import { SHELL_COMMANDS, SHORTCUTS, helpText, shellCommands } from "./shell-commands.ts";
 
 const BASE_HELP = `commands:
@@ -23,10 +23,11 @@ describe("help text", () => {
     assert.equal(helpText(shellCommands(undefined)), BASE_HELP);
   });
 
-  for (const season of SEASONS.filter((s) => Object.keys(s.commands ?? {}).length)) {
+  const at = new Date(2026, 11, 20, 12);
+  for (const season of SEASONS.filter((s) => Object.keys(seasonCommands(s, at)).length)) {
     it(`adds the ${season.id} row`, () => {
-      const eggs = Object.keys(season.commands!).join(" · ");
-      assert.equal(helpText(shellCommands(season)), `${BASE_HELP}\n  ${eggs}   it's ${season.name}`);
+      const eggs = Object.keys(seasonCommands(season, at)).join(" · ");
+      assert.equal(helpText(shellCommands(season, at)), `${BASE_HELP}\n  ${eggs}   it's ${season.name}`);
     });
   }
 

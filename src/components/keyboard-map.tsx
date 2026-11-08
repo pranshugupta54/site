@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useAppearance } from "@/components/providers";
 import { SHORTCUTS, shellCommands } from "@/lib/shell-commands";
+import { now } from "@/lib/clock";
 import { closesKeymap, opensKeymap } from "@/lib/keymap";
 
 const FOCUSABLE = 'button, [href], input, [tabindex]:not([tabindex="-1"])';
@@ -129,7 +130,7 @@ export function KeyboardMap() {
           <p className="col-span-2 mb-0.5 mt-4 text-[11px] text-muted">
             in the shell <span className="opacity-70">· same as &apos;help&apos;</span>
           </p>
-          {shellCommands(season).map((c) =>
+          {shellCommands(season, now()).map((c) =>
             c.desc ? (
               <Fragment key={c.usage}>
                 <span>{c.usage}</span>

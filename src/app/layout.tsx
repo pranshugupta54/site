@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { AppearanceProvider, NO_FLASH_SCRIPT } from "@/components/providers";
 import { SiteChrome } from "@/components/site-chrome";
+import { SeasonFrost } from "@/components/season-frost";
 import { SITE } from "@/lib/site";
 import { FEED_LINKS } from "@/lib/feed";
 import { shareImage } from "@/lib/og/image";
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-body antialiased">
         <AppearanceProvider>
+          <SeasonFrost />
           {children}
           <SiteChrome />
         </AppearanceProvider>

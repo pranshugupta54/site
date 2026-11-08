@@ -13,11 +13,14 @@ Two independent axes on `<html>`: `data-skin` (`editorial` | `mono` | `serif`) �
 
 ## Seasons (festival overlays)
 A third, optional axis: `data-season` on `<html>`, set by the no-flash script when the **viewer's local date** falls inside a season's window. No deploy per festival.
-- Data: `src/data/seasons.ts` → `SEASONS` (`id, name, start, end` + optional `greeting`, `quips`, `commands`, `ambient`). `start`/`end` are inclusive; `"MM-DD"` repeats yearly (may wrap new year), `"YYYY-MM-DD"` is a one-off for festivals that move (diwali). `pickSeason()` is stringified into the no-flash script, so keep it import-free and ES5-ish.
+- Data: `src/data/seasons.ts` → `SEASONS` (`id, name, start, end` + optional `greeting`, `quips`, `commands`, `ambient`, `snow`, `newYear`). A `commands` value may be a function of the viewer's local now (e.g. winter's `<year>` countdown). `start`/`end` are inclusive; `"MM-DD"` repeats yearly (may wrap new year), `"YYYY-MM-DD"` is a one-off for festivals that move (diwali). `pickSeason()` is stringified into the no-flash script, so keep it import-free and ES5-ish.
 - Look: `[data-season="<id>"][data-skin]` in `globals.css` overrides **only `--accent` / `--mark`** (light + dark). Tofu's costume is `hats.<id>` in `tofu-frames.json`, 3 chars that fill the gap between the ears on every frame; `node scripts/validate-tofu.mjs` checks every hat on every frame.
 - Wiring: `useAppearance().season` / `setSeason()`. Greeting slots in second in the hero rotator; quips join tofu's hover pool; `commands` become shell easter eggs; `ambient` is a tiny glyph that drifts across once per visit, ~4s after load (`season-ambient.tsx`; desktop only, off in reduced motion).
+- `snow` (winter): `season-snow.tsx` (mounted in `SiteChrome`, so never on /os) — one canvas of ascii flakes in the side gutters (>=1024px, never over `<main>`), settling into a drift on the shell bar; paused while the tab is hidden, a still scatter in reduced motion. Below 1024px, `season-frost.tsx` is a still frost line in normal flow above the page (never overlaps the hero; skips /os via `isOs()`).
+- `newYear` (winter): the shell bar shows a live `<year> in hh:mm:ss` on dec 31 and `happy <year>` on jan 1 (local time, `newYearState()`); if the year turns while the page is open, `new-year-burst.tsx` fires a ~3s ascii firework once per visit (skipped in reduced motion).
 - Preview off-calendar: `?season=<id>` (or `off`, `auto`), or `season <id|off|auto>` in the shell. Both pin it for the tab (sessionStorage), so visitors are never stuck in a costume.
-- Taste bar: a well-dressed site in a small hat. Two tokens, one hat, one greeting. No new colors elsewhere, no confetti.
+- Preview a date: `?now=<local ISO time>` (e.g. `?season=winter&now=2026-12-31T23:59:50`) starts the client clock (`src/lib/clock.ts` `now()`) at that moment; time keeps ticking from there. Client-only, used by date-driven season bits (the countdown, the year egg); the season window itself still comes from `?season=`.
+- Taste bar: a well-dressed site in a small hat. Two tokens, one hat, one greeting. No new colors elsewhere. Motion stays ascii, out of the text column, and off in reduced motion; the one celebration is winter's new-year firework.
 - Seasons are temporary overlays; permanent revamps are **versions** (@docs/versions.md).
 
 ## View transitions (navigation)

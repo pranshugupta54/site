@@ -21,9 +21,11 @@ export const SHELL_COMMANDS: CommandRow[] = [
 
 /** The command list, plus the active season's egg commands when it has any. */
 export function shellCommands(
-  season?: { name: string; commands?: Record<string, string> } | null
+  season?: { name: string; commands?: object | ((now: Date) => object) } | null,
+  now: Date = new Date()
 ): CommandRow[] {
-  const eggs = Object.keys(season?.commands ?? {});
+  const c = season?.commands;
+  const eggs = Object.keys((typeof c === "function" ? c(now) : c) ?? {});
   if (!season || !eggs.length) return SHELL_COMMANDS;
   return [...SHELL_COMMANDS, { usage: eggs.join(" · "), desc: `it's ${season.name}` }];
 }

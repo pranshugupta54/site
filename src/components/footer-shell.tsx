@@ -2,7 +2,11 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAppearance } from "@/components/providers";
 import { Vitals } from "@/components/vitals";
+import { NewYearBurst } from "@/components/new-year-burst";
+import { newYearState, newYearTarget } from "@/data/seasons";
+import { now } from "@/lib/clock";
 import { ShellLine, TERM, useShellEngine } from "@/components/shell-engine";
 
 // ─── constants ───────────────────────────────────────────────────────────────
@@ -18,6 +22,28 @@ const { BG, FG, MUTED, LINE, DIM, GREEN } = TERM;
 // ─── main component ──────────────────────────────────────────────────────────
 
 export function FooterShell() {
+  const { season } = useAppearance();
+  const [newYear, setNewYear] = useState<{ label: string; msLeft: number } | null>(null);
+  const [burst, setBurst] = useState<number | null>(null); // the year to celebrate, while the burst runs
+
+  // seasons with `newYear`: a live countdown in the bar on dec 31, "happy <year>" on jan 1,
+  // and a burst when the year turns while the page is open
+  const newYearOn = !!season?.newYear;
+  useEffect(() => {
+    if (!newYearOn) return;
+    let prev: number | null = null;
+    const tick = () => {
+      const t = now();
+      const st = newYearState(t);
+      setNewYear(st);
+      if (st && prev && st.msLeft === 0) setBurst(newYearTarget(t));
+      prev = st ? st.msLeft : null;
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [newYearOn]);
+
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [height, setHeight] = useState(DEFAULT_H);
@@ -127,6 +153,7 @@ export function FooterShell() {
 
   return (
     <>
+      {burst ? <NewYearBurst year={burst} onDone={() => setBurst(null)} /> : null}
       {/* collapsed bar */}
       <div
         role="button"
@@ -153,8 +180,16 @@ export function FooterShell() {
         <span className="shrink-0 whitespace-nowrap" style={{ color: GREEN }}>~/pranshu ❯</span>
         <span className="shrink-0 whitespace-nowrap" style={{ color: MUTED }}>type &apos;help&apos;</span>
         <span style={{ color: FG }} aria-hidden className="animate-[blink_1s_steps(1)_infinite]">▋</span>
-        <span className="lg:hidden" style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>just start typing</span>
-        <span className="ml-auto hidden lg:block" style={{ color: MUTED }}><Vitals /></span>
+        {newYearOn && newYear ? (
+          <span className="whitespace-nowrap" style={{ marginLeft: "auto", color: newYear.msLeft ? FG : GREEN, fontSize: 12 }}>
+            {newYear.label}
+          </span>
+        ) : (
+          <>
+            <span className="lg:hidden" style={{ marginLeft: "auto", color: MUTED, fontSize: 11 }}>just start typing</span>
+            <span className="ml-auto hidden lg:block" style={{ color: MUTED }}><Vitals /></span>
+          </>
+        )}
       </div>
 
       {/* expanded panel */}
