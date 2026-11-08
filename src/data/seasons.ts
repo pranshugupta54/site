@@ -19,11 +19,56 @@ export type Season = {
   greeting?: string;
   /** extra hover quips for tofu */
   quips?: string[];
-  /** footer-shell easter eggs: command -> output */
-  commands?: Record<string, string>;
+  /** footer-shell easter eggs: command -> output. Either may depend on the viewer's local now
+   *  (read them through seasonCommands). */
+  commands?: Commands | ((now: Date) => Commands);
   /** a tiny ascii glyph that drifts across the page once per visit */
   ambient?: string;
+  /** ascii snow in the side gutters (wide screens) and a frost line (narrow ones) */
+  snow?: boolean;
+  /** shell-bar countdown on dec 31 and "happy <year>" on jan 1, in local time */
+  newYear?: boolean;
 };
+
+export type Commands = Record<string, string | ((now: Date) => string)>;
+
+/** A season's egg commands as of `now`. */
+export function seasonCommands(season: { commands?: Season["commands"] } | null | undefined, now: Date): Commands {
+  const c = season?.commands;
+  return (typeof c === "function" ? c(now) : c) ?? {};
+}
+
+const pad2 = (n: number) => (n < 10 ? "0" : "") + n;
+
+/** The year a new-year countdown is counting to: next year, or this one on jan 1. */
+export function newYearTarget(now: Date): number {
+  return now.getMonth() === 0 && now.getDate() === 1 ? now.getFullYear() : now.getFullYear() + 1;
+}
+
+/**
+ * Shell-bar new-year state for `now` (local time): a countdown on dec 31, a greeting on jan 1,
+ * null otherwise. `msLeft` is 0 once the year has turned.
+ */
+export function newYearState(now: Date): { label: string; msLeft: number } | null {
+  const y = newYearTarget(now);
+  if (now.getMonth() === 0 && now.getDate() === 1) return { label: `happy ${y}`, msLeft: 0 };
+  if (now.getMonth() !== 11 || now.getDate() !== 31) return null;
+  const left = Math.max(0, new Date(y, 0, 1).getTime() - now.getTime());
+  const t = Math.ceil(left / 1000);
+  const hms = `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor((t % 3600) / 60))}:${pad2(t % 60)}`;
+  return { label: `${y} in ${hms}`, msLeft: left };
+}
+
+/** Output of the `<year>` shell egg. */
+export function countdownText(now: Date): string {
+  const y = newYearTarget(now);
+  if (now.getMonth() === 0 && now.getDate() === 1) return `happy new year. it's ${y}. tofu made it.`;
+  const left = new Date(y, 0, 1).getTime() - now.getTime();
+  const days = Math.floor(left / 86_400_000);
+  if (days >= 1) return `${y} in ${days} day${days === 1 ? "" : "s"}. pacing myself.`;
+  const mins = Math.floor(left / 60_000);
+  return `${Math.floor(mins / 60)}h ${mins % 60}m to ${y}. chai in hand.`;
+}
 
 export const SEASONS: Season[] = [
   {
@@ -43,6 +88,26 @@ export const SEASONS: Season[] = [
       treat: "    ,\n  .-'-.\n ( ^ ^ )   one pumpkin, hand-carved in ascii.\n  '-w-'    no refunds.",
     },
     ambient: "^v^",
+  },
+  {
+    id: "winter",
+    name: "winter",
+    start: "12-15",
+    end: "01-01",
+    greeting: "Cheers",
+    quips: [
+      "chai weather. i've had four. it's 11am.",
+      "wrapping up the year. the year is not cooperating.",
+      "the beanie is wool. the wool is ascii.",
+      "type 'chai' in the shell. or the year in 'help', if you're counting.",
+    ],
+    snow: true,
+    newYear: true,
+    commands: (now) => ({
+      [String(newYearTarget(now))]: countdownText,
+      chai: "   ( (\n    ) )\n  ........\n  |      |]   cutting chai, extra adrak.\n  \\      /    blow on it first.\n   `----'",
+    }),
+    ambient: "~",
   },
   {
     // moves every year — set next year's dates when they're announced

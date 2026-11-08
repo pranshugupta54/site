@@ -5,7 +5,8 @@ import { useAppearance } from "@/components/providers";
 import { SITE, projectBlurb } from "@/lib/site";
 import { resumeLines } from "@/lib/resume";
 import funfacts from "@/data/funfacts.json";
-import { SEASONS } from "@/data/seasons";
+import { SEASONS, seasonCommands } from "@/data/seasons";
+import { now } from "@/lib/clock";
 import { CURRENT, RENOVATION } from "@/lib/versions";
 import {
   GAUGES,
@@ -273,7 +274,7 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
 
       switch (cmd.toLowerCase()) {
         case "help":
-          addLine("res", helpText(shellCommands(season)) + (helpExtra ? `\n${helpExtra}` : ""));
+          addLine("res", helpText(shellCommands(season, now())) + (helpExtra ? `\n${helpExtra}` : ""));
           break;
         case "about":
           addLine("res", SITE.bio);
@@ -384,10 +385,10 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
             runEgg(hidden);
             break;
           }
-          const egg = season?.commands && Object.hasOwn(season.commands, cmd.toLowerCase())
-            ? season.commands[cmd.toLowerCase()]
-            : undefined;
-          if (typeof egg === "string") addLine("res", egg);
+          const eggs = seasonCommands(season, now());
+          const egg = Object.hasOwn(eggs, cmd.toLowerCase()) ? eggs[cmd.toLowerCase()] : undefined;
+          if (typeof egg === "function") addLine("res", egg(now()));
+          else if (typeof egg === "string") addLine("res", egg);
           else addLine("warn", `command not found: ${cmd} — try 'help'`);
         }
       }
