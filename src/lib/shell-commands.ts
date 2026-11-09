@@ -9,6 +9,7 @@ export const SHELL_COMMANDS: CommandRow[] = [
   { usage: "resume", desc: "cv · --pdf to save one" },
   { usage: "tofu", desc: "visit tofu's room" },
   { usage: "os", desc: "boot p54 os, the site as a desktop" },
+  { usage: "room", desc: "walk into my desk corner" },
   { usage: "snake", desc: "play snake on my commits" },
   { usage: "theme", desc: "toggle light / dark" },
   { usage: "skin", desc: "cycle editorial → mono → serif" },

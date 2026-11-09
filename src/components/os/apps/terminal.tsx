@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ShellLine, TERM, useShellEngine, type ShellIO } from "@/components/shell-engine";
 import { APP_IDS, type AppId } from "../wm";
 
@@ -24,6 +25,8 @@ export function TerminalApp({
   active: boolean;
 }) {
   const onTofu = useCallback(() => openApp("tofu"), [openApp]);
+  const router = useRouter();
+  const onRoom = useCallback(() => router.push("/room"), [router]);
   const extra = useCallback(
     (cmd: string, args: string[], { addLine }: ShellIO) => {
       if (cmd === "exit") {
@@ -48,6 +51,7 @@ export function TerminalApp({
   );
   const { input, setInput, lines, onInputKey, snakeOn, quitSnake, outRef, inputRef } = useShellEngine({
     onTofu,
+    onRoom,
     extra,
     helpExtra: OS_HELP,
   });
