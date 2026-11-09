@@ -8,6 +8,7 @@ const BASE_HELP = `commands:
   resume     cv · --pdf to save one
   tofu       visit tofu's room
   os         boot p54 os, the site as a desktop
+  room       walk into my desk corner
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif

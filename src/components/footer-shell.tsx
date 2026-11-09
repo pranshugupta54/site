@@ -85,7 +85,11 @@ export function FooterShell() {
     doOpenRef.current(false);
     router.push("/os");
   }, [router]);
-  const { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs });
+  const onRoom = useCallback(() => {
+    doOpenRef.current(false);
+    router.push("/room");
+  }, [router]);
+  const { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs, onRoom });
 
   const doOpen = useCallback((v: boolean) => {
     openRef.current = v;
@@ -101,6 +105,13 @@ export function FooterShell() {
   }, [inputRef]);
   useEffect(() => {
     doOpenRef.current = doOpen;
+  }, [doOpen]);
+
+  // other parts of the site can open the shell (the laptop in /room does)
+  useEffect(() => {
+    const open = () => doOpen(true);
+    window.addEventListener("p54:shell", open);
+    return () => window.removeEventListener("p54:shell", open);
   }, [doOpen]);
 
   // ── global keys: "/" opens, any typed character opens + carries over, Esc closes ──

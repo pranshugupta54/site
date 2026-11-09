@@ -159,6 +159,7 @@ export function MenuBar({
             {item("theme", toggleTheme, theme)}
             {item("skin", cycleSkin, skin)}
             <div className="os-menu-sep" />
+            {item("walk into the room", () => router.push("/room"))}
             {item("back to p54.dev", () => router.push("/"), "↩")}
           </div>
         )}

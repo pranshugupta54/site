@@ -10,6 +10,8 @@ import { SeasonSnow } from "@/components/season-snow";
 // The layout's chrome: roaming tofu, the season glyph and snow, the footer shell, the `?` map.
 // /os is a whole desktop with its own tofu, terminal and keys, so it gets none of it.
 export const isOs = (path: string | null) => path === "/os" || !!path?.startsWith("/os/");
+// /room has tofu asleep on the keyboard, so the roaming one stays out
+const isRoom = (path: string | null) => path === "/room";
 
 export function SiteChrome() {
   const path = usePathname();
@@ -17,7 +19,7 @@ export function SiteChrome() {
   return (
     <>
       <SeasonSnow />
-      <Tofu />
+      {isRoom(path) ? null : <Tofu />}
       <SeasonAmbient />
       <FooterShell />
       <KeyboardMap />

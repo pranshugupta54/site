@@ -42,6 +42,8 @@ export type ShellEngineOptions = {
   onTofu: () => void;
   /** the `os` command: boot p54 os. Hosts already inside it leave this out. */
   onOs?: () => void;
+  /** the `room` command: walk into the room */
+  onRoom?: () => void;
   /** host-specific commands, tried before the built-ins; return true when handled */
   extra?: (cmd: string, args: string[], io: ShellIO) => boolean;
   /** appended to `help` */
@@ -92,7 +94,7 @@ function renderSnake(state: SnakeState): string {
 
 // ─── engine ──────────────────────────────────────────────────────────────────
 
-export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOptions) {
+export function useShellEngine({ onTofu, onOs, onRoom, extra, helpExtra }: ShellEngineOptions) {
   const { toggleTheme, cycleSkin, theme, season, setSeason } = useAppearance();
   const [input, setInput] = useState("");
   // boot message: initial state, not an effect, so it shows exactly once
@@ -298,6 +300,12 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
             onOs();
           } else addLine("res", "you're already in it.");
           break;
+        case "room":
+          if (onRoom) {
+            addLine("ok", "→ the room");
+            onRoom();
+          } else addLine("res", "you're already in it.");
+          break;
         case "resume":
           if (args[0] === "--pdf") {
             addLine("ok", `→ ${RESUME} · print dialog → save as pdf`);
@@ -393,7 +401,7 @@ export function useShellEngine({ onTofu, onOs, extra, helpExtra }: ShellEngineOp
         }
       }
     },
-    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason, onTofu, onOs, extra, helpExtra]
+    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason, onTofu, onOs, onRoom, extra, helpExtra]
   );
 
   const onInputKey = useCallback(
