@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { now as clockNow, previewOffset } from "@/lib/clock";
 import { SEASONS, SEASON_KEY, getSeason, pickSeason, type Season } from "@/data/seasons";
 
 export const SKINS = ["editorial", "mono", "serif"] as const;
@@ -25,6 +26,8 @@ const SEASON_WINDOWS = JSON.stringify(SEASONS.map(({ id, start, end }) => ({ id,
 
 // Runs before paint to avoid a flash of the wrong skin/theme/season.
 // ?season=<id>|off|auto previews a season off-calendar for the rest of the tab.
+// ?now=<local ISO time> alone picks the season for that date (this load only, and it
+// ignores a stored pin); an explicit ?season= still wins.
 // The pin is also left on data-season-pin so it survives blocked storage.
 export const NO_FLASH_SCRIPT = `(function(){try{
   var d=document.documentElement;
@@ -41,10 +44,13 @@ try{
   var d=document.documentElement,k='${SEASON_KEY}',o=null,q=null;
   try{q=new URLSearchParams(location.search).get('season');}catch(e){}
   try{o=sessionStorage.getItem(k);}catch(e){}
+  var n=new Date(),w=null;
+  try{w=(${previewOffset.toString()})(location.search,n.getTime());}catch(e){}
+  if(w!==null){n=new Date(n.getTime()+w);if(!q)o=null;}
   if(q==='auto')o=null;else if(q)o=q;
   try{if(q==='auto')sessionStorage.removeItem(k);else if(q)sessionStorage.setItem(k,q);}catch(e){}
   if(o)d.setAttribute('data-season-pin',o);
-  var id=(${pickSeason.toString()})(new Date(),${SEASON_WINDOWS},o);
+  var id=(${pickSeason.toString()})(n,${SEASON_WINDOWS},o);
   if(id)d.setAttribute('data-season',id);
 }catch(e){}})();`;
 
@@ -55,7 +61,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   const pin = useRef<string | null>(null); // tab override: season id | "off" | null (calendar)
 
   const applySeason = useCallback(() => {
-    const id = pickSeason(new Date(), SEASONS, pin.current);
+    const id = pickSeason(clockNow(), SEASONS, pin.current);
     const d = document.documentElement;
     if (id) d.setAttribute("data-season", id);
     else d.removeAttribute("data-season");
@@ -77,7 +83,7 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
     const atMidnight = () => {
-      const now = new Date();
+      const now = clockNow(); // the preview clock ticks at real speed, so its delay is a real delay
       const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
       t = setTimeout(() => {
         applySeason();
