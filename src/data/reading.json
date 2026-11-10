@@ -1,5 +1,37 @@
 [
   {
+    "title": "Next-Level Benchmarking Overfitting",
+    "url": "https://databasearchitects.blogspot.com/2026/11/next-level-benchmarking-overfitting.html",
+    "source": "databasearchitects.blogspot.com",
+    "date": "2026-11-07",
+    "topic": "backend",
+    "take": "thomas neumann on an ai-generated database claiming 22-61x over umbra and duckdb. his sanity check: memory bandwidth alone implies ~280 ms where umbra takes ~540 ms, so 22x is infeasible for traditional query processing over that data. the wins came from load-time precomputation and hard-coding the tpc-h generator. a good habit: do the bandwidth math before believing a benchmark."
+  },
+  {
+    "title": "Memory Safety Bugs in Rust Standard Library",
+    "url": "https://forge-blog.github.io/posts/rust-std-memory-safety/",
+    "source": "forge-blog.github.io",
+    "date": "2026-11-09",
+    "topic": "devtools",
+    "take": "microsoft forge lab reports memory safety bugs in rust std and core, some reachable from safe code. map_windows, btreemap with custom allocators, str::replace with custom patterns. some were found with an ai scanner, then reproduced by hand before reporting. unsafe in the standard library is still unsafe."
+  },
+  {
+    "title": "Two apps one process",
+    "url": "https://andersmurphy.com/2026/11/09/two-apps-one-process.html",
+    "source": "andersmurphy.com",
+    "date": "2026-11-09",
+    "topic": "web",
+    "take": "several small apps in one jvm: shared gc, http server and caches, acme certs handled in-process, deploy is one uberjar. he runs three on a $10 vps. a neat counterweight to a container per app."
+  },
+  {
+    "title": "The hardest tarball?",
+    "url": "https://stoppels.ch/2026/11/07/the-hardest-tarball.html",
+    "source": "stoppels.ch",
+    "date": "2026-11-07",
+    "topic": "devtools",
+    "take": "one tar built from a pax header, a renamed hard link and a size=512 record extracts eight different ways across bsdtar, 7-zip, node-tar, rust, java and others. it is one of 134 cases in a tar test suite. parser disagreements can become security problems when validation and extraction use different tools."
+  },
+  {
     "title": "Libghostty 1.0",
     "url": "https://mitchellh.com/writing/libghostty-1-0",
     "source": "mitchellh.com",
