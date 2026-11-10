@@ -1,7 +1,22 @@
 {
-  "current": "1",
+  "current": "2",
   "renovation": null,
   "versions": [
+    {
+      "version": "2",
+      "date": "2026-11-10",
+      "name": "the terminal",
+      "tofu": "pranshu builds terminals and menu-bar apps, so the front door is a terminal now. type anywhere, it listens. i got promoted to a process. pid 54. i nap in the corner pane.",
+      "highlights": [
+        "the home page is a shell: tabs, prompts, a cursor that means it",
+        "type anywhere. 1–7 switch tabs. every old command still works",
+        "tofu runs as a process in the side pane, hats and all",
+        "a tmux-ish status line: deploy, your clock, the season",
+        "three terminal themes, each in light and dark",
+        "v1 kept walkable at /v/1"
+      ],
+      "archive": null
+    },
     {
       "version": "1",
       "date": "2026-05-30",
@@ -15,7 +30,7 @@
         "agent skills, read straight from github",
         "seasonal costumes that come and go by the calendar"
       ],
-      "archive": null
+      "archive": "static"
     },
     {
       "version": "0",

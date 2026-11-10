@@ -1,0 +1,251 @@
+/* v2 home: the site as one terminal session. Everything is a token, so each
+   skin reads as a terminal theme (editorial · mono · serif) in light and dark. */
+
+.tty {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.tty a { color: inherit; text-decoration: none; }
+.tty a:hover { color: var(--accent); }
+.tty a:focus-visible,
+.tty button:focus-visible { outline: 1px dashed var(--accent); outline-offset: 2px; }
+
+/* ── tabs ─────────────────────────────────────────────── */
+.tty-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 2px;
+  /* line the tabs up with the main pane's text */
+  padding: 8px 16px 8px max(16px, calc((100% - 1240px) / 2 + 22px));
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8125rem;
+}
+.tty-tabs::-webkit-scrollbar { display: none; }
+.tty-tabs a {
+  flex: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  color: var(--muted);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.tty-tabs a i { font-style: normal; font-size: 0.6875rem; opacity: 0.6; }
+.tty-tabs a:hover { color: var(--fg); background: var(--card); }
+.tty-tabs a.on { color: var(--fg); background: var(--mark); }
+.tty-tabs a.on i { color: var(--accent); opacity: 1; }
+
+/* ── panes ────────────────────────────────────────────── */
+.tty-panes {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.tty-main { min-width: 0; padding: 28px 32px 40px; border-right: 1px solid var(--line); }
+.tty-side {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px 24px 40px;
+}
+/* desktop: the side pane stays put while the session scrolls */
+@media (min-width: 861px) {
+  .tty-side { position: sticky; top: 41px; align-self: start; max-height: calc(100dvh - 41px - 28px); overflow-y: auto; scrollbar-width: none; }
+}
+@media (max-width: 860px) {
+  .tty-panes { grid-template-columns: minmax(0, 1fr); }
+  .tty-main { padding: 20px 16px 24px; border-right: 0; }
+  .tty-side { border-top: 1px solid var(--line); padding: 24px 16px 32px; }
+}
+
+/* ── prompt blocks ────────────────────────────────────── */
+.tty-block { margin-bottom: 30px; scroll-margin-top: 56px; }
+.tty-cmd { margin-bottom: 8px; overflow-wrap: anywhere; }
+.tty-ps1 { color: var(--fg); white-space: nowrap; }
+.tty-host { color: var(--accent); }
+.tty-dim { color: var(--muted); }
+.tty-acc { color: var(--accent); }
+.tty-note { color: var(--muted); margin-top: 6px; }
+.tty-out { margin: 4px 0 0; max-width: 64ch; }
+
+.tty-name {
+  margin: 4px 0 10px;
+  font-size: clamp(34px, 9.4vw, 96px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+.tty-name-cursor {
+  color: var(--accent);
+  margin-left: 0.04em;
+  animation: tty-blink 1.1s steps(1) infinite;
+}
+.tty-lead { isolation: isolate; margin: 0 0 6px; max-width: 60ch; font-size: 1.0625rem; }
+.tty-bio a { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+
+.tty-rows { display: flex; flex-direction: column; gap: 3px; }
+.tty-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 2px;
+}
+.tty-row > :first-child { min-width: 0; }
+.tty-meta { margin-left: auto; color: var(--muted); white-space: nowrap; font-size: 0.8125rem; }
+.tty-ls .tty-file { flex: none; min-width: 13ch; color: var(--accent); }
+.tty-ls .tty-file:hover { text-decoration: underline; text-underline-offset: 3px; }
+.tty-ls > .tty-dim { flex: 1 1 22ch; min-width: 0; }
+/* cv rows: "title · place ……… dates" on one line; on phones the place and dates
+   drop to a muted line of their own under the title */
+.tty-cv { column-gap: 0; }
+.tty-cv .tty-sub { display: contents; }
+.tty-cv .tty-place { color: var(--muted); }
+.tty-cv .tty-place::before { content: "\00a0·\00a0"; }
+.tty-cv .tty-meta { padding-left: 14px; }
+@media (max-width: 560px) {
+  .tty-rows { gap: 7px; }
+  .tty-cv { display: block; }
+  .tty-cv .tty-sub { display: block; color: var(--muted); font-size: 0.8125rem; }
+  .tty-cv .tty-place::before { content: none; }
+  .tty-cv .tty-meta { margin-left: 0; padding-left: 0; }
+  .tty-cv .tty-place + .tty-meta::before { content: " · "; }
+  /* ls rows: name and its stars/tag on top, the description under it */
+  .tty-ls > .tty-dim { order: 3; flex-basis: 100%; font-size: 0.8125rem; }
+  .tty-ls > .tty-meta { order: 2; }
+  .tty-ls > .tty-install { order: 4; }
+}
+.tty-install { flex-basis: 100%; margin: 2px 0 4px; }
+.tty-install > button { max-width: 460px; }
+
+/* ── the live prompt ──────────────────────────────────── */
+.tty-live { padding-bottom: 8px; }
+.tty-live pre, .tty-live div { overflow-wrap: anywhere; }
+.tty-input { position: relative; display: flex; align-items: baseline; gap: 0.6ch; cursor: text; }
+.tty-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  caret-color: var(--accent);
+}
+.tty-hint {
+  position: absolute;
+  left: calc(15ch + 0.6ch);
+  pointer-events: none;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  right: 0;
+}
+.tty-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-right: 0.5ch;
+  vertical-align: -0.18em;
+  background: var(--accent);
+  animation: tty-blink 1.1s steps(1) infinite;
+}
+
+/* ── side boxes ───────────────────────────────────────── */
+.tty-box {
+  position: relative;
+  display: block;
+  padding: 16px 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.tty-box-t {
+  position: absolute;
+  top: -0.75em;
+  left: 10px;
+  padding: 0 6px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.tty-tofu { overflow: hidden; transition: border-color 160ms ease; }
+.tty-tofu:hover, .tty-tofu:focus-visible { border-color: var(--accent); color: inherit !important; }
+.tty-tofu .tty-box-t { position: static; display: block; padding: 0; margin: -4px 0 8px; background: none; }
+.tty-tofu-frame { margin: 0 0 8px; font: inherit; font-size: 1rem; line-height: 1.15; color: var(--fg); }
+.tty-tofu-say { display: block; min-height: 2.6em; color: var(--muted); font-size: 0.8125rem; }
+.tty-snow { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tty-snow i {
+  position: absolute;
+  top: -10%;
+  font-style: normal;
+  color: var(--muted);
+  animation: tty-fall 11s linear infinite;
+}
+.tty-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; color: var(--muted); font-size: 0.75rem; }
+.tty-stats b { color: var(--fg); font-weight: 600; }
+.tty-links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 8px; }
+.tty-links a::before { content: "→ "; color: var(--muted); }
+
+/* ── tmux status line ─────────────────────────────────── */
+.tty-status {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 16px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.tty-status a:hover, .tty-status button:hover { color: var(--mark); }
+/* dark: stay a dark bar, one step raised off the page, like tmux on a dark terminal */
+[data-theme="dark"] .tty-status { background: var(--card); color: var(--fg); border-top: 1px solid var(--line); }
+[data-theme="dark"] .tty-status a:hover, [data-theme="dark"] .tty-status button:hover { color: var(--accent); }
+[data-theme="dark"] .tty-ok { filter: none; }
+.tty-status button { color: inherit; font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+/* plain blocks, not flex: flex items would trim the " · " separators */
+.tty-seg { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.tty-mid { flex: 1; text-align: center; }
+.tty-right { flex: none; }
+.tty-right > * + * { margin-left: 0.6ch; }
+.tty-ok { color: var(--accent); filter: brightness(1.35); margin-right: 6px; }
+@media (max-width: 860px) {
+  .tty-wide { display: none !important; }
+  .tty-status { gap: 8px; padding: 5px 12px; }
+}
+@media (max-width: 420px) {
+  .tty-seg-x { display: none; }
+}
+
+@keyframes tty-blink { 50% { opacity: 0; } }
+@keyframes tty-fall {
+  to { transform: translateY(260px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tty-name-cursor, .tty-cursor { animation: none; }
+  .tty-snow { display: none; }
+  .tty-tabs a, .tty-tofu { transition: none; }
+}
