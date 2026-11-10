@@ -36,6 +36,13 @@ export function TtyPrompt() {
   }, [lines, inputRef]);
 
   useEffect(() => {
+    // The heatmap snake reads keys off the document and unmounts the moment q/Esc quits it,
+    // so by the time an event bubbles to the window its game may already be gone. Note
+    // ownership on the way down (capture) and honor it for the whole event.
+    const boardKeys = new WeakSet<KeyboardEvent>();
+    const onCapture = (e: KeyboardEvent) => {
+      if (document.querySelector(BOARD_SNAKE)) boardKeys.add(e);
+    };
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented) return; // the keyboard map (capture phase) took it
       const el = document.activeElement;
@@ -43,7 +50,7 @@ export function TtyPrompt() {
       const prompt = inputRef.current;
       const act = homeKey(e, {
         // either snake owns the keys: the prompt's own, or the heatmap's in the side pane
-        snakeOn: snakeOn || !!document.querySelector(BOARD_SNAKE),
+        snakeOn: snakeOn || boardKeys.has(e),
         typingElsewhere: el !== prompt && (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || !!(el as HTMLElement | null)?.isContentEditable),
         promptFocused: el === prompt,
         promptEmpty: !prompt?.value,
@@ -60,8 +67,12 @@ export function TtyPrompt() {
       prompt?.focus({ preventScroll: false });
       prompt?.scrollIntoView({ block: "nearest" });
     };
+    window.addEventListener("keydown", onCapture, true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onCapture, true);
+      window.removeEventListener("keydown", onKey);
+    };
   }, [snakeOn, router, setInput, inputRef]);
 
   return (
