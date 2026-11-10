@@ -116,6 +116,7 @@ export function GitHubBoard({ levels, children }: { levels: number[]; children?:
         setScore(0);
         setGameState("playing");
       } else if (k === "q" || k === "escape") {
+        e.preventDefault(); // the quit key is spent: type-anywhere listeners mustn't pick it up
         quitGame();
         return;
       }
