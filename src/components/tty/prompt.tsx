@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShellLine, useShellEngine, type ShellPalette } from "@/components/shell-engine";
 import { homeKey } from "@/lib/tty";
+import { BOARD_SNAKE } from "@/lib/keymap";
 
 // the session's colors follow the page's terminal theme (skin × light/dark)
 const PALETTE: ShellPalette = { FG: "var(--fg)", MUTED: "var(--muted)", GREEN: "var(--accent)", ORANGE: "var(--accent)" };
@@ -41,7 +42,8 @@ export function TtyPrompt() {
       const tag = el?.tagName;
       const prompt = inputRef.current;
       const act = homeKey(e, {
-        snakeOn,
+        // either snake owns the keys: the prompt's own, or the heatmap's in the side pane
+        snakeOn: snakeOn || !!document.querySelector(BOARD_SNAKE),
         typingElsewhere: el !== prompt && (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || !!(el as HTMLElement | null)?.isContentEditable),
         promptFocused: el === prompt,
         promptEmpty: !prompt?.value,
@@ -84,9 +86,14 @@ export function TtyPrompt() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            // the game reads its keys (wasd, q) off the window; they mustn't land in the line
-            if (snakeOn && e.key.length === 1) e.preventDefault();
-            if (e.key === "Escape" && !snakeOn) {
+            if (e.nativeEvent.isComposing) return; // an IME is mid-word: Enter/Esc are its
+            // the game reads every key off the window: keep them out of the line, and away
+            // from the prompt's history and submit
+            if (snakeOn) {
+              if (e.key.length === 1) e.preventDefault();
+              return;
+            }
+            if (e.key === "Escape") {
               e.preventDefault();
               e.currentTarget.blur(); // hands the keys back: `?`, 1–7, type-anywhere
               return;
