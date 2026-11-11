@@ -30,6 +30,7 @@ React 19.3's stable `ViewTransition` (no next.config flag in Next 16.4). Client 
 - Reduced motion: no animation, instant swap. No API: plain navigation. All CSS is at the end of `globals.css`.
 
 ## Key components
+- **Home = v2 terminal** (`app/page.tsx` + `components/tty/*`, pure logic in `lib/tty.ts`): tabs (1–7), prompt blocks, the live prompt (`TtyPrompt`, the same `useShellEngine` as everywhere, so it is the page's only shell — `SiteChrome` skips the footer shell, roaming tofu and snow on `/`), tofu as a process in the side pane, tmux-style status line. All tokens, mono font; each skin is a terminal theme. v1 lives at `/v/1` (see @docs/versions.md).
 - `hero.tsx` — name scrambles in, multi-language greeting rotator, **signature** (Sassy Frass; writes in via `.sig` clip animation), live IST clock, **live age** (from `SITE.dob`), lead line with marker highlight.
 - `sections.tsx` — Experience / Projects / Competitive Programming / Education / Writing + `Connect`. Async server component (fetches live Digitomize stars).
 - `github-panel.tsx` (server; renders nothing if no live data) + `github-board.tsx` (client heatmap + **playable snake**).

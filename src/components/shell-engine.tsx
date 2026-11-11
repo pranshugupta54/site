@@ -446,12 +446,15 @@ const LINE_BASE: React.CSSProperties = {
   margin: "1px 0",
 };
 
-export function ShellLine({ line: l }: { line: OutputLine }) {
-  const { FG, MUTED, GREEN, ORANGE } = TERM;
+export type ShellPalette = Pick<Record<keyof typeof TERM, string>, "FG" | "MUTED" | "GREEN" | "ORANGE">;
+
+/** one output line; `palette` recolors it for a host that isn't the dark terminal (the v2 home) */
+export function ShellLine({ line: l, palette = TERM, prompt }: { line: OutputLine; palette?: ShellPalette; prompt?: React.ReactNode }) {
+  const { FG, MUTED, GREEN, ORANGE } = palette;
   if (l.type === "cmd")
     return (
       <div style={LINE_BASE}>
-        <span style={{ color: GREEN }}>❯</span> <span style={{ color: FG }}>{l.text}</span>
+        {prompt ?? <span style={{ color: GREEN }}>❯</span>} <span style={{ color: FG }}>{l.text}</span>
       </div>
     );
   if (l.type === "ok") return <div style={{ ...LINE_BASE, color: GREEN }}>{l.text}</div>;
