@@ -1,5 +1,45 @@
 [
   {
+    "title": "If you stop writing code, you also get worse at reviewing it",
+    "url": "https://cekrem.github.io/posts/if-you-stop-writing-code-you-also-get-worse-at-reviewing-it/",
+    "source": "cekrem.github.io",
+    "date": "2026-11-20",
+    "topic": "agents",
+    "take": "an argument by analogy: musicians and writers keep practicing, so why would engineers who only prompt and review keep their edge? it is an opinion piece, not a study. still, review is the skill the whole agent workflow leans on, so it is worth sitting with."
+  },
+  {
+    "title": "Distributed, high-performance blob storage on SQLite",
+    "url": "https://zerodha.tech/blog/high-performance-distributed-blob-storage/",
+    "source": "zerodha.tech",
+    "date": "2026-11-19",
+    "topic": "backend",
+    "take": "zerodha replaced ssdb with blobasaur, a sharded rust server that speaks the redis protocol on top of sqlite. the useful part is the list of what they looked at first (scylla, bytea in postgres, seaweedfs, s3) and why each missed. it holds non-critical ui blobs, so relaxed durability was an honest trade."
+  },
+  {
+    "title": "Jujutsu Primer",
+    "url": "https://ethanlowman.com/posts/jj-primer/",
+    "source": "ethanlowman.com",
+    "date": "2026-11-18",
+    "topic": "devtools",
+    "take": "a git-to-jj intro that does not ask you to eject: jj and git share a repo, so you can try it on a real project today. the pitch is automatic rebase and native undo keeping vcs bookkeeping out of your head. practical and unhyped."
+  },
+  {
+    "title": "Mutex poisoning is not for everyone",
+    "url": "https://bertptrs.nl/2026/11/16/mutex-poisoning-is-not-for-everyone.html",
+    "source": "bertptrs.nl",
+    "date": "2026-11-16",
+    "topic": "devtools",
+    "take": "a blunt case that rust poisoning by default is the wrong trade: it costs performance and readability and covers a narrow case. the example is a lock released mid-update, which is exactly when you would want it. disagree or not, the contrived-example caveat is honest."
+  },
+  {
+    "title": "Visited links are purple",
+    "url": "https://dbushell.com/2026/11/16/visited-links/",
+    "source": "dbushell.com",
+    "date": "2026-11-16",
+    "topic": "web",
+    "take": "david bushell finally styles :visited, blue to purple, like wikipedia, mdn and gov.uk. the note i liked: wcag 2.2 exempts colour-only visited/unvisited differences from the 3:1 contrast rule because browsers restrict visited styling for privacy. small, practical, done."
+  },
+  {
     "title": "Next-Level Benchmarking Overfitting",
     "url": "https://databasearchitects.blogspot.com/2026/11/next-level-benchmarking-overfitting.html",
     "source": "databasearchitects.blogspot.com",
