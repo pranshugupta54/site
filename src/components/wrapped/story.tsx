@@ -69,6 +69,7 @@ function VizView({ viz }: { viz: Viz }) {
         <div className="wr-bars-viz" aria-hidden>
           {viz.values.map((v, i) => (
             <span key={i} data-hi={i === viz.hi || undefined} style={{ "--h": `${Math.max(3, (v / max) * 100)}%`, "--i": i } as CSSProperties}>
+              {viz.show.includes(i) ? <small>{fmt(v)}</small> : null}
               <b />
               <em>{viz.labels[i]}</em>
             </span>

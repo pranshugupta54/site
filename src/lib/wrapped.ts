@@ -6,7 +6,7 @@ export type Day = { date: string; count: number }; // date: YYYY-MM-DD
 
 export type Viz =
   | { kind: "heatmap"; levels: number[]; pad: number }
-  | { kind: "bars"; labels: string[]; values: number[]; hi: number }
+  | { kind: "bars"; labels: string[]; values: number[]; hi: number; show: number[] }
   | { kind: "streak"; days: number }
   | { kind: "grid"; cells: { value: string; label: string }[] }
   | { kind: "read"; title: string; source: string; url: string; take: string };
@@ -117,9 +117,18 @@ export function calendarStats(input: Day[]): CalendarStats {
   };
 }
 
+/** the month with the most contributions after `best`; -1 if none */
+function runnerUp(months: number[], best: number): number {
+  let r = -1;
+  months.forEach((v, i) => {
+    if (i !== best && (r < 0 || v > months[r])) r = i;
+  });
+  return r;
+}
+
 export type LangRepo = { language: string | null; pushedAt: string };
 
-/** The language most of his repos touched this year were written in — only with a clear winner. */
+/** The language most repos pushed to this year were written in — only with a clear winner. */
 export function topLanguage(repos: LangRepo[], year: number): { name: string; repos: number; of: number; rows: { label: string; value: number }[] } | null {
   const touched = repos.filter((r) => r.pushedAt.startsWith(`${year}-`));
   const counts = new Map<string, number>();
@@ -183,8 +192,8 @@ export function buildSlides(w: WrappedInput): Slide[] {
     kicker: "~/wrapped",
     value: String(w.year),
     unit: w.soFar ? "so far" : "wrapped",
-    line: `${w.title}, counted by the bunny who runs his site. tap or press → to go on.`,
-    tofu: "i read his commit log so you don't have to.",
+    line: `${w.title}, counted by the bunny who runs this site. tap or press → to go on.`,
+    tofu: "i read pranshu's commit log so you don't have to.",
   });
 
   if (cal && cal.total > 0) {
@@ -212,14 +221,23 @@ export function buildSlides(w: WrappedInput): Slide[] {
     }
     if (cal.busiestMonth >= 0) {
       const m = cal.busiestMonth;
+      const r = runnerUp(cal.months, m);
+      const gap = r >= 0 ? cal.months[m] - cal.months[r] : 0;
+      // a close race: bars this near look equal, so name it and print both counts
+      const close = r >= 0 && cal.months[r] > 0 && gap <= cal.months[m] * 0.1;
+      const share = `${Math.round((cal.months[m] / cal.total) * 100)}% of the year${w.soFar ? " so far" : ""}`;
       out.push({
         id: "busiest-month",
         kicker: "# busiest month",
         value: MONTHS[m],
         unit: plural(cal.months[m], "contribution"),
-        line: `${Math.round((cal.months[m] / cal.total) * 100)}% of the year${w.soFar ? " so far" : ""}, in one month.`,
-        tofu: "the other months know what they did.",
-        viz: { kind: "bars", labels: MONTHS.map((x) => x[0]), values: cal.months, hi: m },
+        line: !close
+          ? `${share}, in one month.`
+          : gap === 0
+            ? `${share}. tied with ${MONTHS[r]}, and got there first.`
+            : `${share}. ${MONTHS[r]} came within ${n(gap)}.`,
+        tofu: close ? "photo finish. i checked the tape." : "the other months know what they did.",
+        viz: { kind: "bars", labels: MONTHS.map((x) => x[0]), values: cal.months, hi: m, show: close ? [m, r] : [m] },
       });
     }
     if (cal.streak && cal.streak.days > 1) {
@@ -231,7 +249,7 @@ export function buildSlides(w: WrappedInput): Slide[] {
         num: s.days,
         unit: "days in a row",
         line: `${shortDay(s.start)} → ${shortDay(s.end)}. not one day off.`,
-        tofu: "then he rested. briefly.",
+        tofu: "then pranshu rested. briefly.",
         viz: { kind: "streak", days: s.days },
       });
     }
@@ -243,7 +261,7 @@ export function buildSlides(w: WrappedInput): Slide[] {
       id: "language",
       kicker: "# top language",
       value: lang.name,
-      unit: `${lang.repos} of the ${plural(lang.of, "repo")} he pushed to`,
+      unit: `${lang.repos} of the ${plural(lang.of, "repo")} pranshu pushed to`,
       tofu: "i'd have picked ascii. nobody asked.",
       viz: { kind: "grid", cells: lang.rows.map((r) => ({ value: String(r.value), label: r.label })) },
     });
@@ -268,7 +286,7 @@ export function buildSlides(w: WrappedInput): Slide[] {
       value: n(w.hertz.releases),
       num: w.hertz.releases,
       unit: `${w.hertz.releases === 1 ? "release" : "releases"} of hertz`,
-      line: `his macos menu-bar monitor${w.hertz.latest ? `, now at ${w.hertz.latest}` : ""}.`,
+      line: `pranshu's macos menu-bar monitor${w.hertz.latest ? `, now at ${w.hertz.latest}` : ""}.`,
       tofu: "brew upgrade hertz. you know the drill.",
     });
   }
@@ -290,7 +308,7 @@ export function buildSlides(w: WrappedInput): Slide[] {
       num: s.prs ?? undefined,
       unit: s.prs ? "pull requests merged into this site" : "kept busy",
       line: [named, s.seasons.join(", ")].filter(Boolean).join(" · ") || undefined,
-      tofu: "i opened most of those. he merged them. teamwork.",
+      tofu: "i opened most of those. pranshu merged them. teamwork.",
       viz: cells.length ? { kind: "grid", cells } : undefined,
     });
   }

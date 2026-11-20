@@ -31,12 +31,13 @@ function Heatmap({ levels, pad }: { levels: number[]; pad: number }) {
   );
 }
 
-function Bars({ labels, values, hi }: { labels: string[]; values: number[]; hi: number }) {
+function Bars({ labels, values, hi, show }: { labels: string[]; values: number[]; hi: number; show: number[] }) {
   const max = Math.max(1, ...values);
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 24, height: 120 }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 24, height: 140 }}>
       {values.map((v, i) => (
         <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          {show.includes(i) ? <span style={{ fontSize: 16, color: i === hi ? C.accent : C.muted }}>{v.toLocaleString("en-US")}</span> : null}
           <div style={{ width: 40, height: Math.max(4, Math.round((v / max) * 92)), borderRadius: 3, background: i === hi ? C.accent : C.line }} />
           <span style={{ fontSize: 18, color: i === hi ? C.accent : C.muted }}>{labels[i]}</span>
         </div>

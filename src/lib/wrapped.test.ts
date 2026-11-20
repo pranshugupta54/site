@@ -40,7 +40,7 @@ describe("calendarStats", () => {
 
 describe("yearLabel", () => {
   const tz = "Asia/Kolkata";
-  it("says 'so far' until dec 1 in his timezone", () => {
+  it("says 'so far' until dec 1 in pranshu's timezone", () => {
     assert.equal(yearLabel(2026, new Date("2026-11-30T18:00:00Z"), tz).label, "2026 so far");
     // 18:30Z on nov 30 is midnight dec 1 in india
     assert.equal(yearLabel(2026, new Date("2026-11-30T18:30:00Z"), tz).label, "2026, wrapped");
@@ -81,7 +81,7 @@ describe("seasonsWorn", () => {
     // last winter (dec 2025 → jan 1) belongs to 2025; one-offs only count in their year
     assert.deepEqual(seasonsWorn(seasons, 2027, new Date("2027-03-10T00:00:00Z"), tz), ["holi"]);
   });
-  it("starts a season on its first day in his timezone, not utc's", () => {
+  it("starts a season on its first day in pranshu's timezone, not utc's", () => {
     // 20:00Z on dec 14 is already dec 15 in india
     assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-12-14T20:00:00Z"), tz, "2026-10-30"), ["halloween", "winter", "diwali"]);
   });
@@ -130,6 +130,27 @@ describe("buildSlides", () => {
     const day = buildSlides(input()).find((s) => s.id === "busiest-day")!;
     assert.equal(day.value, "jan 4");
     assert.match(day.line!, /sunday/);
+  });
+});
+
+describe("busiest month", () => {
+  const month = (y: Partial<WrappedInput>) => buildSlides(input(y)).find((s) => s.id === "busiest-month")!;
+  const sepOct = [...days("2026-09-01", [407, ...Array(29).fill(0)]), ...days("2026-10-01", [398])];
+  it("names a close race and prints both counts", () => {
+    const s = month({ calendar: sepOct });
+    assert.equal(s.value, "september");
+    assert.match(s.line!, /october came within 9\./);
+    assert.deepEqual(s.viz?.kind === "bars" && s.viz.show, [8, 9]);
+  });
+  it("calls a tie and keeps the earlier month", () => {
+    const s = month({ calendar: [...days("2026-03-01", [5]), ...days("2026-04-01", [5])] });
+    assert.equal(s.value, "march");
+    assert.match(s.line!, /tied with april/);
+  });
+  it("keeps it short when one month runs away with it", () => {
+    const s = month({ calendar: [...days("2026-03-01", [50]), ...days("2026-04-01", [5])] });
+    assert.equal(s.line, "91% of the year so far, in one month.");
+    assert.deepEqual(s.viz?.kind === "bars" && s.viz.show, [2]);
   });
 });
 

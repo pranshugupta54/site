@@ -185,7 +185,7 @@ const restHeaders = (token?: string) => ({
   ...(token ? { Authorization: `Bearer ${token}` } : {}),
 });
 
-// One year of his public contribution calendar (Jan 1 → today, or Dec 31):
+// One year of the public contribution calendar (Jan 1 → today, or Dec 31):
 // per-day aggregate counts, the same calendar as the home graph. Null on failure.
 async function fetchContributionYear(login: string, year: number): Promise<{ date: string; count: number }[]> {
   const token = process.env.GITHUB_TOKEN;

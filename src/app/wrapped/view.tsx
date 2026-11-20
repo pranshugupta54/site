@@ -15,7 +15,7 @@ export async function wrappedMetadata(id: string): Promise<Metadata> {
   const pageTitle = slide.id === "intro" ? title : `${title} · ${slide.kicker.replace(/^#\s*/, "")}`;
   const description =
     slide.id === "intro" || slide.id === "outro"
-      ? `${title}: his year on github and on this site, in slides. narrated by tofu.`
+      ? `${title}: a year on github and on this site, in slides. narrated by tofu.`
       : `${slide.value}${slide.unit ? ` ${slide.unit}` : ""}. ${slide.line ?? ""}`.trim();
   const image = { url: `/wrapped/og?slide=${slide.id}&v=${OG_VERSION}`, ...OG_SIZE, alt: `${pageTitle} — p54.dev` };
   return {

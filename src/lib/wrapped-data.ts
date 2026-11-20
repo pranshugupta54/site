@@ -1,5 +1,5 @@
 // /wrapped's live inputs (server-only: GitHub fetches and files on disk).
-// Public sources only: his public contribution calendar (aggregate counts),
+// Public sources only: the public contribution calendar (aggregate counts),
 // public repos (forks and the employer filtered out by getOwnRepos), and this
 // repo's own data. Never import from a client component.
 import { cache } from "react";
