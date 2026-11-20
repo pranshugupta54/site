@@ -187,13 +187,13 @@ const restHeaders = (token?: string) => ({
 
 // One year of his public contribution calendar (Jan 1 → today, or Dec 31):
 // per-day aggregate counts, the same calendar as the home graph. Null on failure.
-async function fetchContributionYear(login: string, year: number): Promise<{ date: string; count: number }[] | null> {
+async function fetchContributionYear(login: string, year: number): Promise<{ date: string; count: number }[]> {
   const token = process.env.GITHUB_TOKEN;
-  if (!token) return null;
+  if (!token) throw new Error("no GITHUB_TOKEN"); // thrown, so the miss is never cached
   const now = new Date();
   const from = new Date(Date.UTC(year, 0, 1));
   const end = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
-  if (from > now) return null;
+  if (from > now) throw new Error(`${year} hasn't started`);
   const to = end < now ? end : now;
   const query = `query($login:String!,$from:DateTime!,$to:DateTime!){
     user(login:$login){

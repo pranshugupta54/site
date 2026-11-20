@@ -20,13 +20,14 @@ export const getWrapped = cache(async (): Promise<Wrapped> => {
   const now = new Date();
   const label = yearLabel(year, now, SITE.timezone);
   const inYear = (d: string) => d.startsWith(`${year}-`);
-  const [digitomize, hertz] = SITE.projects;
+  const digitomize = SITE.projects.find((p) => p.name === "digitomize");
+  const hertz = SITE.projects.find((p) => p.name === "hertz");
 
   const [calendar, repos, stars, releases, prs] = await Promise.all([
     getContributionYear(year),
     getOwnRepos(),
-    getRepoStars(digitomize.repo),
-    "repo" in hertz && hertz.repo ? getReleasesInYear(hertz.repo, year) : Promise.resolve(null),
+    digitomize && "repo" in digitomize && digitomize.repo ? getRepoStars(digitomize.repo) : Promise.resolve(null),
+    hertz && "repo" in hertz && hertz.repo ? getReleasesInYear(hertz.repo, year) : Promise.resolve(null),
     getMergedPullCount(`${SITE.handle}/site`, year),
   ]);
 
@@ -37,12 +38,12 @@ export const getWrapped = cache(async (): Promise<Wrapped> => {
     ...label,
     calendar,
     repos,
-    stars: stars === null ? null : { name: digitomize.name, stars, blurb: digitomize.blurb },
+    stars: stars === null || !digitomize ? null : { name: digitomize.name, stars, blurb: digitomize.blurb },
     hertz: releases,
     site: {
       prs,
       versions: VERSIONS.versions.filter((v) => inYear(v.date)).sort((a, b) => a.date.localeCompare(b.date)),
-      seasons: seasonsWorn(SEASONS, year, now, seasonsSince),
+      seasons: seasonsWorn(SEASONS, year, now, SITE.timezone, seasonsSince),
       worklog: WORKLOG.filter((e) => inYear(e.t)).length,
       reads: READING.filter((r) => inYear(r.date)).length,
       notes: getNotes().filter((n) => inYear(n.date)).length,

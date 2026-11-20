@@ -121,9 +121,9 @@ export type LangRepo = { language: string | null; pushedAt: string };
 
 /** The language most of his repos touched this year were written in — only with a clear winner. */
 export function topLanguage(repos: LangRepo[], year: number): { name: string; repos: number; of: number; rows: { label: string; value: number }[] } | null {
-  const touched = repos.filter((r) => r.pushedAt.startsWith(`${year}-`) && r.language);
+  const touched = repos.filter((r) => r.pushedAt.startsWith(`${year}-`));
   const counts = new Map<string, number>();
-  for (const r of touched) counts.set(r.language!, (counts.get(r.language!) ?? 0) + 1);
+  for (const r of touched) if (r.language) counts.set(r.language, (counts.get(r.language) ?? 0) + 1);
   const rows = [...counts].map(([label, value]) => ({ label: label.toLowerCase(), value })).sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
   if (!rows.length || rows[0].value < 2 || rows[1]?.value === rows[0].value) return null;
   return { name: rows[0].label, repos: rows[0].value, of: touched.length, rows: rows.slice(0, 5) };
@@ -135,8 +135,9 @@ type SeasonLike = { name: string; start: string; end: string };
  * Seasons the site wore in `year` by `now`: occurrences starting that year whose
  * window overlaps [since, now]. "MM-DD" repeats yearly; "YYYY-MM-DD" is a one-off.
  */
-export function seasonsWorn(seasons: SeasonLike[], year: number, now: Date, since?: string): string[] {
-  const today = now.toISOString().slice(0, 10);
+export function seasonsWorn(seasons: SeasonLike[], year: number, now: Date, tz: string, since?: string): string[] {
+  const { y, m, d } = zoned(now, tz);
+  const today = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   const from = since && since > `${year}-01-01` ? since : `${year}-01-01`;
   const full = (s: string, y: number) => (s.length === 5 ? `${y}-${s}` : s);
   return seasons

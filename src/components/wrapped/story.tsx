@@ -112,7 +112,9 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
   const router = useRouter();
   const still = useReducedMotionLive();
   const [idx, setIdx] = useState(start);
-  const [paused, setPaused] = useState(false);
+  const [held, setHeld] = useState(false); // a long press
+  const [hidden, setHidden] = useState(false); // the tab is in the background
+  const paused = held || hidden;
   const [toast, setToast] = useState<string | null>(null);
   const [frame, setFrame] = useState(0);
   const press = useRef<{ t: number; held: boolean; timer?: ReturnType<typeof setTimeout> } | null>(null);
@@ -146,7 +148,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
 
   // a hidden tab doesn't keep advancing
   useEffect(() => {
-    const onVis = () => setPaused(document.hidden);
+    const onVis = () => setHidden(document.hidden);
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
@@ -185,11 +187,11 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
   }, [slide, title]);
 
   const onDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest("a, button")) return;
+    if (e.button !== 0 || !e.isPrimary || (e.target as HTMLElement).closest("a, button")) return;
     const p: NonNullable<typeof press.current> = { t: Date.now(), held: false };
     p.timer = setTimeout(() => {
       p.held = true;
-      setPaused(true);
+      setHeld(true);
     }, HOLD_MS);
     press.current = p;
   };
@@ -199,7 +201,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
     if (!p) return;
     clearTimeout(p.timer);
     if (p.held) {
-      setPaused(false);
+      setHeld(false);
       return;
     }
     const box = e.currentTarget.getBoundingClientRect();
@@ -208,7 +210,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
   const onCancel = () => {
     if (press.current) clearTimeout(press.current.timer);
     press.current = null;
-    setPaused(false);
+    setHeld(false);
   };
 
   const auto = !still && dwell(slide) > 0;
@@ -226,7 +228,10 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
               aria-label={`slide ${i + 1}: ${s.kicker.replace(/^#\s*/, "")}`}
               className="wr-seg"
               data-state={i < idx ? "done" : i === idx ? "now" : undefined}
-              onClick={() => go(i)}
+              onClick={(e) => {
+                go(i);
+                e.currentTarget.blur(); // so space goes back to advancing the story
+              }}
             >
               <i
                 key={i === idx ? `now-${idx}` : undefined}
@@ -258,7 +263,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
       </header>
 
       <main className="wr-stage" onPointerDown={onDown} onPointerUp={onUp} onPointerCancel={onCancel} onPointerLeave={onCancel}>
-        <section key={slide.id} className="wr-slide" aria-live="polite" aria-roledescription="slide">
+        <section key={slide.id} className="wr-slide" aria-live={auto && !paused ? "off" : "polite"} aria-roledescription="slide">
           <p className="wr-kicker">{slide.kicker}</p>
           <Value slide={slide} still={still} />
           {slide.unit ? (
@@ -285,7 +290,9 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
       <footer className="wr-tofu">
         <pre aria-hidden>{face.join("\n")}</pre>
         <p>
-          <span className="wr-acc">tofu:</span> <Scramble key={slide.id} text={slide.tofu} speedMs={22} reveal={1.4} />
+          <span>
+            <span className="wr-acc">tofu:</span> <Scramble key={slide.id} text={slide.tofu} speedMs={22} reveal={1.4} />
+          </span>
         </p>
         <span className="wr-hint" aria-hidden>
           {paused ? "paused" : "tap → · ← back · hold to pause"}

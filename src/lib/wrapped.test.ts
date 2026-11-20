@@ -58,7 +58,7 @@ describe("topLanguage", () => {
     assert.deepEqual(topLanguage([r("Go"), r("Go"), r("Rust"), r(null)], 2026), {
       name: "go",
       repos: 2,
-      of: 3,
+      of: 4,
       rows: [
         { label: "go", value: 2 },
         { label: "rust", value: 1 },
@@ -74,11 +74,16 @@ describe("seasonsWorn", () => {
     { name: "diwali", start: "2026-11-06", end: "2026-11-10" },
     { name: "holi", start: "03-03", end: "03-04" },
   ];
+  const tz = "Asia/Kolkata";
   it("counts what the site wore that year, from the day it could", () => {
-    assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-11-20T00:00:00Z"), "2026-10-30"), ["halloween", "diwali"]);
-    assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-12-20T00:00:00Z"), "2026-10-30"), ["halloween", "winter", "diwali"]);
+    assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-11-20T00:00:00Z"), tz, "2026-10-30"), ["halloween", "diwali"]);
+    assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-12-20T00:00:00Z"), tz, "2026-10-30"), ["halloween", "winter", "diwali"]);
     // last winter (dec 2025 → jan 1) belongs to 2025; one-offs only count in their year
-    assert.deepEqual(seasonsWorn(seasons, 2027, new Date("2027-03-10T00:00:00Z")), ["holi"]);
+    assert.deepEqual(seasonsWorn(seasons, 2027, new Date("2027-03-10T00:00:00Z"), tz), ["holi"]);
+  });
+  it("starts a season on its first day in his timezone, not utc's", () => {
+    // 20:00Z on dec 14 is already dec 15 in india
+    assert.deepEqual(seasonsWorn(seasons, 2026, new Date("2026-12-14T20:00:00Z"), tz, "2026-10-30"), ["halloween", "winter", "diwali"]);
   });
 });
 
