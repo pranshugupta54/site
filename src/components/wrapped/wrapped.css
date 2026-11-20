@@ -99,7 +99,9 @@
 /* busiest month: twelve bars, one lit */
 .wr-bars-viz { display: flex; align-items: stretch; gap: clamp(4px, 1.2vw, 12px); height: clamp(7rem, 24vh, 12rem); margin-top: 24px; max-width: 640px; }
 .wr-bars-viz span { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
-.wr-bars-viz b { display: block; width: 100%; height: var(--h); border-radius: 3px; background: var(--line); transform-origin: bottom; animation: wr-grow 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(240ms + var(--i) * 40ms); }
+.wr-bars-viz i { flex: 1; min-height: 0; width: 100%; display: flex; align-items: flex-end; }
+.wr-bars-viz b { display: block; flex: none; width: 100%; height: var(--h); border-radius: 3px; background: var(--line); transform-origin: bottom; animation: wr-grow 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(240ms + var(--i) * 40ms); }
+.wr-bars-viz small:not([data-on]) { visibility: hidden; }
 .wr-bars-viz small { font-size: 0.6875rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .wr-bars-viz [data-hi] small { color: var(--accent); }
 .wr-bars-viz em { font-style: normal; font-size: 0.75rem; color: var(--muted); }

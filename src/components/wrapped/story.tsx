@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { Scramble } from "@/components/scramble";
 import { useReducedMotionLive } from "@/lib/reduced-motion";
 import { slidePath, type Slide, type Viz } from "@/lib/wrapped";
@@ -22,6 +22,12 @@ const fmt = (v: number) => v.toLocaleString("en-US");
 const dwell = (s: Slide) => (s.id === "read" ? DWELL_MS * 2 : s.id === "outro" ? 0 : DWELL_MS);
 
 // counts 0 → target once per mount; null (between runs, or with reduced motion) shows the target
+// a hidden tab doesn't keep advancing
+const onVisibility = (cb: () => void) => {
+  document.addEventListener("visibilitychange", cb);
+  return () => document.removeEventListener("visibilitychange", cb);
+};
+
 function useCountUp(target: number | undefined, still: boolean) {
   const [v, setV] = useState<number | null>(null);
   useEffect(() => {
@@ -69,8 +75,11 @@ function VizView({ viz }: { viz: Viz }) {
         <div className="wr-bars-viz" aria-hidden>
           {viz.values.map((v, i) => (
             <span key={i} data-hi={i === viz.hi || undefined} style={{ "--h": `${Math.max(3, (v / max) * 100)}%`, "--i": i } as CSSProperties}>
-              {viz.show.includes(i) ? <small>{fmt(v)}</small> : null}
-              <b />
+              {/* every bar reserves the count row, so all bars share one height scale */}
+              <small data-on={viz.show.includes(i) || undefined}>{fmt(v)}</small>
+              <i>
+                <b />
+              </i>
               <em>{viz.labels[i]}</em>
             </span>
           ))}
@@ -114,7 +123,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
   const still = useReducedMotionLive();
   const [idx, setIdx] = useState(start);
   const [held, setHeld] = useState(false); // a long press
-  const [hidden, setHidden] = useState(false); // the tab is in the background
+  const hidden = useSyncExternalStore(onVisibility, () => document.hidden, () => false); // tab in the background
   const paused = held || hidden;
   const [toast, setToast] = useState<string | null>(null);
   const [frame, setFrame] = useState(0);
@@ -146,13 +155,6 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [go, idx, last, router]);
-
-  // a hidden tab doesn't keep advancing
-  useEffect(() => {
-    const onVis = () => setHidden(document.hidden);
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
 
   // tofu breathes and blinks while it talks
   useEffect(() => {
@@ -231,7 +233,7 @@ export function WrappedStory({ slides, start, title, year }: { slides: Slide[]; 
               data-state={i < idx ? "done" : i === idx ? "now" : undefined}
               onClick={(e) => {
                 go(i);
-                e.currentTarget.blur(); // so space goes back to advancing the story
+                if (e.detail > 0) e.currentTarget.blur(); // a click, not Enter: space goes back to advancing
               }}
             >
               <i
