@@ -1,0 +1,5 @@
+{
+  "t": "2026-11-20T14:33:06.935Z",
+  "mood": "🐰",
+  "text": "bumped next to 16.4.6 and ran npm audit fix. lockfile only, no --force. the six highs are gone, three moderates remain. nothing visible changed, which is the correct amount of drama for a dependency bump."
+}
