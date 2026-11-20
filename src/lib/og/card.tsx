@@ -10,7 +10,7 @@ import framesData from "@/data/tofu-frames.json";
 // home card with no title, a page card with ?title=…&path=…
 
 // editorial / light tokens — mirror globals.css (Satori can't read CSS vars)
-const C = {
+export const C = {
   bg: "#faf6ee",
   fg: "#211c16",
   muted: "#6f675b",
@@ -23,7 +23,7 @@ const C = {
 // variable fonts); OFL licenses sit next to them. Literal paths so build
 // tracing ships them; read once, on first render.
 let fonts: Promise<Buffer[]> | undefined;
-const loadFonts = () =>
+export const loadFonts = () =>
   (fonts ??= Promise.all([
     readFile(join(process.cwd(), "src/lib/og/fonts/fraunces-600.ttf")),
     readFile(join(process.cwd(), "src/lib/og/fonts/newsreader-400.ttf")),
@@ -117,7 +117,7 @@ function Words({ text, size, mark }: { text: string; size: number; mark: (i: num
   );
 }
 
-function Tofu() {
+export function Tofu() {
   return (
     <div
       style={{

@@ -27,6 +27,7 @@ export function TerminalApp({
   const onTofu = useCallback(() => openApp("tofu"), [openApp]);
   const router = useRouter();
   const onRoom = useCallback(() => router.push("/room"), [router]);
+  const onWrapped = useCallback(() => router.push("/wrapped"), [router]);
   const extra = useCallback(
     (cmd: string, args: string[], { addLine }: ShellIO) => {
       if (cmd === "exit") {
@@ -52,6 +53,7 @@ export function TerminalApp({
   const { input, setInput, lines, onInputKey, snakeOn, quitSnake, outRef, inputRef } = useShellEngine({
     onTofu,
     onRoom,
+    onWrapped,
     extra,
     helpExtra: OS_HELP,
   });

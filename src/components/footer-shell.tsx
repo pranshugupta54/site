@@ -89,7 +89,11 @@ export function FooterShell() {
     doOpenRef.current(false);
     router.push("/room");
   }, [router]);
-  const { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs, onRoom });
+  const onWrapped = useCallback(() => {
+    doOpenRef.current(false);
+    router.push("/wrapped");
+  }, [router]);
+  const { input, setInput, lines, exec, onInputKey, clearOutput, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs, onRoom, onWrapped });
 
   const doOpen = useCallback((v: boolean) => {
     openRef.current = v;

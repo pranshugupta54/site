@@ -179,6 +179,102 @@ export async function getSitePulls({ revalidate = 3600 } = {}): Promise<SitePull
   }
 }
 
+const restHeaders = (token?: string) => ({
+  "User-Agent": "pranshugupta54-portfolio",
+  Accept: "application/vnd.github+json",
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+});
+
+// One year of his public contribution calendar (Jan 1 → today, or Dec 31):
+// per-day aggregate counts, the same calendar as the home graph. Null on failure.
+async function fetchContributionYear(login: string, year: number): Promise<{ date: string; count: number }[] | null> {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return null;
+  const now = new Date();
+  const from = new Date(Date.UTC(year, 0, 1));
+  const end = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
+  if (from > now) return null;
+  const to = end < now ? end : now;
+  const query = `query($login:String!,$from:DateTime!,$to:DateTime!){
+    user(login:$login){
+      contributionsCollection(from:$from,to:$to){
+        contributionCalendar{ weeks{ contributionDays{ date contributionCount } } }
+      }
+    }
+  }`;
+  const res = await fetch(GQL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "User-Agent": "pranshugupta54-portfolio" },
+    body: JSON.stringify({ query, variables: { login, from: from.toISOString(), to: to.toISOString() } }),
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = (await res.json()) as {
+    errors?: { message: string }[];
+    data?: { user?: { contributionsCollection?: { contributionCalendar?: { weeks?: { contributionDays: { date: string; contributionCount: number }[] }[] } } } };
+  };
+  if (json.errors?.length) throw new Error(json.errors[0]?.message);
+  const weeks = json.data?.user?.contributionsCollection?.contributionCalendar?.weeks;
+  if (!weeks) throw new Error("no calendar");
+  return weeks
+    .flatMap((w) => w.contributionDays)
+    .filter((d) => d.date.startsWith(`${year}-`))
+    .map((d) => ({ date: d.date, count: d.contributionCount }));
+}
+
+// Only the per-day counts are cached; a throw is never stored.
+export async function getContributionYear(year: number, login = SITE.handle) {
+  try {
+    return await unstable_cache(() => fetchContributionYear(login, year), ["contrib-year", login, String(year)], { revalidate: 3600 })();
+  } catch (e) {
+    console.error("[github] contribution year:", (e as Error).message);
+    return null;
+  }
+}
+
+// Pull requests merged into a public repo during `year`. Null on failure.
+export async function getMergedPullCount(repo: string, year: number): Promise<number | null> {
+  try {
+    const q = `repo:${repo} is:pr is:merged merged:${year}-01-01..${year}-12-31`;
+    const res = await fetch(`https://api.github.com/search/issues?per_page=1&q=${encodeURIComponent(q)}`, {
+      headers: restHeaders(process.env.GITHUB_TOKEN),
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { total_count?: number; incomplete_results?: boolean };
+    return typeof json.total_count === "number" && !json.incomplete_results ? json.total_count : null;
+  } catch {
+    return null;
+  }
+}
+
+// Published releases of a public repo during `year`, and the newest tag. Null on failure.
+export async function getReleasesInYear(repo: string, year: number): Promise<{ releases: number; latest: string | null } | null> {
+  try {
+    let releases = 0;
+    let latest: string | null = null;
+    for (let page = 1; page <= 5; page++) {
+      const res = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=100&page=${page}`, {
+        headers: restHeaders(process.env.GITHUB_TOKEN),
+        next: { revalidate: 3600 },
+      });
+      if (!res.ok) return null;
+      const rows = (await res.json()) as { tag_name?: string; draft?: boolean; published_at?: string | null }[];
+      if (!Array.isArray(rows)) return null;
+      for (const r of rows) {
+        if (r.draft || !r.published_at?.startsWith(`${year}-`)) continue;
+        releases++;
+        latest ??= r.tag_name ?? null; // newest first
+      }
+      if (rows.length < 100) return { releases, latest };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getGithub(login = SITE.handle): Promise<Github | null> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return null;

@@ -9,6 +9,7 @@ const BASE_HELP = `commands:
   tofu       visit tofu's room
   os         boot p54 os, the site as a desktop
   room       walk into my desk corner
+  wrapped    my year, in slides
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif

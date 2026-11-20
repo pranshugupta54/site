@@ -11,6 +11,8 @@ import { SeasonSnow } from "@/components/season-snow";
 // The home page's terminal brings its own shell, tofu and snow.
 // /os is a whole desktop with its own tofu, terminal and keys, so it gets none of it.
 export const isOs = (path: string | null) => path === "/os" || !!path?.startsWith("/os/");
+// /wrapped is a full-screen story: tofu narrates in it, and its arrow keys are taken
+const isWrapped = (path: string | null) => path === "/wrapped" || !!path?.startsWith("/wrapped/");
 // /room has tofu asleep on the keyboard, so the roaming one stays out
 const isRoom = (path: string | null) => path === "/room";
 // the home page is a terminal (v2): its prompt is the shell, tofu runs in its side
@@ -19,7 +21,7 @@ const isHome = (path: string | null) => path === "/";
 
 export function SiteChrome() {
   const path = usePathname();
-  if (isOs(path)) return null;
+  if (isOs(path) || isWrapped(path)) return null;
   if (isHome(path))
     return (
       <>
