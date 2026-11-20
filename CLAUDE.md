@@ -10,4 +10,5 @@ Context is split into `docs/` (imported below). Edit the relevant file; keep eac
 - @docs/versions.md — site versions, /versions, archiving past versions under /v/<n>
 - @docs/conventions.md — dev/build/deploy workflow + gotchas
 - @docs/preferences.md — Pranshu's taste, opinions, likes/dislikes, rules
+- @docs/wrapped.md — /wrapped, the year in slides (rebuild for next year here)
 - @docs/tasks.md — done / parked / ideas / open questions

@@ -4,6 +4,8 @@ import { FEED_LINKS } from "@/lib/feed";
 import { getGithub, getLatestRelease, getOwnRepos, getRepoStars } from "@/lib/github";
 import { getNotes } from "@/lib/notes";
 import { TABS, pickRepos } from "@/lib/tty";
+import { yearLabel } from "@/lib/wrapped";
+import { WRAPPED } from "@/data/wrapped";
 import { GitHubBoard } from "@/components/github-board";
 import { CopyEmail } from "@/components/copy-email";
 import { CopyCommand } from "@/components/copy-command";
@@ -82,6 +84,7 @@ export default async function Page() {
   const hasNotes = getNotes().length > 0;
   const [digitomize, hertz, github] = SITE.projects;
   const githubLine = projectBlurb(github, repoCount);
+  const wrapped = yearLabel(WRAPPED.year, new Date(), SITE.timezone);
 
   const writing = [
     { name: "tofu/", href: "/tofu", desc: "the bot that runs this site, and everything it keeps" },
@@ -123,6 +126,21 @@ export default async function Page() {
             <p className="tty-out tty-dim">
               ~ {SITE.role.toLowerCase()} · {SITE.location.toLowerCase()} · <Age className="whitespace-nowrap" />
             </p>
+          </Block>
+
+          <Block cmd="wrapped" id="wrapped">
+            <Link href="/wrapped" className="tty-wrapped">
+              <span className="tty-wrapped-bars" aria-hidden>
+                {Array.from({ length: 8 }, (_, i) => (
+                  <i key={i} />
+                ))}
+              </span>
+              <span className="tty-wrapped-t">
+                <span className="mark">{wrapped.title}</span>
+              </span>
+              <span className="tty-dim">contributions, streaks, releases and the site itself, in slides. tofu narrates.</span>
+              <span className="tty-wrapped-go">▶ play</span>
+            </Link>
           </Block>
 
           <Block cmd="cat cv.txt">

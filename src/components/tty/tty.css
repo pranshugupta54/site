@@ -74,6 +74,27 @@
   .tty-side { border-top: 1px solid var(--line); padding: 24px 16px 32px; }
 }
 
+/* ── wrapped: the year-in-slides teaser ──────────────── */
+.tty .tty-wrapped {
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 64ch;
+  padding: 12px 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  transition: border-color 140ms ease;
+}
+.tty .tty-wrapped:hover { color: inherit; border-color: var(--accent); }
+.tty-wrapped-bars { display: flex; gap: 4px; margin-bottom: 6px; }
+.tty-wrapped-bars i { flex: 1; height: 3px; border-radius: 3px; background: var(--line); }
+.tty-wrapped-bars i:nth-child(-n + 3) { background: var(--accent); }
+.tty-wrapped-t { font-size: 1.125rem; font-weight: 600; }
+.tty-wrapped-go { margin-top: 4px; color: var(--accent); font-size: 0.8125rem; }
+.tty-wrapped:hover .tty-wrapped-go { text-decoration: underline; text-underline-offset: 3px; }
+
 /* ── prompt blocks ────────────────────────────────────── */
 .tty-block { margin-bottom: 30px; scroll-margin-top: 56px; }
 .tty-cmd { margin-bottom: 8px; overflow-wrap: anywhere; }
