@@ -28,6 +28,7 @@ export function TerminalApp({
   const router = useRouter();
   const onRoom = useCallback(() => router.push("/room"), [router]);
   const onWrapped = useCallback(() => router.push("/wrapped"), [router]);
+  const onAdvent = useCallback((path: string) => router.push(path), [router]);
   const extra = useCallback(
     (cmd: string, args: string[], { addLine }: ShellIO) => {
       if (cmd === "exit") {
@@ -54,6 +55,7 @@ export function TerminalApp({
     onTofu,
     onRoom,
     onWrapped,
+    onAdvent,
     extra,
     helpExtra: OS_HELP,
   });

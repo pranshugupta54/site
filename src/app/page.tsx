@@ -6,6 +6,9 @@ import { getNotes } from "@/lib/notes";
 import { TABS, pickRepos } from "@/lib/tty";
 import { yearLabel } from "@/lib/wrapped";
 import { WRAPPED } from "@/data/wrapped";
+import { ADVENT_YEAR } from "@/data/advent";
+import { homeEntryVisible, openCount } from "@/lib/advent";
+import { AdventEntry } from "@/components/advent/home-entry";
 import { GitHubBoard } from "@/components/github-board";
 import { CopyEmail } from "@/components/copy-email";
 import { CopyCommand } from "@/components/copy-command";
@@ -85,6 +88,8 @@ export default async function Page() {
   const [digitomize, hertz, github] = SITE.projects;
   const githubLine = projectBlurb(github, repoCount);
   const wrapped = yearLabel(WRAPPED.year, new Date(), SITE.timezone);
+  const today = new Date();
+  const advent = { visible: homeEntryVisible(today, ADVENT_YEAR), open: openCount(today, ADVENT_YEAR) };
 
   const writing = [
     { name: "tofu/", href: "/tofu", desc: "the bot that runs this site, and everything it keeps" },
@@ -127,6 +132,8 @@ export default async function Page() {
               ~ {SITE.role.toLowerCase()} · {SITE.location.toLowerCase()} · <Age className="whitespace-nowrap" />
             </p>
           </Block>
+
+          <AdventEntry year={ADVENT_YEAR} initial={advent} />
 
           <Block cmd="wrapped" id="wrapped">
             <Link href="/wrapped" className="tty-wrapped">

@@ -28,7 +28,8 @@ export function TtyPrompt() {
   const onOs = useCallback(() => router.push("/os"), [router]);
   const onRoom = useCallback(() => router.push("/room"), [router]);
   const onWrapped = useCallback(() => router.push("/wrapped"), [router]);
-  const { input, setInput, lines, onInputKey, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs, onRoom, onWrapped });
+  const onAdvent = useCallback((path: string) => router.push(path), [router]);
+  const { input, setInput, lines, onInputKey, snakeOn, outRef, inputRef } = useShellEngine({ onTofu, onOs, onRoom, onWrapped, onAdvent });
   const [focused, setFocused] = useState(false);
 
   // the page is the scroller here: keep the newest output and the prompt in view

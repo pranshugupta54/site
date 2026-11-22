@@ -28,7 +28,7 @@ Object.entries(frames).forEach(([k, f]) => check(k, f));
 hop.forEach((f, i) => check(`hop[${i}]`, f));
 
 // seasonal hats: 3 printable chars that replace the gap between the ears.
-// Must match dress() in src/components/tofu.tsx, and land on every frame.
+// Must match dress() in src/lib/tofu-dress.ts, and land on every frame.
 const EARS = /([n~.|])   ([n.|])/;
 const all = [...Object.entries(frames), ...hop.map((f, i) => [`hop[${i}]`, f])];
 Object.entries(hats).forEach(([id, hat]) => {

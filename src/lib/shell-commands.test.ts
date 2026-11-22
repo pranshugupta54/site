@@ -10,6 +10,7 @@ const BASE_HELP = `commands:
   os         boot p54 os, the site as a desktop
   room       walk into my desk corner
   wrapped    my year, in slides
+  advent     tofu's advent calendar · advent <n> for a door
   snake      play snake on my commits
   theme      toggle light / dark
   skin       cycle editorial → mono → serif

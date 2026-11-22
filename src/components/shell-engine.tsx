@@ -20,6 +20,7 @@ import {
   type Egg,
 } from "@/lib/shell-eggs";
 import { helpText, shellCommands } from "@/lib/shell-commands";
+import { doorPath, parseDoor } from "@/lib/advent";
 
 // The shell's command engine — output lines, history, commands, eggs, snake.
 // Shared by the footer shell and p54 os's terminal app; each host owns only
@@ -46,6 +47,8 @@ export type ShellEngineOptions = {
   onRoom?: () => void;
   /** open /wrapped */
   onWrapped?: () => void;
+  /** open /advent, or one of its doors */
+  onAdvent?: (path: string) => void;
   /** host-specific commands, tried before the built-ins; return true when handled */
   extra?: (cmd: string, args: string[], io: ShellIO) => boolean;
   /** appended to `help` */
@@ -96,7 +99,7 @@ function renderSnake(state: SnakeState): string {
 
 // ─── engine ──────────────────────────────────────────────────────────────────
 
-export function useShellEngine({ onTofu, onOs, onRoom, onWrapped, extra, helpExtra }: ShellEngineOptions) {
+export function useShellEngine({ onTofu, onOs, onRoom, onWrapped, onAdvent, extra, helpExtra }: ShellEngineOptions) {
   const { toggleTheme, cycleSkin, theme, season, setSeason } = useAppearance();
   const [input, setInput] = useState("");
   // boot message: initial state, not an effect, so it shows exactly once
@@ -314,6 +317,20 @@ export function useShellEngine({ onTofu, onOs, onRoom, onWrapped, extra, helpExt
             onWrapped();
           } else addLine("res", "pranshu's year, in slides → /wrapped");
           break;
+        case "advent": {
+          // `advent` → the calendar, `advent <n>` → that door (locked ones show their teaser)
+          const n = args[0] ? parseDoor(args[0]) : null;
+          if (args[0] && !n) {
+            addLine("warn", "usage: advent [1-24]");
+            break;
+          }
+          const path = n ? doorPath(n) : "/advent";
+          if (onAdvent) {
+            addLine("ok", n ? `→ door ${n}` : "→ tofu's advent calendar");
+            onAdvent(path);
+          } else addLine("res", `tofu's advent calendar → ${path}`);
+          break;
+        }
         case "resume":
           if (args[0] === "--pdf") {
             addLine("ok", `→ ${RESUME} · print dialog → save as pdf`);
@@ -409,7 +426,7 @@ export function useShellEngine({ onTofu, onOs, onRoom, onWrapped, extra, helpExt
         }
       }
     },
-    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason, onTofu, onOs, onRoom, onWrapped, extra, helpExtra]
+    [addLine, updateLine, startSnake, runEgg, clearOutput, toggleTheme, cycleSkin, theme, season, setSeason, onTofu, onOs, onRoom, onWrapped, onAdvent, extra, helpExtra]
   );
 
   const onInputKey = useCallback(

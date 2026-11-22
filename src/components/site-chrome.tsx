@@ -15,6 +15,8 @@ export const isOs = (path: string | null) => path === "/os" || !!path?.startsWit
 const isWrapped = (path: string | null) => path === "/wrapped" || !!path?.startsWith("/wrapped/");
 // /room has tofu asleep on the keyboard, so the roaming one stays out
 const isRoom = (path: string | null) => path === "/room";
+// /advent has its own tofu, perched on the calendar and signing each door
+const isAdvent = (path: string | null) => path === "/advent" || !!path?.startsWith("/advent/");
 // the home page is a terminal (v2): its prompt is the shell, tofu runs in its side
 // pane and the snow falls in there, so only the season glyph and the map stay
 const isHome = (path: string | null) => path === "/";
@@ -32,7 +34,7 @@ export function SiteChrome() {
   return (
     <>
       <SeasonSnow />
-      {isRoom(path) ? null : <Tofu />}
+      {isRoom(path) || isAdvent(path) ? null : <Tofu />}
       <SeasonAmbient />
       <FooterShell />
       <KeyboardMap />

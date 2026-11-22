@@ -1,0 +1,201 @@
+/* tofu's advent calendar (/advent). tty look, tokens only, so it reads right in every
+   skin × theme. Motion is opt-out: everything that moves stops in reduced motion. */
+
+.adv {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 16px 120px;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--fg);
+}
+.adv a { color: inherit; }
+.adv a:hover { color: var(--accent); }
+.adv :focus-visible { outline: 1px dashed var(--accent); outline-offset: 3px; }
+.adv code { font-family: var(--font-mono); background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; font-size: 0.92em; }
+.adv-dim { color: var(--muted); }
+.adv button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+/* ── header ──────────────────────────────────────────── */
+.adv-path { color: var(--accent); font-size: 0.875rem; display: flex; align-items: center; }
+.adv-cursor { display: inline-block; width: 0.55em; height: 1.05em; margin-left: 6px; background: var(--accent); opacity: 0.85; animation: adv-blink 1.1s steps(1) infinite; }
+@keyframes adv-blink { 50% { opacity: 0; } }
+.adv-title { margin: 6px 0 4px; font-size: clamp(1.75rem, 5vw, 2.75rem); line-height: 1.1; font-weight: 600; letter-spacing: -0.03em; }
+.adv-sub { max-width: 60ch; margin: 0; }
+.adv-preview { color: var(--accent); }
+.adv-status { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; font-size: 0.875rem; }
+.adv-status b { font-weight: 600; color: var(--accent); }
+.adv-count { font-variant-numeric: tabular-nums; }
+
+/* ── the board: tofu sits on its top edge ───────────── */
+.adv-board { position: relative; margin-top: 96px; }
+.adv-perch { position: absolute; right: 18px; bottom: 100%; margin-bottom: -9px; z-index: 2; }
+.adv-tofu { display: flex; align-items: flex-end; gap: 10px; }
+.adv-perch.adv-tofu { flex-direction: row; }
+.adv-tofu-face pre { margin: 0; font-size: 1rem; line-height: 1.15; color: var(--fg); }
+.adv-tofu-face:hover pre { color: var(--accent); }
+.adv-say {
+  position: relative;
+  max-width: min(46ch, 62vw);
+  margin: 0 0 30px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--fg);
+}
+.adv-say::after { content: ""; position: absolute; right: -6px; bottom: 10px; width: 10px; height: 10px; background: var(--card); border-right: 1px solid var(--line); border-top: 1px solid var(--line); transform: rotate(45deg); }
+
+.adv-grid {
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 1.5px) 0 0 / 14px 14px,
+    var(--card);
+}
+.adv-cell { position: relative; aspect-ratio: 1 / 1; perspective: 700px; }
+.adv-door {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 6px;
+  text-align: left;
+  text-decoration: none;
+}
+.adv-num { font-size: clamp(1.25rem, 3.2vw, 1.875rem); font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
+.adv-hint { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.6875rem; line-height: 1.35; color: var(--muted); }
+.adv-when { position: absolute; left: 10px; bottom: 8px; font-size: 0.6875rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.adv-when.adv-soon { color: var(--accent); }
+.adv-lock { position: absolute; right: 10px; bottom: 8px; font-size: 0.6875rem; color: var(--muted); }
+
+/* locked: a plain closed door */
+.adv .adv-locked {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.adv-locked .adv-num { color: var(--muted); }
+.adv .adv-locked:hover { border-color: var(--muted); }
+.adv-wiggle { animation: adv-wiggle 0.45s ease; }
+@keyframes adv-wiggle { 20% { transform: rotate(-2.5deg); } 45% { transform: rotate(2deg); } 70% { transform: rotate(-1deg); } }
+
+/* open: the inside, and a leaf hinged on the left that swings out */
+.adv-open { transform-style: preserve-3d; }
+.adv-inside {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px 8px 30%;
+  border-radius: 6px;
+  background: var(--mark);
+  border: 1px solid var(--accent);
+  text-align: center;
+}
+.adv-glyph { font-size: clamp(1rem, 2.6vw, 1.5rem); color: var(--accent); font-weight: 600; white-space: pre; }
+.adv-name { font-size: 0.6875rem; line-height: 1.3; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.adv-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+.adv-front, .adv-back { position: absolute; inset: 0; border-radius: 6px; backface-visibility: hidden; }
+.adv-front {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+}
+.adv-front .adv-num { color: var(--accent); }
+.adv-front .adv-hint { color: var(--accent); }
+.adv-knob { position: absolute; right: 9px; top: 50%; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.adv-back { transform: rotateY(180deg); background: var(--card); border: 1px solid var(--line); }
+.adv-open:hover .adv-leaf { transform: rotateY(-14deg); }
+.adv-ajar .adv-leaf, .adv-ajar:hover .adv-leaf { transform: rotateY(-70deg); }
+.adv-today .adv-front { box-shadow: 0 0 0 3px var(--mark); animation: adv-glow 2.4s ease-in-out infinite; }
+@keyframes adv-glow { 50% { box-shadow: 0 0 0 5px var(--mark); } }
+
+/* the 24th */
+.adv .adv-big .adv-locked, .adv-big .adv-front { border: 2px dashed var(--accent); }
+.adv-big .adv-num::after { content: " *"; color: var(--accent); }
+
+.adv-foot { margin-top: 18px; font-size: 0.8125rem; }
+
+/* ── a door's own page ───────────────────────────────── */
+.adv-page { max-width: 720px; }
+.adv-nav { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 0.8125rem; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.adv-nav a { text-decoration: none; }
+.adv-nav-pn { display: flex; gap: 14px; min-width: 4.5em; justify-content: flex-end; }
+.adv-kicker { margin: 28px 0 0; color: var(--muted); font-size: 0.875rem; }
+.adv-title-glyph { color: var(--accent); white-space: pre; }
+.adv-copy { margin-top: 10px; max-width: 62ch; }
+.adv-copy p { margin: 0 0 10px; }
+.adv-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.adv .adv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  background: var(--bg);
+}
+.adv .adv-btn:hover { background: var(--mark); color: var(--accent); }
+.adv .adv-btn.adv-ghost { border-color: var(--line); color: var(--fg); }
+.adv .adv-btn.adv-ghost:hover { border-color: var(--accent); }
+.adv-signoff { margin-top: 36px; flex-direction: row-reverse; justify-content: flex-end; }
+.adv-signoff .adv-say { margin-bottom: 26px; }
+.adv-signoff .adv-say::after { right: auto; left: -6px; transform: rotate(-135deg); }
+
+.adv-locked-page .adv-title { margin-top: 0; }
+.adv-locked-row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 32px; margin: 12px 0 8px; }
+.adv-bigdoor { margin: 0; font-size: 1.125rem; line-height: 1.15; color: var(--muted); }
+.adv-quote { margin: 0; font-family: var(--font-body); font-size: 1.25rem; }
+.adv-locked-page .adv-tofu { margin-top: 26px; flex-direction: row-reverse; justify-content: flex-end; }
+.adv-locked-page .adv-say { margin-bottom: 26px; }
+.adv-locked-page .adv-say::after { right: auto; left: -6px; transform: rotate(-135deg); }
+
+/* ── toy frame (each toy brings its own styles: toys/toys.css) ── */
+.adv-toy { margin-top: 20px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.adv-toy-wait { min-height: 220px; }
+
+/* ── phones ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .adv { padding-top: 24px; }
+  .adv-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+  .adv-cell { aspect-ratio: 3 / 4; }
+  .adv-locked, .adv-front { padding: 8px; }
+  .adv-when { left: 8px; bottom: 6px; font-size: 0.625rem; }
+  .adv-lock { display: none; }
+  .adv-hint { font-size: 0.625rem; -webkit-line-clamp: 4; }
+  .adv-board { margin-top: 104px; }
+  .adv-tofu-face pre { font-size: 0.875rem; }
+  .adv-perch { right: 0; }
+  .adv-say { max-width: 62vw; font-size: 0.6875rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adv *, .adv *::before, .adv *::after { animation: none !important; transition: none !important; }
+}
