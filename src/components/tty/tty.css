@@ -74,6 +74,22 @@
   .tty-side { border-top: 1px solid var(--line); padding: 24px 16px 32px; }
 }
 
+/* ── advent: tofu's calendar, nov 30 – dec 24 ───────── */
+.tty .tty-advent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+.tty .tty-advent:hover { color: inherit; border-color: var(--accent); }
+.tty-advent-doors { display: flex; gap: 3px; margin-bottom: 6px; }
+.tty-advent-doors i { flex: 1; max-width: 16px; height: 10px; border: 1px solid var(--line); border-radius: 2px; }
+.tty-advent-doors i.on { background: var(--accent); border-color: var(--accent); }
+.tty-advent-t { font-size: 1.125rem; font-weight: 600; }
+.tty-advent-go { margin-top: 4px; color: var(--accent); font-size: 0.8125rem; }
+
 /* ── wrapped: the year-in-slides teaser ──────────────── */
 .tty .tty-wrapped {
   isolation: isolate;

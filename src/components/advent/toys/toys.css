@@ -1,0 +1,53 @@
+/* The advent toys. Imported by each toy, so these ship only with an open door's toy.
+   Reduced motion is handled by advent.css (.adv * stops every animation). */
+.adv-toy-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; width: 100%; font-size: 0.8125rem; }
+.adv-toy-bar b { color: var(--accent); }
+.adv-toy-line { margin: 0; font-size: 0.875rem; }
+.adv-art, .adv-field { margin: 0; font-family: var(--font-mono); font-size: clamp(0.6875rem, 3.1vw, 0.9375rem); line-height: 1.2; white-space: pre; color: var(--fg); }
+.adv-field { padding: 10px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); max-width: 100%; overflow: hidden; }
+.adv-field:focus-visible { outline: 1px dashed var(--accent); }
+.adv-catch .adv-field { touch-action: none; cursor: pointer; user-select: none; }
+.adv-field-btn { display: block; text-align: left; border-radius: 6px; }
+.adv-field-btn:hover .adv-art { color: var(--accent); }
+.adv-maze { color: var(--accent); }
+.adv-field-btn:hover .adv-maze { color: var(--fg); }
+
+.adv-pet { align-items: center; }
+.adv-pet-btn { position: relative; padding: 18px 26px 8px; }
+.adv-pet-btn pre { margin: 0; font-size: 1.5rem; line-height: 1.15; }
+.adv-pet-btn:hover pre { color: var(--accent); }
+.adv-heart { position: absolute; left: 50%; top: 10px; color: var(--accent); font-size: 0.875rem; pointer-events: none; animation: adv-heart 0.9s ease-out forwards; }
+@keyframes adv-heart { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -34px); } }
+
+.adv-shake { animation: adv-shake 0.42s ease; }
+@keyframes adv-shake { 20% { transform: translateX(-6px) rotate(-3deg); } 40% { transform: translateX(6px) rotate(3deg); } 60% { transform: translateX(-4px) rotate(-2deg); } 80% { transform: translateX(3px); } }
+
+.adv-cookie { font-size: 1.25rem; color: var(--accent); }
+.adv-fortune { align-items: center; text-align: center; }
+.adv-slip { margin: 0; padding: 8px 14px; background: var(--bg); border: 1px dashed var(--line); border-radius: 4px; font-family: var(--font-body); font-size: 1.0625rem; max-width: 46ch; }
+
+.adv-wire { color: var(--muted); }
+.adv .adv-bulb { color: var(--line); transition: color 0.25s, text-shadow 0.25s; }
+.adv .adv-bulb.on { color: var(--accent); text-shadow: 0 0 6px var(--accent); }
+.adv .adv-bulb.adv-b1.on { color: var(--fg); text-shadow: 0 0 6px var(--muted); }
+.adv .adv-bulb.adv-b2.on { color: var(--accent); opacity: 0.75; }
+.adv-chips { justify-content: flex-start; }
+.adv .adv-chip { padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 0.75rem; }
+.adv .adv-chip.on { border-color: var(--accent); color: var(--accent); background: var(--mark); }
+
+.adv-finale { align-items: stretch; }
+.adv-scene { display: flex; align-items: flex-end; justify-content: center; gap: 4px; flex-wrap: wrap; }
+.adv-tree { font-size: clamp(0.8125rem, 3.4vw, 1.0625rem); }
+.adv .adv-star { color: var(--accent); font-weight: 700; }
+.adv .adv-star.on, .adv .adv-star:hover { text-shadow: 0 0 8px var(--accent); }
+.adv-orn { color: var(--line); transition: color 0.3s; }
+.adv-orn.on { color: var(--accent); text-shadow: 0 0 5px var(--accent); }
+.adv-orn.hi { color: var(--fg); background: var(--mark); }
+.adv-orn.tw { animation: adv-tw 0.6s ease-in-out infinite alternate; }
+@keyframes adv-tw { to { opacity: 0.35; } }
+.adv-gifts { font-size: clamp(0.75rem, 3vw, 0.9375rem); }
+.adv-orns { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.adv .adv-orn-chip { display: inline-block; padding: 1px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 0.75rem; text-decoration: none; color: var(--muted); }
+.adv .adv-orn-chip.on { border-color: var(--accent); color: var(--accent); background: var(--mark); }
+.adv-note { width: 100%; padding: 16px 18px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.55; }
+.adv-note p { margin: 0 0 8px; }

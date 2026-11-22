@@ -11,4 +11,5 @@ Context is split into `docs/` (imported below). Edit the relevant file; keep eac
 - @docs/conventions.md — dev/build/deploy workflow + gotchas
 - @docs/preferences.md — Pranshu's taste, opinions, likes/dislikes, rules
 - @docs/wrapped.md — /wrapped, the year in slides (rebuild for next year here)
+- @docs/advent.md — /advent, tofu's advent calendar: door data, IST gating, spoiler rules
 - @docs/tasks.md — done / parked / ideas / open questions

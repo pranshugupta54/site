@@ -40,6 +40,7 @@ const BLOCKERS = [
   "src/app/og", // share-card route handler; archived pages point at the live /og
   "src/app/opengraph-image.tsx", // edge runtime (older refs)
   "public/v", // older archives — they're already served from the live site
+  "src/app/advent", // dated per request (force-dynamic), which a static export refuses
 ];
 
 // `output: "export"` rejects `dynamicParams = true` (next 16+). A static archive

@@ -11,6 +11,7 @@ export const SHELL_COMMANDS: CommandRow[] = [
   { usage: "os", desc: "boot p54 os, the site as a desktop" },
   { usage: "room", desc: "walk into my desk corner" },
   { usage: "wrapped", desc: "my year, in slides" },
+  { usage: "advent", desc: "tofu's advent calendar · advent <n> for a door" },
   { usage: "snake", desc: "play snake on my commits" },
   { usage: "theme", desc: "toggle light / dark" },
   { usage: "skin", desc: "cycle editorial → mono → serif" },
