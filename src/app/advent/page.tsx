@@ -17,5 +17,5 @@ export async function generateMetadata({ searchParams }: Props) {
 export default async function AdventPage({ searchParams }: Props) {
   const raw = nowParam((await searchParams).now);
   const now = adventNow(raw);
-  return <AdventCalendar tiles={calendarTiles(now)} now={now.toISOString()} year={ADVENT_YEAR} preview={!!raw && previewAllowsFuture()} />;
+  return <AdventCalendar tiles={calendarTiles(now)} now={now.toISOString()} year={ADVENT_YEAR} preview={!!raw && previewAllowsFuture()} pinned={!!raw} />;
 }

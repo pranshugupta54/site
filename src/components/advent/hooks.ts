@@ -28,15 +28,16 @@ export function useAdventClock(serverNow: string): Date {
 /**
  * When `next` (ms since epoch) passes, fetch the page again so the newly opened door
  * arrives from the server. A ?now= preview moves its own clock forward in the url,
- * since re-requesting the same ?now= would never open anything.
+ * since re-requesting the same ?now= would never open anything. A ?now= that can't move
+ * (`pinned`: a look-back in production) never refreshes: the server would answer the same.
  */
-export function useOpenWhen(next: number | null, now: Date, preview: boolean) {
+export function useOpenWhen(next: number | null, now: Date, preview: boolean, pinned = false) {
   const router = useRouter();
   // when we last asked; while the server still says locked (offline at midnight, a
   // slightly slow server clock), ask again every few seconds
   const asked = useRef<{ next: number; at: number } | null>(null);
   useEffect(() => {
-    if (next === null || now.getTime() < next) return;
+    if (next === null || now.getTime() < next || (pinned && !preview)) return;
     if (asked.current?.next === next && Date.now() - asked.current.at < 5000) return;
     asked.current = { next, at: Date.now() };
     if (preview) {
@@ -44,7 +45,7 @@ export function useOpenWhen(next: number | null, now: Date, preview: boolean) {
       u.searchParams.set("now", new Date(next + 1000).toISOString());
       router.replace(u.pathname + u.search, { scroll: false });
     } else router.refresh();
-  }, [next, now, preview, router]);
+  }, [next, now, preview, pinned, router]);
 }
 
 // ─── opened doors, per viewer (localStorage; the calendar still works without it) ───
@@ -53,15 +54,17 @@ const KEY = "p54:advent:opened";
 const listeners = new Set<() => void>();
 let cache: string | null = null;
 
-// what this visit marked wins: it's ahead of storage when a write failed (storage full,
-// private mode), and storage can't be read at all in some browsers
+// storage, plus whatever this visit couldn't write to it (storage full, private mode).
+// Merged, so another tab's doors are never hidden or overwritten.
 function read(): string {
-  if (cache !== null) return cache;
+  let stored = "[]";
   try {
-    return localStorage.getItem(KEY) ?? "[]";
+    stored = localStorage.getItem(KEY) ?? "[]";
   } catch {
-    return "[]";
+    /* unreadable: this visit's own doors only */
   }
+  if (cache === null) return stored;
+  return JSON.stringify([...new Set([...parse(stored), ...parse(cache)])].sort((a, b) => a - b));
 }
 
 const parse = (raw: string): number[] => {
@@ -89,11 +92,11 @@ export function useOpened(): { opened: Set<number>; markOpened: (n: number) => v
     const list = parse(read());
     if (list.includes(n)) return;
     const next = JSON.stringify([...list, n].sort((a, b) => a - b));
-    cache = next;
     try {
       localStorage.setItem(KEY, next);
+      cache = null;
     } catch {
-      /* private mode: remembered for this visit only */
+      cache = next; // remembered for this visit only
     }
     listeners.forEach((l) => l());
   }, []);

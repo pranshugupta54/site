@@ -61,9 +61,9 @@ function Nav({ n, nextOpen }: { n: number; nextOpen: boolean }) {
   );
 }
 
-function Locked({ door, now, year, preview }: { door: LockedView; now: Date; year: number; preview: boolean }) {
+function Locked({ door, now, year, preview, pinned }: { door: LockedView; now: Date; year: number; preview: boolean; pinned: boolean }) {
   const at = unlockAt(door.n, year).getTime();
-  useOpenWhen(at, now, preview);
+  useOpenWhen(at, now, preview, pinned);
   return (
     <>
       <Nav n={door.n} nextOpen={false} />
@@ -143,19 +143,22 @@ export function DoorView({
   now: serverNow,
   year,
   preview,
+  pinned,
   toy,
 }: {
   door: LockedView | OpenDoor;
   now: string;
   year: number;
   preview: boolean;
+  /** a ?now= is in the url */
+  pinned: boolean;
   toy?: React.ReactNode;
 }) {
   const now = useAdventClock(serverNow);
   const nextOpen = door.n < DOORS && now.getTime() >= unlockAt(door.n + 1, year).getTime();
   return (
     <div className="adv adv-page">
-      {door.state === "locked" ? <Locked door={door} now={now} year={year} preview={preview} /> : <Open door={door} toy={toy} nextOpen={nextOpen} />}
+      {door.state === "locked" ? <Locked door={door} now={now} year={year} preview={preview} pinned={pinned} /> : <Open door={door} toy={toy} nextOpen={nextOpen} />}
     </div>
   );
 }

@@ -98,6 +98,7 @@ export default function Catch({ copy = [] }: { copy?: string[] }) {
       }
       return;
     }
+    if (e.metaKey || e.ctrlKey || e.altKey) return; // browser shortcuts stay the browser's
     const k = e.key.toLowerCase();
     if (k === "arrowleft" || k === "a") move(-1);
     else if (k === "arrowright" || k === "d") move(1);

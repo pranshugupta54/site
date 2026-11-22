@@ -22,7 +22,7 @@ function tofuLine(open: number, nextIn: number | null): string {
   return `${open} open, ${DOORS - open} to go. one a day, no skipping ahead.`;
 }
 
-export function AdventCalendar({ tiles, now: serverNow, year, preview }: { tiles: DoorTile[]; now: string; year: number; preview: boolean }) {
+export function AdventCalendar({ tiles, now: serverNow, year, preview, pinned }: { tiles: DoorTile[]; now: string; year: number; preview: boolean; pinned: boolean }) {
   const now = useAdventClock(serverNow);
   const router = useRouter();
   const reduced = useReducedMotionLive();
@@ -35,7 +35,7 @@ export function AdventCalendar({ tiles, now: serverNow, year, preview }: { tiles
   const openN = tiles.filter((t) => t.state === "open").length;
   const nextLocked = tiles.find((t) => t.state === "locked");
   const next = nextLocked ? unlockAt(nextLocked.n, year).getTime() : null;
-  useOpenWhen(next, now, preview);
+  useOpenWhen(next, now, preview, pinned);
   const today = openN && openN <= DOORS ? openN : 0; // the newest open door
 
   const open = (n: number) => {

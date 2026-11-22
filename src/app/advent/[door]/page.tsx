@@ -33,5 +33,5 @@ export default async function DoorPage(props: Props) {
   // opens on dec 24, when they're all open anyway
   const ornaments = door.state === "open" && door.kind === "finale" ? calendarTiles(now).filter((t) => t.state === "open" && t.n !== 24) : [];
   const toy = door.state === "open" ? toyFor(door, ornaments) : null;
-  return <DoorView door={door} now={now.toISOString()} year={ADVENT_YEAR} preview={!!raw && previewAllowsFuture()} toy={toy} />;
+  return <DoorView door={door} now={now.toISOString()} year={ADVENT_YEAR} preview={!!raw && previewAllowsFuture()} pinned={!!raw} toy={toy} />;
 }
