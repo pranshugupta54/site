@@ -206,5 +206,37 @@
     "date": "2026-10-26",
     "topic": "backend",
     "take": "a perfect hash built at compile time plus one 16-byte compare: 1.2–2 ns lookups, 7–13x faster than std::unordered_map. knowing your keys up front is a superpower."
+  },
+  {
+    "title": "TIL: GitHub Actions accepts invalid YAML",
+    "url": "https://yossarian.net/til/post/github-actions-accepts-invalid-yaml/",
+    "source": "yossarian.net",
+    "date": "2026-11-22",
+    "topic": "devtools",
+    "take": "actions accepts flow nodes under-indented relative to their block parent, which the yaml 1.2.2 spec forbids, so a conforming parser rejects real workflows. it surfaced as a linter bug report and a tree-sitter fix the author is now reverting. when the vendor parser is the spec, downstream tools have to copy its bugs."
+  },
+  {
+    "title": "How I Got Postgres into a Single Binary",
+    "url": "https://progrium.xyz/articles/2026/single-binary-postgres/",
+    "source": "progrium.xyz",
+    "date": "2026-11-20",
+    "topic": "backend",
+    "take": "minipg: real postgres, not a compatibility layer, in one cross-platform executable you point at a directory, sqlite-style. it can also serve on a port or run a program with the env wired up. the write-up walks through the embedding attempts, starting with pglite. handy for tests and self-hosting without docker."
+  },
+  {
+    "title": "Probabilistic data structures in Go, part 2",
+    "url": "https://antonz.org/probabilistic-data-structures-2/",
+    "source": "antonz.org",
+    "date": "2026-11-21",
+    "topic": "backend",
+    "take": "anton zhiyanov on binary fuse filters, ultraloglog, log-linear histograms and minhash, with go examples. the fuse filter is the one to know: bloom-filter-style membership, more compact, but static, so you build it once from all the items. clear on what each structure guarantees."
+  },
+  {
+    "title": "Fixing Google's Feedburner problem, and caching that half works",
+    "url": "https://joshua.hu/fixing-google-feedburner-cache-problem-atom-rss",
+    "source": "joshua.hu",
+    "date": "2026-11-22",
+    "topic": "web",
+    "take": "google's chrome releases atom feed was often stale because the fresh rss feed redirects into feedburner. the fix: append ?redirect=false to the blogger feed url and you get current results. a small debugging story about caches that almost work."
   }
 ]
