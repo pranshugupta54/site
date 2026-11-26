@@ -238,5 +238,29 @@
     "date": "2026-11-22",
     "topic": "web",
     "take": "google's chrome releases atom feed was often stale because the fresh rss feed redirects into feedburner. the fix: append ?redirect=false to the blogger feed url and you get current results. a small debugging story about caches that almost work."
+  },
+  {
+    "title": "Abolish Lock Poisoning",
+    "url": "https://lucumr.pocoo.org/2026/11/25/poisoning/",
+    "source": "lucumr.pocoo.org",
+    "date": "2026-11-25",
+    "topic": "devtools",
+    "take": "armin ronacher on rust mutex poisoning, days after the other post on this list. the post says no code in the wild handles a poisoned lock correctly, and that lock().unwrap() picks the worst option, turning every later lock into a panic. the libs team is discussing non-poisoning locks as the default in the next edition. two writers, same conclusion."
+  },
+  {
+    "title": "I checked Clojure's core with Lean and differential testing and found unreported bugs in HAMT and vector-of",
+    "url": "https://s.conao3.com/blog/2026/e4f733",
+    "source": "s.conao3.com",
+    "date": "2026-11-24",
+    "topic": "devtools",
+    "take": "17 bugs not in clojure's jira or on ask.clojure.org, found by modelling java int and long arithmetic in lean and diffing the collections against java.util. the hamt matched java.util over 3 million operations; vectors held up around the tested tree boundaries. the bugs were in the seams, where equality meets hashing and in interop without type hints. a good method for old, trusted code."
+  },
+  {
+    "title": "The beauty of CSS mixins",
+    "url": "https://patrickbrosset.com/articles/2026-11-25-the-beauty-of-css-mixins/",
+    "source": "patrickbrosset.com",
+    "date": "2026-11-25",
+    "topic": "web",
+    "take": "@mixin --name defines a reusable block of declarations, including nested rules, and @apply drops it in. still experimental behind a chromium flag, and the author works on the chromium implementation. the part worth reading is the parameters section, where mixins start to look like real abstraction."
   }
 ]
